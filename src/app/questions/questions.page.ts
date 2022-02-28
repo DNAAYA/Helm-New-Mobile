@@ -73,7 +73,7 @@ export class QuestionsPage implements OnInit {
   getQuestionByDivID() {
     console.log('###### QUESTION BUG ####11##');
     
-    this.dbService.getQuestionByDivision('-Mx-J_Z2PHOJsjUmTcOJ').then((res: Question) => {
+    this.dbService.getQuestionByDivision("-MwWSk-P28nhW_iQMJi4").then((res: Question) => {
       console.log('###### QUESTION BUG ######', res);
     })
   }
