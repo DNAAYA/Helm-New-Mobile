@@ -25,6 +25,7 @@ export class QuestionsPage implements OnInit {
   ) { }
 
   async ngOnInit() {
+    await this.getQuestionByDivID();
     let divID = this.activatedRoute.snapshot.params['divId'];
     let subId = this.activatedRoute.snapshot.params['subId'];
     let prId = this.activatedRoute.snapshot.params['prId'];
@@ -65,6 +66,15 @@ export class QuestionsPage implements OnInit {
     this.dbService.getDuplicatedQuestionByDuplicatedDivision(divID).then((res: DuplicatedQuestion[]) => {
      // console.log('duplicated questions', res);
       this.questionList = res
+    })
+  }
+
+
+  getQuestionByDivID() {
+    console.log('###### QUESTION BUG ####11##');
+    
+    this.dbService.getQuestionByDivision('-Mx-J_Z2PHOJsjUmTcOJ').then((res: Question) => {
+      console.log('###### QUESTION BUG ######', res);
     })
   }
 

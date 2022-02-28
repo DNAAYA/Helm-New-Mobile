@@ -9,9 +9,9 @@
 
 <ion-content>
   <div *ngFor="let q of questionList">
-    <app-yes-no *ngIf="q.type == 'Yes/No' && q.display == true" [question]="q"></app-yes-no>
-    <app-input *ngIf="q.type == 'Input' && q.display  == true" [question]="q"></app-input>
-    <app-yes-no-input *ngIf="q.type == 'Yes/No With Input' && q.display == true" [question]="q"></app-yes-no-input>
+    <app-yes-no class="textColor" *ngIf="q.type == 'Yes/No' && q.display == true" [question]="q"></app-yes-no>
+    <app-input  class="textColor" *ngIf="q.type == 'Input' && q.display  == true" [question]="q"></app-input>
+    <app-yes-no-input class="textColor" *ngIf="q.type == 'Yes/No With Input' && q.display == true" [question]="q"></app-yes-no-input>
   </div>
   <ion-toolbar>
     <ion-buttons slot="start">

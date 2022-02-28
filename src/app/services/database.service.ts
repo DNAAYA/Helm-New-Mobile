@@ -145,6 +145,21 @@ export class DatabaseService {
     })
   }
 
+
+  getQuestionByDivision(divisionID): Promise <Question>{
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Questions/`).on('value', val => {
+        let res = val.val();
+       let questions = Object.keys(res).map(k => res[k]);
+       questions.forEach(element => {
+         if(element.division_ID == divisionID) {
+          resolve(element)
+         }
+       });
+      }, reject)
+    })
+  }
+
   // question factory
   addQuestion(question: Question) {
     console.log('Question ####', question);
