@@ -22,6 +22,18 @@
           <ion-icon slot="icon-only" name="add-outline"></ion-icon>
         </ion-button>
       </ion-item>
+
+      <ion-list slot="content">
+        <ion-item [routerLink]="['/questions/'+'main/'+ div.divison_ID+'/' + div.sub_ID  +'/' + div.priority_ID]">
+          <ion-label>{{div.division_name}}</ion-label>
+        </ion-item>
+        
+        <ion-item *ngFor="let div of duplicatedDivs"
+          [routerLink]="['/questions/'+'duplicated/'+ div.duplicated_ID+ '/' + div.sub_ID +'/' + div.priority_ID]"
+          routerLinkActive="router-link-active">
+          <ion-label>{{div?.title}}</ion-label>
+        </ion-item>
+      </ion-list>
     </ion-accordion>
   </ion-accordion-group>
 
