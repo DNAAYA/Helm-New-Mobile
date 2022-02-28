@@ -24,3 +24,36 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+.card-style {
+
+    /* Card Shadow 
+    -webkit-box-shadow: 0px 6px 10px -5px rgba(95,103,105,1);
+    -moz-box-shadow: 0px 6px 10px -5px rgba(95,103,105,1);
+    box-shadow: 0px 6px 10px -5px rgba(95,103,105,1); */
+    border-style: solid;
+    border-color: #3C3C3B;
+    /* Card Border Radius */
+    border-radius: 12px 12px 12px 12px;
+    -moz-border-radius: 12px 12px 12px 12px;
+    -webkit-border-radius: 12px 12px 12px 12px;
+    
+}
+
+/* pop-up message style */
+.my-custom-class {
+    --backdrop-opacity: 0.2;
+    --background: white;
+}
+
+/* Black icons in the app */
+#iconColor{
+    color: #3C3C3B;
+}
+
+
+/* Camera style in division details page */
+.custom-ion-content{
+    --background:transparent;
+}
+

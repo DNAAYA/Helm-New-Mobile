@@ -1,0 +1,32 @@
+ion-content.ion-padding{
+    --ion-background-color: #0056A4;
+}
+
+ion-item{
+    --background: white;
+    --color: black;
+}
+
+h1{
+    color: white;
+    font-size: x-large;
+    //font-weight: bold;
+    padding-top: 22%;
+    padding-bottom: 20%;
+    text-align: center;
+}
+
+/*ion-button.submit-btn{
+    --background: #ffffff;
+    --color: #000000;
+    float: right;
+}*/
+
+// Buttons Style
+.button1{
+    float: right;
+    text-transform: uppercase;
+    color: #3C3C3B;
+    --background: white;
+}
+
