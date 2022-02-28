@@ -13,6 +13,7 @@ import { DatabaseService } from '../services/database.service';
 export class DivisionsPage implements OnInit {
   divisionList = [];
   duplicatedDivs = [];
+  type;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -22,25 +23,21 @@ export class DivisionsPage implements OnInit {
 async  ngOnInit() {
     let subID = this.activatedRoute.snapshot.params['subID'];
     let prID = this.activatedRoute.snapshot.params['prID'];
-    let type = this.activatedRoute.snapshot.params['type'];
+     this.type = this.activatedRoute.snapshot.params['type'];
     console.log('Sub priority ID', subID);
     console.log(' priority ID', prID);
-    console.log(' router type', type);
+    console.log(' router type', this.type);
 
-    if(type == 'main') {
+    if(this.type == 'main') {
       // get sub priorities 
     await  this.dbService.getDivisionBySubID(subID).then((divs: Division[]) => {
         this.divisionList = divs;
       }) 
       console.log('Main content Division ..', this.divisionList)
-
-
-    } else {
-       this.getDuplicatedDiv(subID);
+    } else if(this.type == 'duplicated'){
+       await this.getDuplicatedDiv(subID);
       //console.log('duplicated content ..', this.duplicateDivision)
-
     }
-
   }
 
   async presentAlert(div: Division) {
@@ -78,7 +75,8 @@ async  ngOnInit() {
     let duplicateDiv: DuplicateDivision  = {
       division: div,
       duplicated_ID: '',
-      title: title
+      title: title,
+      parentID: div.divison_ID
     }
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateDivision(duplicateDiv);
@@ -90,6 +88,13 @@ async  ngOnInit() {
       this.duplicatedDivs = res;
       console.log('duplicated Divisions', res)
     })
+  }
+
+  getDuplicatedDivByDivID(divID) {
+    this.dbService.getDuplicatedDiv(divID).then(res => {
+      this.duplicatedDivs = res;
+    })
+
   }
 
 }

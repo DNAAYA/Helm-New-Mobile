@@ -181,8 +181,10 @@ export class DatabaseService {
 
   duplicateDivision(division: DuplicateDivision) {
     let parentID =  division.division.divison_ID;
+    division.parentID = parentID;
     this.getDivision(parentID).then((div: Division) => {
       console.log('division ', div);
+
       division.division = div;
       this.database.ref(`/duplicated-division/`).push(division).then(res => {
         this.database.ref(`/duplicated-division/${res.key}/`).update({
@@ -217,6 +219,7 @@ export class DatabaseService {
           let duplicateDiv: DuplicateDivision  = {
             division: div,
             duplicated_ID: '',
+            parentID: div.divison_ID,
             title: `# ${div.division_name}`
           }
           this.duplicateDivision(duplicateDiv);
@@ -244,6 +247,24 @@ export class DatabaseService {
     })
   }
 
+  getDuplicatedDiv(divID) : Promise <DuplicatedSub[]>{
+    return new Promise((resolve, reject)=> {
+      this.database.ref('/duplicated-division/').on('value', val => {
+
+        let res = val.val();
+        if(res) {
+          let dDivs = Object.keys(res).map(k => res[k]);
+          let duplicated_Divs = dDivs.filter(e => e.parentID == divID);
+           resolve(duplicated_Divs)
+        } else {
+          resolve(res)
+        }
+       
+      }, reject)
+    })
+  }
+
+
   getDuplicatedDivBySubID(subID) : Promise <DuplicateDivision[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref('/duplicated-division/').on('value', val => {
@@ -266,17 +287,16 @@ export class DatabaseService {
       this.database.ref('/duplicated-question/').on('value', val => {
 
         let res = val.val();
+        console.log('result',  res)
         if(res) {
-        let dquestions = res.filter(e => e.parentDiv_ID == divID);
-        console.log('duplicated questions', dquestions);
-        // Object.keys(res).map(k => res[k]);
-       // let questionList = dquestions.filter(e => e.parentDiv_ID == divID);
-        // console.log('questionList', questionList);
-        resolve(dquestions)
+        let dquestions = Object.keys(res).map(k => res[k])
+       // console.log('duplicated questions', dquestions);
+        let questionList = dquestions.filter(e => e.parentDiv_ID == divID);
+         console.log('questionList', questionList);
+        resolve(questionList[0].questions)
         } else {
           resolve(res)
         }
-    
       }, reject)
     })
   }
