@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{_thisDivision?.division_name}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngFor="let q of questionList">
+    <app-yes-no *ngIf="q.type == 'Yes/No' && q.display == true" [question]="q"></app-yes-no>
+    <app-input *ngIf="q.type == 'Input' && q.display  == true" [question]="q"></app-input>
+    <app-yes-no-input *ngIf="q.type == 'Yes/No With Input' && q.display == true" [question]="q"></app-yes-no-input>
+  </div>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="outline" color="secondary" *ngIf="_previousDiv"
+        [routerLink]="['/questions/'+ _previousDiv.divison_ID + '/' + _previousDiv.sub_ID + '/' + _previousDiv.priority_ID]"
+        routerLinkActive="router-link-active">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <!-- {{_previousDiv?.division_name}} -->
+      </ion-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button
+        [routerLink]="['/questions/'+ _nextDiv.divison_ID + '/' + _nextDiv.sub_ID + '/' + _nextDiv.priority_ID]"
+        routerLinkActive="router-link-active" fill="outline" color="secondary" *ngIf="_nextDiv">
+        <!-- {{_nextDiv?.division_name}} -->
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+
+</ion-content>

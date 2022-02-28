@@ -1,0 +1,7 @@
+{
+  "name": "Helm-Mobile-New",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

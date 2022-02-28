@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "Helm-Mobile-New",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}

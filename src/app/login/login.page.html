@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>signIn</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-top">
+  <form [formGroup]="signIn_form" (ngSubmit)="loginUser()">
+    <ion-grid>
+      <ion-row color="primary" justify-content-center>
+        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+          <!-- <div text-center>
+            <h3>Create your account!</h3>
+          </div> -->
+          <div padding>
+            <!-- User Email -->
+            <ion-item>
+              <!--<ion-label position="floating">Email</ion-label>-->
+              <ion-icon id="iconColor" slot="start" name="person"></ion-icon>
+              <ion-input type="text" formControlName="email" placeholder="Email"></ion-input>
+            </ion-item>
+
+            <!-- User Email Error Message -->
+            <div class="validation-errors">
+              <ng-container *ngFor="let validation of validation_messages.email">
+                <div style="color: red;" class="error-message"
+                  *ngIf="signIn_form.get('email').hasError(validation.type) && (signIn_form.get('email').dirty || signIn_form.get('email').touched)">
+                  <ion-icon name="alert-circle-outline" style="color: red;"></ion-icon>
+                  {{ validation.message }}
+                </div>
+              </ng-container>
+            </div>
+
+            <ion-item>
+              <!--<ion-label position="floating" >Password</ion-label>-->
+              <ion-icon id="iconColor" slot="start" name="lock-closed"></ion-icon>
+              <!--<ion-input type="password" formControlName="password" class="form-controll" required placeholder="Password"></ion-input>-->
+              <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" class="form-controll"
+                required placeholder="Password"></ion-input>
+              <!--<ion-icon id="iconColor" slot="end" [name]="passwordToggleIcon" (click)="togglePassword()"></ion-icon>-->
+            </ion-item>
+
+            <!-- User Password Error Message -->
+            <div class="validation-errors">
+              <ng-container *ngFor="let validation of validation_messages.password">
+                <div style="color: red;" class="error-message"
+                  *ngIf="signIn_form.get('password').hasError(validation.type) && (signIn_form.get('password').dirty || signIn_form.get('password').touched)">
+                  <ion-icon name="alert-circle-outline" style="color: red;"></ion-icon>
+                  {{ validation.message }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <div padding>
+            <ion-button size="small" type="button" (click)="togglePassword()" expand="block">Show Password</ion-button>
+            <ion-button size="small" type="submit" expand="block">Sign In</ion-button>
+          </div>
+
+          <label class="error-message">
+            {{errorMessage}}
+          </label>
+
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <!-- Forgot Password -->
+          <a style=" text-align: center; display: block; color: white; text-decoration: none;"
+            routerLink="/forgot-password">
+            Forgot Password
+          </a>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+
+</ion-content>
