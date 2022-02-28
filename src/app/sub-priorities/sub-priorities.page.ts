@@ -31,6 +31,7 @@ duplicatedSub = [];
 
 
   getDuplicatedSup(subid) {
+    console.log('hello getDuplicatedSup', subid);
     this.dbService.getDuplicatedSub(subid).then(res => {
       this.duplicatedSub = res;
       console.log('duplicated sup', res)
@@ -74,6 +75,7 @@ duplicatedSub = [];
       duplicated_ID: '',
       parentSub: sub,
       subTitle: `${sub.sub_name}: ${title}` ,
+      parentID: sub.sub_ID
     }
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateSubPriority(duplicateSub);

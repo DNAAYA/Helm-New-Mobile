@@ -39,7 +39,7 @@ export class QuestionsPage implements OnInit {
           })
     } else {
        await this.getDuplicatedQuestion(divID);
-        console.log('duplicated question ..', this.duplicatedquestions)
+        console.log('duplicated question ..', this.questionList)
         
     }
 
@@ -63,8 +63,8 @@ export class QuestionsPage implements OnInit {
   getDuplicatedQuestion(divID) {
     console.log('getDuplicatedDiv ..', divID)
     this.dbService.getDuplicatedQuestionByDuplicatedDivision(divID).then((res: DuplicatedQuestion[]) => {
-      this.duplicatedquestions = res.filter(e => e.questions);
-     // console.log('duplicated questions', res)
+     // console.log('duplicated questions', res);
+      this.questionList = res
     })
   }
 
