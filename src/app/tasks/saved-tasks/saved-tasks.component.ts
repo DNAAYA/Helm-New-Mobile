@@ -25,7 +25,7 @@ export class SavedTasksComponent implements OnInit {
       } else {
         this.userID = user.uid
         console.log('user id', this.userID);
-        this.dbService.getSavedTasks(this.userID).subscribe((tasks: Task[] )=> {
+        this.dbService.getSavedTasks('mKdeGymteMR2K7jn85bQ9zsPqf53').subscribe((tasks: Task[] )=> {
           this.taskList = tasks
           console.log('task list', this.taskList)
         })

@@ -14,10 +14,10 @@ export class AppComponent implements OnInit {
   ) {}
   ngOnInit(): void {
     
-    if(this.authserv.isLoggedIn) {
-      this.router.navigate(['/tasks'])
-    } else {
-      this.router.navigate(['/login'])
-    }
+    // if(this.authserv.isLoggedIn) {
+    //   this.router.navigate(['/tasks'])
+    // } else {
+    //   this.router.navigate(['/login'])
+    // }
   }
 }

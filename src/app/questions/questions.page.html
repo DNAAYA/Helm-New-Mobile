@@ -8,11 +8,15 @@
 </ion-header>
 
 <ion-content>
-  <div *ngFor="let q of questionList">
-    <app-yes-no *ngIf="q.type == 'Yes/No' && q.display == true" [question]="q"></app-yes-no>
-    <app-input *ngIf="q.type == 'Input' && q.display  == true" [question]="q"></app-input>
-    <app-yes-no-input *ngIf="q.type == 'Yes/No With Input' && q.display == true" [question]="q"></app-yes-no-input>
+  <div *ngFor="let q of questionList" >
+    <div>
+      <app-yes-no *ngIf="q?.type == 'Yes/No' " [question]="q"></app-yes-no>
+      <app-input *ngIf="q?.type == 'Input' " [question]="q"></app-input>
+      <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input' " [question]="q"></app-yes-no-input>
+    </div>
   </div>
+  
+
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button fill="outline" color="secondary" *ngIf="_previousDiv"
