@@ -1,4 +1,4 @@
-<ion-card>
+<ion-card *ngIf="question.display == 'true' " >
   <ion-card-header> {{question.question}} </ion-card-header>
   <ion-card-content>
     <ion-radio-group [(ngModel)]="question.answer">
@@ -21,4 +21,11 @@
 
     </ion-radio-group>
   </ion-card-content>
+
+
 </ion-card>
+
+
+<ion-text color="danger" *ngIf="question.display == 'false'">
+  <h4 >There is No Question in this division please change the Previous Answer</h4>
+</ion-text>

@@ -309,4 +309,16 @@ export class DatabaseService {
       }, reject)
     })
   }
+
+
+  sendAnswer(questionID, question: Question) {
+    console.log('update answer: question id', questionID );
+    console.log('update answer: question ', question );
+
+    this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
+      (res) => {
+        console.log('update answer success >>>');
+      }
+    )
+  }
 }

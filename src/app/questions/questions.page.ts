@@ -18,6 +18,7 @@ export class QuestionsPage implements OnInit {
   _previousDiv: Division;
   _nextDiv: Division;
   _thisDivision: Division;
+  type;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService
@@ -28,11 +29,16 @@ export class QuestionsPage implements OnInit {
    let divID = this.activatedRoute.snapshot.params['divId'];
    let subId = this.activatedRoute.snapshot.params['subId'];
    let prId = this.activatedRoute.snapshot.params['prId'];
-   let type = this.activatedRoute.snapshot.params['type'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+
+   console.log('#) sub ID from router: ', subId);
+   console.log('#) priority ID from router: ', prId);
+   console.log('#) div ID from router: ', divID);
+   console.log('#) type  from router: ', this.type);
 
      // console.log('division id:', divID, subId, prId, type);
-     if(type == 'main') {
-        console.log('main question divsion id', divID)
+     if(this.type == 'main') {
+        // console.log('main question divsion id', divID)
         //get question list buy division id
        await this.dbService.getQuestionByDivID(divID).then((questions: Question[]) => {
           this.questionList = questions ;
@@ -45,10 +51,12 @@ export class QuestionsPage implements OnInit {
     }
 
     // get divisions
-    await this.getDivision(prId, subId, divID);
+    await this.getDivision(subId, divID);
   }
 
-  getDivision(prId, subId, divID) {
+
+
+  getDivision(subId, divID) {
     this.dbService.getDivisionBySubID(subId).then((divs: Division[]) => {
       console.log('divisions list', divs);
       this.indexofDivision = divs.findIndex(i => i.divison_ID == divID);
@@ -66,6 +74,15 @@ export class QuestionsPage implements OnInit {
     this.dbService.getDuplicatedQuestionByDuplicatedDivision(divID).then((res: DuplicatedQuestion[]) => {
      // console.log('duplicated questions', res);
       this.questionList = res
+    })
+  }
+
+  saveAnswer() {
+    let questID =  "-Mx0NZwuxdH96kh-unRZ";
+
+    this.questionList.forEach(q => {
+
+      this.dbService.sendAnswer(questID, q);
     })
   }
 

@@ -1,5 +1,5 @@
 <ion-card>
-  <ion-card-content>
+  <ion-card-content *ngIf="question.display == 'true'">
     <!-- Question with 2 inputs -->
     <ion-item *ngIf="questionWithInput.length == 3">
       <p>
@@ -32,4 +32,5 @@
       </p>
     </ion-item>
   </ion-card-content>
+
 </ion-card>
