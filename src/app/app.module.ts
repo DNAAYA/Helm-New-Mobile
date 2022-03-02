@@ -20,7 +20,7 @@ import { TasksPageModule } from './tasks/tasks.module';
 import { SafeHtmlPipe } from './safe-html.pipe';
 
 @NgModule({
-  declarations: [AppComponent, SafeHtmlPipe],
+  declarations: [AppComponent],
   entryComponents: [],
   imports: [
     BrowserModule, 

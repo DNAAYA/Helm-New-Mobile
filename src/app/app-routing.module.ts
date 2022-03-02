@@ -8,7 +8,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'tasks',
     pathMatch: 'full'
   },
   {
@@ -36,9 +36,18 @@ const routes: Routes = [
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
   },
   {
-    path: 'questions/:type/:divId/:subId?/:prId?',
-    loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule)
+    path: 'questions/:type/:divId/:subId/:prId',
+    loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule),
+  },
+  {
+    path: 'details/:qID',
+    loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)
+  },
+  {
+    path: 'question-details',
+    loadChildren: () => import('./question-details/question-details.module').then( m => m.QuestionDetailsPageModule)
   }
+
 ];
 
 @NgModule({

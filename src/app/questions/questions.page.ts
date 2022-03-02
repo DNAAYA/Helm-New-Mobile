@@ -18,43 +18,51 @@ export class QuestionsPage implements OnInit {
   _previousDiv: Division;
   _nextDiv: Division;
   _thisDivision: Division;
-
+  type;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService
   ) { }
 
   async ngOnInit() {
-    await this.getQuestionByDivID();
-    let divID = this.activatedRoute.snapshot.params['divId'];
-    let subId = this.activatedRoute.snapshot.params['subId'];
-    let prId = this.activatedRoute.snapshot.params['prId'];
-    let type = this.activatedRoute.snapshot.params['type'];
+
+   let divID = this.activatedRoute.snapshot.params['divId'];
+   let subId = this.activatedRoute.snapshot.params['subId'];
+   let prId = this.activatedRoute.snapshot.params['prId'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+
+   console.log('#) sub ID from router: ', subId);
+   console.log('#) priority ID from router: ', prId);
+   console.log('#) div ID from router: ', divID);
+   console.log('#) type  from router: ', this.type);
 
      // console.log('division id:', divID, subId, prId, type);
-         if(type == 'main') {
-          //get question list buy division id
-          this.dbService.getQuestionByPr_Sub_Division(prId, subId, divID).then((questions: Question[]) => {
-            this.questionList = questions ;
-            console.log('question list', this.questionList);
-          })
+     if(this.type == 'main') {
+        // console.log('main question divsion id', divID)
+        //get question list buy division id
+       await this.dbService.getQuestionByDivID(divID).then((questions: Question[]) => {
+          this.questionList = questions ;
+          console.log('main question list >>>', this.questionList);
+        })
     } else {
        await this.getDuplicatedQuestion(divID);
         console.log('duplicated question ..', this.questionList)
-        
+
     }
 
-    // get divisions 
-    await this.getDivision(prId, subId, divID);
+    // get divisions
+    await this.getDivision(subId, divID);
   }
 
-  getDivision(prId, subId, divID) {
-    this.dbService.getDivisionWithPriorityIDAndSubIS(prId, subId).then((divs: Division[]) => {
+
+
+  getDivision(subId, divID) {
+    this.dbService.getDivisionBySubID(subId).then((divs: Division[]) => {
       console.log('divisions list', divs);
       this.indexofDivision = divs.findIndex(i => i.divison_ID == divID);
       this._thisDivision = divs[this.indexofDivision];
       this._previousDiv = divs[this.indexofDivision - 1];
-      this._nextDiv = divs[this.indexofDivision + 1];    
+      this._nextDiv = divs[this.indexofDivision + 1];
 
       console.log('previous division', this._previousDiv);
       console.log('next division', this._nextDiv);
@@ -69,12 +77,12 @@ export class QuestionsPage implements OnInit {
     })
   }
 
+  saveAnswer() {
+    let questID =  "-Mx0NZwuxdH96kh-unRZ";
 
-  getQuestionByDivID() {
-    console.log('###### QUESTION BUG ####11##');
-    
-    this.dbService.getQuestionByDivision("-MwWSk-P28nhW_iQMJi4").then((res: Question) => {
-      console.log('###### QUESTION BUG ######', res);
+    this.questionList.forEach(q => {
+
+      this.dbService.sendAnswer(questID, q);
     })
   }
 

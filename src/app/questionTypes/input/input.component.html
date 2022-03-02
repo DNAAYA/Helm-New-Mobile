@@ -1,26 +1,24 @@
-<ion-card class="card-style">
-  <ion-card-content>
     <!-- Question with 2 inputs -->
-    <ion-item *ngIf="questionWithInput.length == 3">
+    <div *ngIf="questionWithInput.length == 3">
       <p>
         {{questionWithInput[0]}}
-        <ion-input type="number" [(ngModel)]="question.inputs[0].value"></ion-input>
+        <ion-input type="number" [(ngModel)]="question?.inputs[0].value"></ion-input>
         {{questionWithInput[1]}}
-        <ion-input type="number" [(ngModel)]="question.inputs[1].value"></ion-input>
+        <ion-input type="number" [(ngModel)]="question?.inputs[1].value"></ion-input>
         {{questionWithInput[2]}}
       </p>
-    </ion-item>
+    </div>
 
-    <ion-item *ngIf="questionWithInput.length == 2">
+    <div *ngIf="questionWithInput.length == 2">
       <p>
         {{questionWithInput[0]}}
-        <ion-input type="number" [(ngModel)]="question.inputs[0].value"></ion-input>
+        <ion-input type="number" [(ngModel)]="question?.inputs[0].value"></ion-input>
         {{questionWithInput[1]}}
       </p>
-    </ion-item>
+    </div>
 
     <!-- Question with 3 inputs -->
-    <ion-item *ngIf="questionWithInput.length == 4">
+    <div *ngIf="questionWithInput.length == 4">
       <p>
         {{questionWithInput[0]}}
         <ion-input type="number" [(ngModel)]="question?.inputs[0].value"></ion-input>
@@ -28,8 +26,5 @@
         <ion-input type="number" [(ngModel)]="question?.inputs[1].value"></ion-input>
         {{questionWithInput[2]}}
         <ion-input type="text" [(ngModel)]="question?.inputs[2].value"></ion-input>
-
       </p>
-    </ion-item>
-  </ion-card-content>
-</ion-card>
+    </div>

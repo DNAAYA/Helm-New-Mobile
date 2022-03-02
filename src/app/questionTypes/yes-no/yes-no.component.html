@@ -1,7 +1,7 @@
-<ion-card class="textColor card-style">
-  <ion-card-header class="textColor"> {{question.question}} </ion-card-header>
-  <ion-card-content>
+
+
     <ion-radio-group [(ngModel)]="question.answer">
+      <ion-label>{{question.question}} </ion-label>
       <ion-row>
         <ion-col>
           <ion-label>Yes</ion-label>
@@ -18,9 +18,7 @@
           <ion-radio value="N/A"></ion-radio>
         </ion-col>
       </ion-row>
-      <ion-row>
-        <ion-icon  name="arrow-forward-outline"></ion-icon>
-      </ion-row>
-    </ion-radio-group>
-  </ion-card-content>
-</ion-card>
+
+<!-- <ion-text color="danger" >
+  <h4 >There is No Question in this division please change the Previous Answer</h4>
+</ion-text> -->

@@ -1,7 +1,7 @@
-<ion-card class="card-style">
-  <ion-card-header class="textColor"> {{question.question}} </ion-card-header>
-  <ion-card-content>
+  
+
     <ion-radio-group [(ngModel)]="question.answer">
+      <ion-label>  {{question.question}} </ion-label>
       <ion-row>
         <ion-col>
           <ion-label>Yes</ion-label>
@@ -20,11 +20,11 @@
       </ion-row>
     </ion-radio-group>
     <ion-label *ngIf="question.answer == question.wrong_en">{{question.wrong_en}}</ion-label>
-    <ion-item *ngIf="question.answer == question.right_en">
+    <div *ngIf="question.answer == question.right_en">
       <p> {{rightAnswer[0]}}
         <ion-input type="number" placeholder="number...."></ion-input>
         {{rightAnswer[1]}}
       </p>
-    </ion-item>
-  </ion-card-content>
-</ion-card>
+    </div>
+
+

@@ -11,7 +11,6 @@ import { YesNoComponent } from '../questionTypes/yes-no/yes-no.component';
 import { YesNoInputComponent } from '../questionTypes/yes-no-input/yes-no-input.component';
 import { InputComponent } from '../questionTypes/input/input.component';
 import { ReplacePipe } from '../replace.pipe';
-import { SafeHtmlPipe } from '../safe-html.pipe';
 
 @NgModule({
   imports: [
@@ -26,8 +25,7 @@ import { SafeHtmlPipe } from '../safe-html.pipe';
     YesNoInputComponent,
     InputComponent,
     ReplacePipe,
-    SafeHtmlPipe
   ],
-  exports: [ReplacePipe, SafeHtmlPipe]
+  exports: [ReplacePipe]
 })
 export class QuestionsPageModule {}

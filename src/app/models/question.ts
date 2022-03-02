@@ -14,16 +14,16 @@ export class Question {
     right_ar: string;
     wrong_ar: string;
     guidance_ar: string;
-    solutions?: string[];
+    solutions: string[];
     type: string;
-    inputs?: [
+    inputs: [
         {
           name: string
           value: string,
           type: string
         }
       ];
-    range?: [
+    range: [
         {
         inputID: string;
         num: number;
@@ -31,8 +31,11 @@ export class Question {
             }
         ];
     answer: string;
-    images?: [];
-    note: string
+    images: [];
+    note: string;
+    display: string;
+    parentID: string;
+    parentAnwer: string
 
     constructor(question){
         {
@@ -57,6 +60,9 @@ export class Question {
             this.answer = question.answer ;
             this.images = question.images ;
             this.note = question.note ;
+            this.display = question.display;
+            this.parentAnwer = question.parentAnwer;
+            this.parentID = question.parentID;
         }
     }
 }

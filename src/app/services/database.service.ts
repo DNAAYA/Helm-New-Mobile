@@ -128,6 +128,15 @@ export class DatabaseService {
     })
   }
 
+  getQuestionByDivID(divID): Promise <Question[]> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Questions/`).on('value', val => {
+        let res = val.val();
+       let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
+        resolve(questionList)
+      }, reject)
+    })
+  }
   getQuestionByPr_Sub_Division(priorityID, subID, divisionID): Promise <Question[]>{
     let filteredQuestion = [];
     return new Promise((resolve, reject)=> {
@@ -314,5 +323,17 @@ export class DatabaseService {
         }
       }, reject)
     })
+  }
+
+
+  sendAnswer(questionID, question: Question) {
+    console.log('update answer: question id', questionID );
+    console.log('update answer: question ', question );
+
+    this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
+      (res) => {
+        console.log('update answer success >>>');
+      }
+    )
   }
 }

@@ -7,10 +7,6 @@
   </ion-toolbar>
 </ion-header>
 
-   
-
-
-
 <ion-content>
 
   <ion-accordion-group animated="reduce" *ngIf="type == 'main'">
@@ -29,7 +25,7 @@
         </ion-item>
         
         <ion-item *ngFor="let div of duplicatedDivs"
-          [routerLink]="['/questions/'+'duplicated/'+ div.duplicated_ID+ '/' + div.sub_ID +'/' + div.priority_ID]"
+          [routerLink]="['/questions/'+'duplicated/'+ div.duplicated_ID+ '/' + div.division.sub_ID +'/' + div.division.priority_ID]"
           routerLinkActive="router-link-active">
           <ion-label>{{div?.title}}</ion-label>
         </ion-item>

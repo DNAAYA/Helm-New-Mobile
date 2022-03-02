@@ -11,7 +11,7 @@ export class YesNoComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-   // console.log('changes', this.question)
+    console.log('changes', this.question)
   }
 
 }
