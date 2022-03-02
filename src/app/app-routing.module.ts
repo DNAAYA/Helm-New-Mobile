@@ -37,8 +37,17 @@ const routes: Routes = [
   },
   {
     path: 'questions/:type/:divId/:subId/:prId',
-    loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule)
+    loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule),
+  },
+  {
+    path: 'details/:qID',
+    loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)
+  },
+  {
+    path: 'question-details',
+    loadChildren: () => import('./question-details/question-details.module').then( m => m.QuestionDetailsPageModule)
   }
+
 ];
 
 @NgModule({
