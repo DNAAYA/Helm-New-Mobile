@@ -5,5 +5,43 @@
 </ion-header>
 
 <ion-content>
+<ion-list>
+  <ion-item>
+    <ion-text color="primary">
+      <span>Awesome text</span>
+    </ion-text>
+    <ion-button slot="end" (click)="QuestionDetails()">
+      <ion-icon name="information-circle"></ion-icon>
+    </ion-button>
+  </ion-item>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Photos:</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-thumbnail slot="start">
+            <ion-img src="https://images.unsplash.com/photo-1612896488082-7271dc0ed30c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8ZmFjZXxlbnwwfHwwfHw%3D&w=1000&q=80"></ion-img>
+          </ion-thumbnail>
+          <ion-button slot="end" color="danger" (click)="deleteImg()" >
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+  
 
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Note:</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-textarea placeholder="......."></ion-textarea>
+      <ion-button slot="end" color="danger" expand="block" (click)="saveNote()" > SAVE </ion-button>
+    </ion-card-content>
+  </ion-card>
+  
+</ion-list>
 </ion-content>
