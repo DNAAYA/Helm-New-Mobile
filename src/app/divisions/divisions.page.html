@@ -8,7 +8,6 @@
 </ion-header>
 
 <ion-content>
-
   <ion-accordion-group animated="reduce" *ngIf="type == 'main'">
     <ion-accordion [value]="div?.divison_ID" (click)="getDuplicatedDivByDivID(div.divison_ID)"
       *ngFor="let div of divisionList">

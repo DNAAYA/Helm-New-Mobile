@@ -42,10 +42,6 @@ const routes: Routes = [
   {
     path: 'details/:qID',
     loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)
-  },
-  {
-    path: 'question-details',
-    loadChildren: () => import('./question-details/question-details.module').then( m => m.QuestionDetailsPageModule)
   }
 
 ];

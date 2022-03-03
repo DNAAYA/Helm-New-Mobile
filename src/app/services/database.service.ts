@@ -12,6 +12,9 @@ import { DuplicatedSub } from '../models/duplicatedSub';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DuplicatedQuestion } from '../models/duplicatedQuestion';
 
+
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,7 +26,8 @@ export class DatabaseService {
   constructor(
     private db: AngularFireDatabase,
     private dbStore: AngularFirestore
-    ) { }
+    ) {
+     }
 
 
   getNewTasks(userID): Observable<any> {
@@ -137,6 +141,18 @@ export class DatabaseService {
       }, reject)
     })
   }
+
+  getQuestion(qID): Promise <Question> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Questions/`).on('value', val => {
+        let res = val.val();
+       let questionList = Object.keys(res).map(k => res[k]).find(q => q.question_ID == qID);   
+        resolve(questionList)
+      }, reject)
+    })
+  }
+
+
   getQuestionByPr_Sub_Division(priorityID, subID, divisionID): Promise <Question[]>{
     let filteredQuestion = [];
     return new Promise((resolve, reject)=> {

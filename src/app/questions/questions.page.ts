@@ -19,6 +19,7 @@ export class QuestionsPage implements OnInit {
   _nextDiv: Division;
   _thisDivision: Division;
   type;
+  
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService

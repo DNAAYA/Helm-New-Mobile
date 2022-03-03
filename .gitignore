@@ -104,3 +104,10 @@ dist
 .tern-port
 *.pack
 *.json
+*.pack_
+*.png
+*.svg
+*platforms
+*plugins
+*www
+*.angular\
