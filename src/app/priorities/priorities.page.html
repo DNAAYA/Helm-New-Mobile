@@ -8,13 +8,19 @@
 </ion-header>
 
 <ion-content>
+
+  <!-- Card Design Dynamic -->
+
+
   <ion-col size='3'>
     <ion-card class="card-style-Priority" *ngFor="let pr of prioritiesList" [routerLink]="['/sub-priorities/'+ pr.priority_ID]" routerLinkActive="router-link-active">
       <ion-card-content>              
-        <img [src]="pr.priority_img" style="width: 100%;"> 
+        <img [src]="pr.priority_img"> 
       </ion-card-content>
     </ion-card>
   </ion-col>
+
+
   <ion-col>
     <ion-row style="justify-content: center;">
         <ion-button class="button" > <ion-icon name="save-outline" class="ion-padding-end"></ion-icon> Save Report</ion-button>
