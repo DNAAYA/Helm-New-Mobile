@@ -17,7 +17,7 @@
       <ion-icon name="information-circle"></ion-icon>
     </ion-button>
   </ion-item>
-  <ion-card>
+  <ion-card class="card-style">
     <ion-card-header>
       <ion-card-subtitle>Photos:</ion-card-subtitle>
     </ion-card-header>
@@ -31,18 +31,22 @@
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>
+          <ion-button (click)="presentActionSheet()" expand="block" class="ion-padding">
+            <ion-icon slot="start" name="camera-outline"></ion-icon>
+            Capture Image
+          </ion-button>
       </ion-list>
     </ion-card-content>
   </ion-card>
   
 
-  <ion-card>
+  <ion-card class="card-style">
     <ion-card-header>
       <ion-card-subtitle>Note:</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
       <ion-textarea placeholder="......."></ion-textarea>
-      <ion-button slot="end" color="danger" expand="block" (click)="saveNote()" > SAVE </ion-button>
+      <ion-button slot="end" color="primary" expand="block" (click)="saveNote()" > SAVE </ion-button>
     </ion-card-content>
   </ion-card>
   

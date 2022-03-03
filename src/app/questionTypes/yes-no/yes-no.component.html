@@ -1,8 +1,9 @@
 
 
-    <ion-radio-group [(ngModel)]="question.answer">
-      <ion-label>{{question.question}} </ion-label>
-      <ion-row class="ion-padding-top">
+<ion-radio-group [(ngModel)]="question.answer">
+  <ion-label>{{question.question}} </ion-label>
+    <ion-grid>
+      <ion-row class="ion-padding-top IonGroupPadding">
         <ion-col>
           <ion-label>Yes</ion-label>
           <ion-radio [value]="question.right_en">
@@ -18,6 +19,7 @@
           <ion-radio value="N/A"></ion-radio>
         </ion-col>
       </ion-row>
+    </ion-grid>
 
 <!-- <ion-text color="danger" >
   <h4 >There is No Question in this division please change the Previous Answer</h4>

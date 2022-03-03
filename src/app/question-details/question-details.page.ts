@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { Question } from '../models/question';
 import { DatabaseService } from '../services/database.service';
+import { ActionSheetController } from '@ionic/angular';
 
 @Component({
   selector: 'app-question-details',
@@ -15,6 +16,7 @@ export class QuestionDetailsPage implements OnInit {
   questionID: string;
   constructor(
     public alertController: AlertController, 
+    public actionSheetCtrl: ActionSheetController, 
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService) {
       this.questionID = this.activatedRoute.snapshot.params['qID'];
@@ -59,5 +61,59 @@ export class QuestionDetailsPage implements OnInit {
 
   saveNote() {
     
+  }
+  async presentActionSheet() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Albums',
+      cssClass: 'my-custom-class',
+      buttons: [
+      // {
+      //   text: 'Delete',
+      //   role: 'destructive',
+      //   icon: 'trash',
+      //   id: 'delete-button',
+      //   data: {
+      //     type: 'delete'
+      //   },
+      //   handler: () => {
+      //     console.log('Delete clicked');
+      //   }
+      // }, 
+      // {
+      //   text: 'Share',
+      //   icon: 'share',
+      //   data: 10,
+      //   handler: () => {
+      //     console.log('Share clicked');
+      //   }
+      // }, 
+      {
+        text: 'Uplaod from gallery',
+        icon: 'arrow-up-outline',
+        data: 'Data value',
+        handler: () => {
+          console.log('Gallery Opened !!!!###!!!!');
+        }
+      }, 
+      {
+        text: 'Take Photo',
+        icon: 'camera-outline',
+        handler: () => {
+          console.log('Camera Opened !!!!###!!!!');
+        }
+      }, 
+      {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+
+    const { role, data } = await actionSheet.onDidDismiss();
+    console.log('onDidDismiss resolved with role and data', role, data);
   }
 }
