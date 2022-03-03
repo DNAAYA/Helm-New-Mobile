@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -7,7 +7,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="backgroundImage">
+<ion-content>
     <ion-list>
       <ion-item *ngFor="let q of questionList" class="ion-padding-top card-style">
         <div *ngIf="q.display == 'true'">
@@ -28,29 +28,30 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button fill="outline" color="secondary" *ngIf="_previousDiv"
+      <ion-fab-buttons color="secondary" *ngIf="_previousDiv"
         [routerLink]="['/questions/' + type + '/'+ _previousDiv.divison_ID + '/' + _previousDiv.sub_ID + '/' + _previousDiv.priority_ID]"
         routerLinkActive="router-link-active">
-        <ion-icon style="font-size: larger;" name="arrow-back-outline"></ion-icon>
+        <ion-icon name="arrow-back-outline"></ion-icon>
         <!-- {{_previousDiv?.division_name}} -->
-      </ion-button>
+      </ion-fab-buttons>
     </ion-buttons>
 
     <ion-buttons slot="start">
 
-      <ion-button  color="primary" (click)="saveAnswer()">
+      <ion-button  color="primary" (click)="saveAnswer()" shape="round">
         Save
       </ion-button>
     </ion-buttons>
 
 
+
     <ion-buttons slot="end">
-      <ion-button
+      <ion-fab-buttons
         [routerLink]="['/questions/'+ type + '/' +_nextDiv.divison_ID + '/' + _nextDiv.sub_ID + '/' + _nextDiv.priority_ID]"
-        routerLinkActive="router-link-active" fill="outline" color="secondary" *ngIf="_nextDiv">
+        routerLinkActive="router-link-active" color="secondary" *ngIf="_nextDiv">
         <!-- {{_nextDiv?.division_name}} -->
         <ion-icon name="arrow-forward-outline"></ion-icon>
-      </ion-button>
+      </ion-fab-buttons>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>

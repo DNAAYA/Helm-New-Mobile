@@ -4,10 +4,15 @@
 
 /* DOES NOT WORK - not specific enough */
 .action-sheet-group {
-    background: #e5e5e5;
-  }
+  background: #e5e5e5;
+}
+
+/* Works - pass "my-custom-class" in cssClass to increase specificity */
+.my-custom-class .action-sheet-group {
+  background: #e5e5e5;
+}
+ion-content {
   
-  /* Works - pass "my-custom-class" in cssClass to increase specificity */
-  .my-custom-class .action-sheet-group {
-    background: #e5e5e5;
-  }
+  --background: #fff url('../../assets/Untitled-6.png') no-repeat center center / cover;
+
+}

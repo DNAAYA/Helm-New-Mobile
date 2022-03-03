@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -8,24 +8,19 @@
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let pr of prioritiesList" [routerLink]="['/sub-priorities/'+ pr.priority_ID]" routerLinkActive="router-link-active" >
-      <ion-label>
-        {{pr.priority_name}}
-      </ion-label>
-      <ion-icon name="chevron-forward-outline"></ion-icon>
-    </ion-item>
-  </ion-list>
-  <ion-grid style="position: absolute;bottom: 10%;">
-    <ion-col>
-      <ion-row>
-          <ion-button style="margin-left: 33.3%;" class="button" >Save Report</ion-button>
-
-      </ion-row>
-      <ion-row>
-          <ion-button style="margin-left: 33.3%;" class="button" > <ion-icon name="list-outline"></ion-icon> Tasks</ion-button>
-
-      </ion-row>
-    </ion-col>
-  </ion-grid>
+  <ion-col size='3'>
+    <ion-card class="card-style-Priority" *ngFor="let pr of prioritiesList" [routerLink]="['/sub-priorities/'+ pr.priority_ID]" routerLinkActive="router-link-active">
+      <ion-card-content>              
+        <img [src]="pr.priority_img" style="width: 100%;"> 
+      </ion-card-content>
+    </ion-card>
+  </ion-col>
+  <ion-col>
+    <ion-row style="justify-content: center;">
+        <ion-button class="button" > <ion-icon name="save-outline" class="ion-padding-end"></ion-icon> Save Report</ion-button>
+    </ion-row>
+    <ion-row  style="justify-content: center;" >
+        <ion-button class="button" > <ion-icon name="list-outline" class="ion-padding-end"></ion-icon> Tasks</ion-button>
+    </ion-row>
+  </ion-col>
 </ion-content>
