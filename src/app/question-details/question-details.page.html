@@ -22,12 +22,14 @@
       <ion-card-subtitle>Photos:</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
+      <h3 *ngIf="images.length == 0" text-center>Please Select Image!</h3>
+
       <ion-list>
-        <ion-item>
+        <ion-item *ngFor="let img of images; index as pos" text-wrap>
           <ion-thumbnail slot="start">
-            <ion-img src="https://images.unsplash.com/photo-1612896488082-7271dc0ed30c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8ZmFjZXxlbnwwfHwwfHw%3D&w=1000&q=80"></ion-img>
+            <ion-img [src]="img.path"></ion-img>
           </ion-thumbnail>
-          <ion-button slot="end" color="danger" (click)="deleteImg()" >
+          <ion-button slot="end" color="danger" (click)="deleteImg(img, pos)">
             <ion-icon name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>

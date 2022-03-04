@@ -18,6 +18,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore/';
 import { TasksPageModule } from './tasks/tasks.module';
 import { SafeHtmlPipe } from './safe-html.pipe';
+import { Camera } from '@ionic-native/Camera/ngx';
+import { File } from '@ionic-native/File/ngx';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
+import { FilePath } from '@ionic-native/file-path/ngx';
+import { IonicStorageModule } from '@ionic/storage-angular';
+// import { Storage } from '@ionic/storage';
 
 @NgModule({
   declarations: [AppComponent],
@@ -26,7 +32,7 @@ import { SafeHtmlPipe } from './safe-html.pipe';
     BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule,
-  
+    IonicStorageModule.forRoot(),
     AngularFireAuthModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     FormsModule,
@@ -37,7 +43,12 @@ import { SafeHtmlPipe } from './safe-html.pipe';
      AngularFirestoreModule,
      TasksPageModule
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [ 
+   Camera,
+    File,
+    WebView,
+    FilePath,
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
