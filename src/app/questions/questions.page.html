@@ -9,7 +9,7 @@
 
 <ion-content>
     <ion-list>
-      <ion-item *ngFor="let q of questionList" class="ion-padding-top card-style">
+      <ion-item *ngFor="let q of questionList" class="cardPaddingTop card-style">
         <div *ngIf="q.display == 'true'">
           <app-yes-no *ngIf="q?.type == 'Yes/No'" [question]="q"></app-yes-no>
           <app-input *ngIf="q?.type == 'Input'" [question]="q"></app-input>
