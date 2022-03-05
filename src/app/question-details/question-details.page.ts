@@ -11,7 +11,6 @@ import { Storage } from '@ionic/storage';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/Camera/ngx';
 
-import { finalize } from 'rxjs/operators';
 const STORAGE_KEY = 'my_images';
 
 @Component({
@@ -29,7 +28,6 @@ export class QuestionDetailsPage implements OnInit {
     public actionSheetCtrl: ActionSheetController, 
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
-    private platform: Platform,
     private camera: Camera, 
     private file: File, 
     private webview: WebView,
@@ -40,19 +38,25 @@ export class QuestionDetailsPage implements OnInit {
     private ref: ChangeDetectorRef, 
     private filePath: FilePath) {
       this.questionID = this.activatedRoute.snapshot.params['qID'];
+      this.storage.create();
      }
 
  async ngOnInit() {
+  this.plt.ready().then(() => {
+    this.loadStoredImages();
     console.log('question id : >>> ', this.questionID)
     if(this.questionID) {
-      await this.getQuestion(this.questionID);
+       this.getQuestion(this.questionID);
     }
-    console.log('question information', this.question)
+  //  console.log('question information', this.question)
+  });
+   
   }
 
   getQuestion(qid) {
     this.dbService.getQuestion(qid).then((question: Question ) => {
       this.question = question;
+      console.log('question information', question)
     })
     
   }
@@ -60,7 +64,7 @@ export class QuestionDetailsPage implements OnInit {
  async QuestionDetails() {
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
-      subHeader: `${this.question.fullQuestion}`,
+      subHeader: `${this.question?.fullQuestion}`,
       message: `<img src="${this.question.ada_image}"  class="card-image">`,
       buttons: [
          {
@@ -76,48 +80,25 @@ export class QuestionDetailsPage implements OnInit {
     console.log('request details', )
   }
 
-  deleteImg(img, pos) {
-
+  deleteImg(imgEntry, position) {
+ this.images.splice(position, 1);
+ 
+    this.storage.get(STORAGE_KEY).then(images => {
+      console.log('local storage....', images)
+        let arr = JSON.parse(images);
+        let filtered = arr.filter(name => name != imgEntry.name);
+        this.storage.set(STORAGE_KEY, JSON.stringify(filtered));
+ 
+        var correctPath = imgEntry.filePath.substr(0, imgEntry.filePath.lastIndexOf('/') + 1);
+ 
+        this.file.removeFile(correctPath, imgEntry.name).then(res => {
+            this.presentToast('File removed.');
+        });
+    });
   }
 
   saveNote() {
     
-  }
-  async presentActionSheet() {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: 'Albums',
-      cssClass: 'my-custom-class',
-      buttons: [
-      {
-        text: 'Uplaod from gallery',
-        icon: 'arrow-up-outline',
-        data: 'Data value',
-        handler: () => {
-          this
-          console.log('Gallery Opened !!!!###!!!!');
-        }
-      }, 
-      {
-        text: 'Take Photo',
-        icon: 'camera-outline',
-        handler: () => {
-
-          console.log('Camera Opened !!!!###!!!!');
-        }
-      }, 
-      {
-        text: 'Cancel',
-        icon: 'close',
-        role: 'cancel',
-        handler: () => {
-          console.log('Cancel clicked');
-        }
-      }]
-    });
-    await actionSheet.present();
-
-    const { role, data } = await actionSheet.onDidDismiss();
-    console.log('onDidDismiss resolved with role and data', role, data);
   }
 
   loadStoredImages() {
@@ -152,28 +133,28 @@ export class QuestionDetailsPage implements OnInit {
     toast.present();
   }
   async selectImage() {
-    const actionSheet = await this.actionSheetCtrl.create({
-        header: "Select Image source",
-        buttons: [{
-                text: 'Load from Library',
-                handler: () => {
-                    this.takePicture(this.camera.PictureSourceType.PHOTOLIBRARY);
-                }
-            },
-            {
-                text: 'Use Camera',
-                handler: () => {
-                    this.takePicture(this.camera.PictureSourceType.CAMERA);
-                }
-            },
-            {
-                text: 'Cancel',
-                role: 'cancel'
-            }
-        ]
-    });
-    await actionSheet.present();
-}
+      const actionSheet = await this.actionSheetCtrl.create({
+          header: "Select Image source",
+          buttons: [{
+                  text: 'Load from Library',
+                  handler: () => {
+                      this.takePicture(this.camera.PictureSourceType.PHOTOLIBRARY);
+                  }
+              },
+              {
+                  text: 'Use Camera',
+                  handler: () => {
+                      this.takePicture(this.camera.PictureSourceType.CAMERA);
+                  }
+              },
+              {
+                  text: 'Cancel',
+                  role: 'cancel'
+              }
+          ]
+      });
+      await actionSheet.present();
+  }
 createFileName() {
   var d = new Date(),
       n = d.getTime(),
@@ -223,7 +204,7 @@ takePicture(sourceType: PictureSourceType) {
     };
  
     this.camera.getPicture(options).then(imagePath => {
-        if (this.platform.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
+        if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {
                     let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);

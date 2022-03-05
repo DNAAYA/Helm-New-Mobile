@@ -11,10 +11,14 @@ import { threadId } from 'worker_threads';
 export class InputComponent implements OnInit{
   @Input() question: Question ; 
   questionWithInput = [];
-  
+  _inputValue1; _inputValue2; _inputValue3; _inputValue4 
+
+
   constructor() { }
 
   ngOnInit() {
+
+    console.log('question Input >>>', this.question)
     let _measurement0 = this.question.question.includes('/measurement0/');
     let _measurement1 = this.question.question.includes('/measurement1/');
     let _number = this.question.question.includes('/number/');
@@ -34,7 +38,14 @@ export class InputComponent implements OnInit{
      this.questionWithInput.push(part1[0], part2[0], ...part3)
      //console.log('split question 3 INPUTS >>', this.questionWithInput)
 
-     }else if(_measurement0 && _measurement1 ) {
+     }
+         // number 
+    else if (_number && !_measurement0 && !_measurement1) {
+      let part1 = this.question.question.split('/number/');
+     // console.log('contain number', part1)
+      this.questionWithInput.push(...part1)
+    }
+     else if(_measurement0 && _measurement1 ) {
      let part1 = this.question.question.split('/measurement0/');
      let part2 = part1[1].split('/measurement1/');
       this.questionWithInput.push(part1[0], ...part2)
@@ -49,21 +60,18 @@ export class InputComponent implements OnInit{
      //console.log('split question 1 INPUTS >>', this.questionWithInput)
 
     } 
-    // number 
-    else if (_number && !_measurement0 && !_measurement1) {
-      let part1 = this.question.question.split('/number/');
-     // console.log('contain number', part1)
-      this.questionWithInput.push(...part1)
-    }
+
     else if (_measurement0 && _number) {
       let part1 = this.question.question.split('/measurement0/');
       let part2 = part1[1].split('/number/');
       this.questionWithInput.push(part1[0], ...part2)
-    } else if (_number0 && _number1) {
+    }
+     else if (_number0 && _number1) {
       let part1 = this.question.question.split('/number0/');
       let part2 = part1[1].split('/number1/');
       this.questionWithInput.push(part1[0], ...part2)
-    } else if (_number0) {
+    } 
+    else if (_number0) {
       let part1 = this.question.question.split('/number0/');
       this.questionWithInput.push(...part1)
      }

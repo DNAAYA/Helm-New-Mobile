@@ -5,6 +5,7 @@ export class DuplicatedSub {
     parentSub: Subpriority;
     subTitle: string;
     parentID: string;
+   // taskID: string;
 
     constructor(duplicatedSub){
         {
@@ -12,6 +13,8 @@ export class DuplicatedSub {
             this.parentSub = duplicatedSub.parentSub;
             this.subTitle = duplicatedSub.subTitle;
             this.parentID = duplicatedSub.parentID;
+           // this.taskID = duplicatedSub.taskID;
+            
         }
     }
 }

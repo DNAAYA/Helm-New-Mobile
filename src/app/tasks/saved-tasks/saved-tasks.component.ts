@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
+import { Network } from '@ionic-native/network/ngx';
+import { NavController } from '@ionic/angular';
+import { Storage } from '@ionic/storage';
+import { Subscriber, Subscription } from 'rxjs';
 import { Task } from 'src/app/models/task';
 import { DatabaseService } from 'src/app/services/database.service';
 
@@ -11,25 +15,23 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class SavedTasksComponent implements OnInit {
   userID;
-  taskList;
+  savedtaskList;
   constructor(
     private ngAuth: AngularFireAuth,
     private router: Router,
-    private dbService: DatabaseService
-  ) { }
+    private dbService: DatabaseService, 
+    private network: Network,
+    private storage: Storage,
+    public navCtrl: NavController
+  ) {
+   }
 
-  ngOnInit() {
-    this.ngAuth.onAuthStateChanged(user => {
-      if (user === null) {
-        this.router.navigate(['/login'])
-      } else {
-        this.userID = user.uid
-        console.log('user id', this.userID);
-        this.dbService.getSavedTasks(this.userID).subscribe((tasks: Task[] )=> {
-          this.taskList = tasks
-          console.log('task list', this.taskList)
-        })
-      }
-    });
+  async ngOnInit() {
+   await this.storage.get('tasks').then((res: Task[]) => {
+      this.savedtaskList = res.filter(e=> e.completed == true)
+      console.log('saved tasks from local storage', res)
+    })
   }
+
+  
 }

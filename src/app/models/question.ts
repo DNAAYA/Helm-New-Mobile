@@ -16,13 +16,7 @@ export class Question {
     guidance_ar: string;
     solutions: string[];
     type: string;
-    inputs: [
-        {
-          name: string
-          value: string,
-          type: string
-        }
-      ];
+    inputs: [];
     range: [
         {
         inputID: string;
@@ -63,6 +57,7 @@ export class Question {
             this.display = question.display;
             this.parentAnwer = question.parentAnwer;
             this.parentID = question.parentID;
+            this.inputs = question.inputs;
         }
     }
 }

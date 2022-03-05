@@ -4,6 +4,7 @@ import { AlertController } from '@ionic/angular';
 import { Division } from '../models/division';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DatabaseService } from '../services/database.service';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Component({
   selector: 'app-divisions',
@@ -17,7 +18,8 @@ export class DivisionsPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private localDB: LocalStorageService
   ) { }
 
 async  ngOnInit() {
@@ -30,7 +32,7 @@ async  ngOnInit() {
 
     if(this.type == 'main') {
       // get sub priorities 
-    await  this.dbService.getDivisionBySubID(subID).then((divs: Division[]) => {
+    await  this.localDB.getDivisionBySubID(subID).then((divs: Division[]) => {
         this.divisionList = divs;
       }) 
       console.log('Main content Division ..', this.divisionList)
@@ -84,7 +86,7 @@ async  ngOnInit() {
   
   getDuplicatedDiv(subID) {
     console.log('getDuplicatedDiv ..', subID)
-    this.dbService.getDuplicatedDivBySubID(subID).then(res => {
+    this.localDB.getDuplicatedDivBySubID(subID).then(res => {
       this.duplicatedDivs = res;
       console.log('duplicated Divisions', res)
     })

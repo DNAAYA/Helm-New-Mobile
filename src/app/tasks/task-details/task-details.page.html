@@ -8,13 +8,117 @@
 </ion-header>
 
 <ion-content>
-  <div *ngFor="let task of taskDetails">
+  <div>
     <div>
-      <h4 style="padding-left: 3%;"> {{task.title}} </h4>
+      <h4 style="padding-left: 3%;"> {{taskDetails?.title}} </h4>
     </div>
     <ion-card class="card-style" id="cardSpace">
-      <ion-card-content style="color: #3C3C3B;">
-        <h3> Venue Name: {{task.venueName}}
+      <ion-card-content style="color: #3C3C3B;"  >
+
+        <!-- <form   class="container"  [formGroup]="myForm" novalidate (ngSubmit)="onSubmit()"> -->
+
+          <!-- the task form el btezhar 3al app-->
+
+
+
+        <!-- INPUT STYLE -->
+       
+        <h3> Venue Name: {{taskDetails?.venueName}}
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editVenueName()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>    
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Venue Name here" [(ngModel)]="venueName" >          
+        </ion-input>    
+
+        <h3> Category: {{taskDetails?.category}}
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editCategory()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>  
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Category here" [(ngModel)]="category" >    
+        </ion-input>
+
+        <h3> Address: {{taskDetails?.address}}  
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editAddress()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3> 
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Address here" [(ngModel)]="address" >      
+        </ion-input>
+
+        <h3> Contact Name: {{taskDetails?.contactName}}
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editContactName()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Contact Name here" [(ngModel)]="contactName" >       
+        </ion-input> 
+       
+        <h3> Contact Number: {{taskDetails?.contactNumber}} 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editContactNumber()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons> <ion-buttons style="display: inline;" (click)="callNow(taskDetails?.contactNumber)" slot="">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="call" ></ion-icon>
+          </ion-buttons> 
+       
+        </h3> 
+        <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Contact Number here" [(ngModel)]="contactNumber" > 
+                
+        </ion-input> 
+
+        
+        <h3> Surface Area: {{taskDetails?.surfaceArea}} 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editSurfaceArea()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Surface Area here" [(ngModel)]="surfaceArea" >          
+        </ion-input> 
+
+        <h3> Number Of Floors: {{taskDetails?.numberOfFloors}}
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editNumberOfFloors()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3> 
+        <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Number Of Floors here" [(ngModel)]="numberOfFloors" >     
+        </ion-input>
+                  
+        <h3> Number Of Bathrooms: {{taskDetails?.numberOfBathrooms}} 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editNumberOfBathrooms()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Number Of Bathrooms here" [(ngModel)]="numberOfBathrooms" >        
+        </ion-input>
+
+        <h3> Infrastructure Type: {{taskDetails?.infrastructureType}}
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editInfra()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Infrastructure Type here" [(ngModel)]="infrastructureType" >         
+        </ion-input>
+        
+        <h3> Audit Date: {{taskDetails?.auditDate}} 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editAuditDate()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Audit Date here" [(ngModel)]="auditDate" >       
+        </ion-input>
+        
+        <h3> Assessment visit's duration: {{taskDetails?.timeSlot}} 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTimeslot()">
+            <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
+          </ion-buttons>
+        </h3>
+        <ion-input class="border" style="font-weight: lighter;" required type="number" placeholder="Edit Time Slot here" [(ngModel)]="timeSlot" >         
+        </ion-input>
+        
+      </ion-card-content>
+      <!-- <ion-card-content style="color: #3C3C3B;">
+        <h3> Venue Name: {{taskDetails?.venueName}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -22,7 +126,7 @@
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Venue Name here">
         </ion-input>
 
-        <h3> Category: {{task.category}}
+        <h3> Category: {{taskDetails?.category}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -30,7 +134,7 @@
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Category here">
         </ion-input>
 
-        <h3> Address: {{task.address}}
+        <h3> Address: {{taskDetails?.address}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -38,7 +142,7 @@
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Address here">
         </ion-input>
 
-        <h3> Contact Name: {{task.contactName}}
+        <h3> Contact Name: {{taskDetails?.contactName}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -47,7 +151,7 @@
           placeholder="Edit Contact Name here">
         </ion-input>
 
-        <h3> Contact Number: {{task.contactNumber}}
+        <h3> Contact Number: {{taskDetails?.contactNumber}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -61,7 +165,7 @@
         </ion-input>
 
 
-        <h3> Surface Area: {{task.surfaceArea}}
+        <h3> Surface Area: {{taskDetails?.surfaceArea}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -70,7 +174,7 @@
           placeholder="Edit Surface Area here">
         </ion-input>
 
-        <h3> Number Of Floors: {{task.numberOfFloors}}
+        <h3> Number Of Floors: {{taskDetails?.numberOfFloors}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -79,7 +183,7 @@
           placeholder="Edit Number Of Floors here">
         </ion-input>
 
-        <h3> Number Of Bathrooms: {{task.numberOfBathrooms}}
+        <h3> Number Of Bathrooms: {{taskDetails?.numberOfBathrooms}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -88,7 +192,7 @@
           placeholder="Edit Number Of Bathrooms here">
         </ion-input>
 
-        <h3> Infrastructure Type: {{task.infrastructureType}}
+        <h3> Infrastructure Type: {{taskDetails?.infrastructureType}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -97,7 +201,7 @@
           placeholder="Edit Infrastructure Type here">
         </ion-input>
 
-        <h3> Audit Date: {{task.auditDate}}
+        <h3> Audit Date: {{taskDetails?.auditDate}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -105,7 +209,7 @@
         <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Audit Date here">
         </ion-input>
 
-        <h3> Assessment visit's duration: {{task.timeSlot}}
+        <h3> Assessment visit's duration: {{taskDetails?.timeSlot}}
           <ion-buttons style="display: inline;" icon-only item-end clear>
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
@@ -114,12 +218,17 @@
           placeholder="Edit Time Slot here">
         </ion-input>
 
-      </ion-card-content>
+      </ion-card-content> -->
     </ion-card>
     <div>
       <div>
         <!-- <ion-button class="button"  style="float: left;" (click)="clearStorage()"  > Clear Storage </ion-button> -->
-        <ion-button class="button" *ngIf="task.status === true" routerLink="/priorities" style="float: left;"> start
+        <ion-button class="button" *ngIf="taskDetails?.status === true"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage()"> 
+          Continue
+        </ion-button>
+
+        <ion-button class="button" *ngIf="taskDetails?.status === false"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage()"> 
+          Start
         </ion-button>
       </div>
     </div>

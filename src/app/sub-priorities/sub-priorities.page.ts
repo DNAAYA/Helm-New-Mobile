@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Network } from '@ionic-native/network/ngx';
 import { AlertController } from '@ionic/angular';
+import { Storage } from '@ionic/storage';
 import { DuplicatedSub } from '../models/duplicatedSub';
 import { Subpriority } from '../models/Subpriority';
 import { DatabaseService } from '../services/database.service';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Component({
   selector: 'app-sub-priorities',
@@ -16,26 +19,27 @@ duplicatedSub = [];
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private network: Network,
+    private storage: Storage,
+    private localDB: LocalStorageService
   ) { }
 
   ngOnInit() {
     let prID = this.activatedRoute.snapshot.params['id'];
-    
-    console.log('priority ID', prID);
-    // get sub priorities 
-    this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
-      this.subPrioritiesList = subs;
+    this.localDB.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
+      this.storage.set('SubPriorities', subs);
+      this.subPrioritiesList = subs;;
+      console.log('local sub priorities', this.subPrioritiesList)
     })
   }
 
 
-  getDuplicatedSup(subid) {
-    console.log('hello getDuplicatedSup', subid);
-    this.dbService.getDuplicatedSub(subid).then(res => {
-      this.duplicatedSub = res;
-      console.log('duplicated sup', res)
-    })
+  async getDuplicatedSup(subid) {
+    this.localDB.getDuplicatedSub(subid).then((subs: DuplicatedSub[]) => {
+      this.duplicatedSub = subs;
+      })
+    console.log('hello getDuplicatedSup', this.duplicatedSub);
   }
 
 
@@ -65,7 +69,6 @@ duplicatedSub = [];
     });
 
     await alert.present();
-
     const { role } = await alert.onDidDismiss();
     console.log('onDidDismiss resolved with role', role);
   }

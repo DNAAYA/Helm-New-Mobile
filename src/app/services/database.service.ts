@@ -11,6 +11,9 @@ import { filter, map } from 'rxjs/operators';
 import { DuplicatedSub } from '../models/duplicatedSub';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DuplicatedQuestion } from '../models/duplicatedQuestion';
+import { Network } from '@ionic-native/network/ngx';
+import { Storage } from '@ionic/storage';
+import { NetworkService } from './network.service';
 
 
 
@@ -25,7 +28,10 @@ export class DatabaseService {
 
   constructor(
     private db: AngularFireDatabase,
-    private dbStore: AngularFirestore
+    private dbStore: AngularFirestore,
+    private network: Network,
+    private storage: Storage,
+    private networkService: NetworkService
     ) {
      }
 
@@ -52,41 +58,61 @@ export class DatabaseService {
     )
   }
 
+
   getPriorities(): Promise <Priority[]> {
     return new Promise((resolve, reject)=> {
       this.database.ref('/Priorities/').on('value', val => {
         let res = val.val();
        let prioritiesList = Object.keys(res).map(k => res[k]);
-        resolve(prioritiesList)
+       resolve(prioritiesList)
       }, reject)
     })
   }
 
   getPriority(key): Promise <Priority> {
     return new Promise((resolve, reject)=> {
-      this.database.ref(`/Priorities/${key}/`).on('value', val => {
-        let res = val.val();
-        resolve(res)
-      }, reject)
+
+
+      this.networkService.onNetworkChange().subscribe(status => {
+        if(status == 0) {
+          console.log('status network Online >>>>>', status);
+          this.database.ref(`/Priorities/${key}/`).on('value', val => {
+            let res = val.val();
+            resolve(res)
+          }, reject)
+        } 
+        else {
+          console.log('status network Offline >>>>>', status)
+          this.storage.get('Priorities').then((pr: Priority[]) => {
+            resolve(pr.find(e => e.priority_ID == key))
+          }, reject)
+        }
+      })
     })
   }
 
   getSubPriorityWithPriorityID(priorityID): Promise <Subpriority[]> {
-    let subPriorities = [];
     return new Promise((resolve, reject)=> {
-      this.database.ref('/SubPriorities/').on('value', val => {
-        let res = val.val();
-       let subPrioritiesList = Object.keys(res).map(k => res[k]);
-       subPrioritiesList.forEach((subElm: Subpriority) => {
-         if(subElm.priority_ID == priorityID) {
-         // console.log('getSubPriorityWithPriorityID', subElm)
-          subPriorities.push(subElm);
-         }
-        
-       });
-       resolve(subPriorities)
-
-      }, reject)
+      this.networkService.onNetworkChange().subscribe(status => {
+        if(status == 0) {
+          console.log('status network Online >>>>>', status);
+          this.database.ref('/SubPriorities/').on('value',async val => {
+            let res = val.val();
+           let subPrioritiesList = Object.keys(res).map(k => res[k]);
+          await this.storage.set('SubPriorities', subPrioritiesList).then((res: Subpriority[]) => {
+             console.log('result after add subPrioritiesList in local storage >>', res)
+             let subs = res.filter(e => e.priority_ID == priorityID);
+             resolve(subs)
+           }, reject)
+          })
+        } 
+        else {
+          console.log('status network Offline >>>>>', status)
+          this.storage.get('SubPriorities').then((res: Subpriority[]) => {
+            resolve(res.filter(e => e.priority_ID == priorityID))
+          }, reject)
+        }
+      })
     })
   }
 
