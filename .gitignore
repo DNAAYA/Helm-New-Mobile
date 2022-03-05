@@ -111,3 +111,4 @@ dist
 *plugins
 *www
 *.angular\
+.angular/cache/angular-webpack/0f3b5e937942b76d5332014d26178542835c87f2/index.pack.old

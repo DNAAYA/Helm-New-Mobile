@@ -23,13 +23,14 @@ export class NewTasksComponent implements OnInit {
    }
 
   ngOnInit() {
+    console.log(' test debug ')
     this.ngAuth.onAuthStateChanged(user => {
       if (user === null) {
-        this.router.navigate(['/sign-in'])
+        this.router.navigate(['/login'])
       } else {
         this.userID = user.uid
         console.log('user id', this.userID);
-        this.dbServices.getNewTasks('mKdeGymteMR2K7jn85bQ9zsPqf53').subscribe((tasks: Task[] )=> {
+        this.dbServices.getNewTasks(this.userID).subscribe((tasks: Task[] )=> {
           this.taskList = tasks
           console.log('task list', this.taskList)
         })
