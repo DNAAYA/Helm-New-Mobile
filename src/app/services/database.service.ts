@@ -15,6 +15,7 @@ import { Network } from '@ionic-native/network/ngx';
 import { Storage } from '@ionic/storage';
 import { NetworkService } from './network.service';
 import { Audit } from '../models/audit';
+import { AuditQuestion } from '../models/auditQuestion';
 
 
 
@@ -374,43 +375,77 @@ export class DatabaseService {
   }
 
 
-  addAudit(audit: Audit) {
-    console.log('audit before add', audit );
-    this.database.ref('/Audits/').push(audit).then(res => {
-      this.database.ref(`/Audits/${res.key}/`).update({
-        id: res.key
-      });
-      this.database.ref('/Audits/').on('value', val => {
-        let result = val.val();
-        let audit: Audit = Object.keys(result).map(k => result[k]).find((e: Audit) => e.id == res.key);
-        this.storage.set(`TaskAudit-${audit.taskID}`, audit);
-      })
+  addAudit(audit: Audit, taskid) {
+    this.database.ref('/Audits/').on('value', val => {
+      
+      
+      console.log('all audits', val.val());
+      if(val.val()) {
+        let auditTask: Audit = Object.keys(val.val()).map(k => val.val()[k]).find((e: Audit) => e.taskID == taskid);
+        if(auditTask) {
+          console.log('audit already exist', auditTask.id);
+        } else {
+          console.log('audit before add', audit );
+          this.database.ref('/Audits/').push(audit).then(res => {
+            this.database.ref(`/Audits/${res.key}/`).update({
+              id: res.key
+            });
+            this.storage.set(`TaskAudit-${taskid}`, audit);
+          })
+        }
+      } else {
+        this.database.ref('/Audits/').push(audit).then(res => {
+          this.database.ref(`/Audits/${res.key}/`).update({
+            id: res.key
+          });
+          this.storage.set(`TaskAudit-${taskid}`, audit);
+        })
+      }
     })
-    // this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
-    //   (res) => {
-    //     console.log('update answer success >>>');
-    //   }
-    // )
+
   }
 
-  getAuditByTaskID(auditID) : Promise <Audit> {
+  getAuditByTaskID(taskID) : Promise <Audit> {
     return new Promise((resolve, reject)=> {
-      this.database.ref(`/Audits/${auditID}`).on('value', val => {
+      this.database.ref(`/Audits/`).on('value', val => {
         let res = val.val();
         if(res) {
-        let audit = Object.keys(res).map(k => res[k]).find((e: Audit) => e.id == auditID);
+        let audit = Object.keys(res).map(k => res[k]).find((e: Audit) => e.taskID == taskID);
         resolve(audit)
         }
       }, reject)
     })
   }
-  addQuestionToAudit(auditID, q: Question) {
-    console.log('audit-id', auditID)
-    this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
+
+  ///////////////// PAUSE ?????????? check if question exist before add another question;
+  addQuestionToAudit(taskID, q: AuditQuestion, questionID) {
+    this.getAuditByTaskID(taskID).then((audit: Audit) => {
+      console.log('task audit', audit)
+      this.database.ref(`/Audits/${audit.id}/Questions`).on('value', val => {
+        let arr = val.val();
+        if(arr) {
+          let question = Object.keys(arr).map(k => arr[k]).find((q: AuditQuestion) => q.question.question_ID == questionID);
+          if(question) {
+            this.database.ref(`/Audits/${audit.id}/Questions/${questionID}`).update(q);
+           } else {
+            this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
+           }
+        } else {
+          this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
+
+        }
+        
+         
+      })
+    })
+   
   }
 
-  // addDivisionToAudit(auditID, division) {
-  //   console.log('audit-id', auditID)
-  //   this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
-  // }
+  addDivisionToAudit(taskID, division) {
+    this.getAuditByTaskID(taskID).then((audit: Audit) => {
+      console.log('task audit', audit)
+      this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
+    })
+  }
+
 }

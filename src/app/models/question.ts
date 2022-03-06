@@ -29,7 +29,8 @@ export class Question {
     note: string;
     display: string;
     parentID: string;
-    parentAnwer: string
+    parentAnwer: string;
+    assessmentPoints: string;
 
     constructor(question){
         {
@@ -58,6 +59,7 @@ export class Question {
             this.parentAnwer = question.parentAnwer;
             this.parentID = question.parentID;
             this.inputs = question.inputs;
+            this.assessmentPoints = question.assessmentPoints
         }
     }
 }

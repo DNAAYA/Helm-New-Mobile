@@ -713,7 +713,7 @@ async editTimeslot(){
       subs: [{}]
       
     }
-    this.dbService.addAudit(audit);
+    this.dbService.addAudit(audit, this.taskID);
     // add task id to local storage
      this.storage.set(`helmTask-`, this.taskDetails)
 
