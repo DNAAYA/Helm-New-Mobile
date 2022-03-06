@@ -4,6 +4,7 @@ import { AlertController } from '@ionic/angular';
 import { Division } from '../models/division';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DatabaseService } from '../services/database.service';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Component({
   selector: 'app-divisions',
@@ -17,7 +18,8 @@ export class DivisionsPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
-    private alertController: AlertController
+    private alertController: AlertController,
+  //  private localDB: LocalStorageService
   ) { }
 
 async  ngOnInit() {

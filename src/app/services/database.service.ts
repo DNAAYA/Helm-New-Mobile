@@ -11,6 +11,10 @@ import { filter, map } from 'rxjs/operators';
 import { DuplicatedSub } from '../models/duplicatedSub';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DuplicatedQuestion } from '../models/duplicatedQuestion';
+import { Network } from '@ionic-native/network/ngx';
+import { Storage } from '@ionic/storage';
+import { NetworkService } from './network.service';
+import { Audit } from '../models/audit';
 
 
 
@@ -25,7 +29,10 @@ export class DatabaseService {
 
   constructor(
     private db: AngularFireDatabase,
-    private dbStore: AngularFirestore
+    private dbStore: AngularFirestore,
+    private network: Network,
+    private storage: Storage,
+    private networkService: NetworkService
     ) {
      }
 
@@ -46,47 +53,71 @@ export class DatabaseService {
     return this.dbStore.collection('tasks').valueChanges();
   }
 
-  getTaskDetails(taskID): Observable<any> {
-    return this.dbStore.collection(`tasks`).valueChanges().pipe(
-      map(data => data.filter((task: Task) => task.tid == taskID))
-    )
+  getTaskDetails(taskID): Promise <Task> {
+    return  new Promise((resolve, reject)=> {
+      this.dbStore.collection(`tasks`).valueChanges().subscribe((res: Task[]) => {
+        console.log('tasks', res);
+        resolve(res.find(e => e.tid == taskID))
+      }, reject)
+    })
+    
   }
+
 
   getPriorities(): Promise <Priority[]> {
     return new Promise((resolve, reject)=> {
       this.database.ref('/Priorities/').on('value', val => {
         let res = val.val();
        let prioritiesList = Object.keys(res).map(k => res[k]);
-        resolve(prioritiesList)
+       resolve(prioritiesList)
       }, reject)
     })
   }
 
   getPriority(key): Promise <Priority> {
     return new Promise((resolve, reject)=> {
-      this.database.ref(`/Priorities/${key}/`).on('value', val => {
-        let res = val.val();
-        resolve(res)
-      }, reject)
+
+
+      this.networkService.onNetworkChange().subscribe(status => {
+        if(status == 0) {
+          console.log('status network Online >>>>>', status);
+          this.database.ref(`/Priorities/${key}/`).on('value', val => {
+            let res = val.val();
+            resolve(res)
+          }, reject)
+        } 
+        else {
+          console.log('status network Offline >>>>>', status)
+          this.storage.get('Priorities').then((pr: Priority[]) => {
+            resolve(pr.find(e => e.priority_ID == key))
+          }, reject)
+        }
+      })
     })
   }
 
   getSubPriorityWithPriorityID(priorityID): Promise <Subpriority[]> {
-    let subPriorities = [];
     return new Promise((resolve, reject)=> {
-      this.database.ref('/SubPriorities/').on('value', val => {
-        let res = val.val();
-       let subPrioritiesList = Object.keys(res).map(k => res[k]);
-       subPrioritiesList.forEach((subElm: Subpriority) => {
-         if(subElm.priority_ID == priorityID) {
-         // console.log('getSubPriorityWithPriorityID', subElm)
-          subPriorities.push(subElm);
-         }
-        
-       });
-       resolve(subPriorities)
-
-      }, reject)
+      this.networkService.onNetworkChange().subscribe(status => {
+        if(status == 0) {
+          console.log('status network Online >>>>>', status);
+          this.database.ref('/SubPriorities/').on('value',async val => {
+            let res = val.val();
+           let subPrioritiesList = Object.keys(res).map(k => res[k]);
+          await this.storage.set('SubPriorities', subPrioritiesList).then((res: Subpriority[]) => {
+             console.log('result after add subPrioritiesList in local storage >>', res)
+             let subs = res.filter(e => e.priority_ID == priorityID);
+             resolve(subs)
+           }, reject)
+          })
+        } 
+        else {
+          console.log('status network Offline >>>>>', status)
+          this.storage.get('SubPriorities').then((res: Subpriority[]) => {
+            resolve(res.filter(e => e.priority_ID == priorityID))
+          }, reject)
+        }
+      })
     })
   }
 
@@ -236,7 +267,8 @@ export class DatabaseService {
           let duplicatedQuestion: DuplicatedQuestion = {
             questions: ques,
             duplicated_ID: '',
-            parentDiv_ID: res.key
+            parentDiv_ID: res.key,
+            type: 'duplicated'
           }
           this.duplicateQuestion(res.key, duplicatedQuestion);
         })
@@ -342,14 +374,43 @@ export class DatabaseService {
   }
 
 
-  sendAnswer(questionID, question: Question) {
-    console.log('update answer: question id', questionID );
-    console.log('update answer: question ', question );
-
-    this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
-      (res) => {
-        console.log('update answer success >>>');
-      }
-    )
+  addAudit(audit: Audit) {
+    console.log('audit before add', audit );
+    this.database.ref('/Audits/').push(audit).then(res => {
+      this.database.ref(`/Audits/${res.key}/`).update({
+        id: res.key
+      });
+      this.database.ref('/Audits/').on('value', val => {
+        let result = val.val();
+        let audit: Audit = Object.keys(result).map(k => result[k]).find((e: Audit) => e.id == res.key);
+        this.storage.set(`TaskAudit-${audit.taskID}`, audit);
+      })
+    })
+    // this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
+    //   (res) => {
+    //     console.log('update answer success >>>');
+    //   }
+    // )
   }
+
+  getAuditByTaskID(auditID) : Promise <Audit> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Audits/${auditID}`).on('value', val => {
+        let res = val.val();
+        if(res) {
+        let audit = Object.keys(res).map(k => res[k]).find((e: Audit) => e.id == auditID);
+        resolve(audit)
+        }
+      }, reject)
+    })
+  }
+  addQuestionToAudit(auditID, q: Question) {
+    console.log('audit-id', auditID)
+    this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
+  }
+
+  // addDivisionToAudit(auditID, division) {
+  //   console.log('audit-id', auditID)
+  //   this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
+  // }
 }

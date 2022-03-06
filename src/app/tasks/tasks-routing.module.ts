@@ -7,23 +7,38 @@ import { TasksPage } from './tasks.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'tasks',
     component: TasksPage,
-
     children: [
       {
-        path: 'new-tasks',
-        component: NewTasksComponent
+        path: 'new_tasks',
+        children: [
+          {
+            path: '',
+            component: NewTasksComponent
+          }
+        ]
       },
       {
-        path: 'saved-tasks',
-        component: SavedTasksComponent
+        path: 'saved_tasks',
+        children: [
+          {
+            path: '',
+            component: SavedTasksComponent
+          }
+        ]
+      },
+      {
+        path: '',
+        redirectTo: '/tasks/new_tasks',
+        pathMatch: 'full'
       }
     ]
   },
   {
-    path: 'task-details',
-    loadChildren: () => import('./task-details/task-details.module').then( m => m.TaskDetailsPageModule)
+    path: '',
+    redirectTo: '/tasks/new_tasks',
+    pathMatch: 'full'
   }
 ];
 

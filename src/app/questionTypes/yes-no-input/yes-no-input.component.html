@@ -22,7 +22,7 @@
     <ion-label *ngIf="question.answer == question.wrong_en">{{question.wrong_en}}</ion-label>
     <div *ngIf="question.answer == question.right_en">
       <p> {{rightAnswer[0]}}
-        <ion-input type="number" placeholder="number...."></ion-input>
+        <input type="number" placeholder="number...."/>
         {{rightAnswer[1]}}
       </p>
     </div>

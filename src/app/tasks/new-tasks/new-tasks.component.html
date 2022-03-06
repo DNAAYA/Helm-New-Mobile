@@ -1,8 +1,20 @@
 <!-- List of Text Items -->
 
+<ion-content>
 
-<ion-list>
-  <ion-item class="card-style" *ngFor="let task of taskList">
-    <ion-label>{{task.title}}</ion-label>
-  </ion-item>
-</ion-list>
+  <div *ngFor="let task of taskList">
+  
+    <ion-card class="card-style" [routerLink]="'/task-details/'+task.tid">
+      
+      <ion-card-header style="color: black;">
+        {{  task.title  }}
+      </ion-card-header>
+      <ion-card-content>
+        <ion-buttons style="display: flow-root;" icon-only item-end clear [routerLink]="'/task-details/'+task.tid">
+          <ion-icon style="color: #3C3C3B; float: right;" name="chevron-forward-outline">
+          </ion-icon>
+        </ion-buttons>
+      </ion-card-content>
+    </ion-card>
+  </div> 
+</ion-content>

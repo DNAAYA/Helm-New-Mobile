@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
+import { Network } from '@ionic-native/network/ngx';
+import { Storage } from '@ionic/storage';
+import { Subscription } from 'rxjs';
 import { Task } from 'src/app/models/task';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
@@ -17,26 +20,27 @@ export class NewTasksComponent implements OnInit {
     private dbServices: DatabaseService,
     private ngAuth: AngularFireAuth,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private network: Network,
+    private storage: Storage,
+    private dbService: DatabaseService, 
+
   ) {
 
    }
 
-  ngOnInit() {
-    console.log(' test debug ')
-    this.ngAuth.onAuthStateChanged(user => {
-      if (user === null) {
-        this.router.navigate(['/login'])
-      } else {
-        this.userID = user.uid
-        console.log('user id', this.userID);
-        this.dbServices.getNewTasks(this.userID).subscribe((tasks: Task[] )=> {
-          this.taskList = tasks
-          console.log('task list', this.taskList)
-        })
-      }
-    });
-
+ async  ngOnInit() {
+  this.ngAuth.onAuthStateChanged(async user => {
+    if (user === null) {
+      this.router.navigate(['/login'])
+    } else {
+      this.userID = user.uid
+     await this.dbService.getNewTasks(this.userID).subscribe((tasks: Task[] )=> {
+       this.taskList = tasks
+      })
+    }
+  });
+   // console.log(' test debug ')
   }
 
 }
