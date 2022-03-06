@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
+import { Audit } from '../models/audit';
 import { DuplicateDivision } from '../models/duplicate-division';
+import { DuplicatedQuestion } from '../models/duplicatedQuestion';
 import { DuplicatedSub } from '../models/duplicatedSub';
 import { Priority } from '../models/priority';
+import { Question } from '../models/question';
 import { Subpriority } from '../models/Subpriority';
 
 @Injectable({
@@ -75,7 +78,7 @@ export class LocalStorageService {
 
   getDuplicatedDiv(divID) : Promise <DuplicatedSub[]>{
     return new Promise((resolve, reject)=> {
-      this.storage.get('/duplicated-division/').then(res => {
+      this.storage.get('duplicated-division').then(res => {
         if(res) {
           let dDivs = Object.keys(res).map(k => res[k]);
           let duplicated_Divs = dDivs.filter(e => e.parentID == divID);
@@ -85,6 +88,75 @@ export class LocalStorageService {
         }
        
       }, reject)
+    })
+  }
+
+  getQuestionByDivID(divID): Promise <Question[]> {
+    return new Promise((resolve, reject)=> {
+      this.storage.get(`Questions`).then(res => {
+        console.log('local questions', res)
+       let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
+        resolve(questionList)
+      }, reject)
+    })
+  }
+
+
+
+  getDuplicatedQuestionByDuplicatedDivision(divID) : Promise <DuplicatedQuestion[]>{
+    return new Promise((resolve, reject)=> {
+      this.storage.get('duplicated-question').then(res => {
+        console.log('result',  res)
+        if(res) {
+        let dquestions = Object.keys(res).map(k => res[k])
+       // console.log('duplicated questions', dquestions);
+        let questionList = dquestions.filter(e => e.parentDiv_ID == divID);
+         console.log('questionList', questionList);
+        resolve(questionList[0].questions)
+        } else {
+          resolve(res)
+        }
+      }, reject)
+    })
+  }
+
+  getAuditFromLocalStorage(): Promise <any>{
+    return new Promise((resolve, reject)=> {
+      let _auditID: string = '';
+      this.storage.get('auditID').then(async auditID => {
+        _auditID = auditID;
+        // console.log('audit id..', _auditID);
+      } ).then(() => {
+            this.storage.get(`audit-${_auditID}`).then((audit: Audit)=> {
+            // console.log('auditt >>>>>>> ', audit)
+              resolve(audit)
+            }, reject)
+      })
+    })
+
+  
+  }
+
+  saveLocaldivisionQuestions(divID, q: Question[]) {
+    this.storage.set(`divQuestions-${divID}`, q).then(q => {
+      console.log('question after add to local storage', q)
+    })
+  }
+
+  getLocaldivisionQuestions(divID): Promise <Question[]> {
+    return new Promise((resolve, reject)=> {
+      this.storage.get(`divQuestions-${divID}`).then((q: Question[]) => {
+        console.log('local division questions', q)
+        resolve(q)
+      }, reject)
+    })
+
+  }
+
+  
+  saveQuestionsToLocalStorage(taskID, question: Question[]) {
+    this.storage.set(`auditQuestions-${taskID}`, question).then(q => {
+      console.log('question after add to local storage', q)
     })
   }
 }

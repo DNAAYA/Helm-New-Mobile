@@ -223,11 +223,11 @@
     <div>
       <div>
         <!-- <ion-button class="button"  style="float: left;" (click)="clearStorage()"  > Clear Storage </ion-button> -->
-        <ion-button class="button" *ngIf="taskDetails?.status === true"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage()"> 
+        <!-- <ion-button class="button" *ngIf="taskDetails?.completed == true"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage()"> 
           Continue
-        </ion-button>
+        </ion-button> -->
 
-        <ion-button class="button" *ngIf="taskDetails?.status === false"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage()"> 
+        <ion-button class="button"  routerLink="/priorities/" slot="start" (click)="addToLocalStorage(taskDetails)"> 
           Start
         </ion-button>
       </div>

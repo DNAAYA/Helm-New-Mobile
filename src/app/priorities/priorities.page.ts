@@ -16,11 +16,11 @@ export class PrioritiesPage implements OnInit {
     private dbService: DatabaseService,
     private router: Router,
     private network: Network,
-    private localDB: LocalStorageService
+   // private localDB: LocalStorageService
   ) { }
 
   ngOnInit() {
-    this.localDB.getPriorities().then((pr: Priority[]) => {
+    this.dbService.getPriorities().then((pr: Priority[]) => {
       console.log('prioritiesd list', pr);
       this.prioritiesList = pr
     })

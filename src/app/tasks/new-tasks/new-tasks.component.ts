@@ -30,11 +30,17 @@ export class NewTasksComponent implements OnInit {
    }
 
  async  ngOnInit() {
+  this.ngAuth.onAuthStateChanged(async user => {
+    if (user === null) {
+      this.router.navigate(['/login'])
+    } else {
+      this.userID = user.uid
+     await this.dbService.getNewTasks(this.userID).subscribe((tasks: Task[] )=> {
+       this.taskList = tasks
+      })
+    }
+  });
    // console.log(' test debug ')
-  await this.storage.get('tasks').then((res: Task[]) => {
-    this.taskList = res.filter(e=> e.completed == false)
-    console.log('New tasks from local storage', this.taskList)
-  })
   }
 
 }

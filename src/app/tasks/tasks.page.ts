@@ -31,12 +31,8 @@ export class TasksPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-
-    
-        // online method 
-       this.network.onConnect().subscribe(() => {
-          console.log('network status online ***_***' );
-          this.ngAuth.onAuthStateChanged(user => {
+    this.ngAuth.onAuthStateChanged(user => {
+            console.log('user', user)
             if (user === null) {
               this.router.navigate(['/login'])
             } else {
@@ -47,14 +43,30 @@ export class TasksPage implements OnInit, OnDestroy {
               })
             }
           });
-        })
     
-        // offline 
+      //   // online method 
+      //  this.network.onConnect().subscribe(() => {
+      //     console.log('network status online ***_***' );
+      //     this.ngAuth.onAuthStateChanged(user => {
+      //       console.log('user', user)
+      //       if (user === null) {
+      //         this.router.navigate(['/login'])
+      //       } else {
+      //         this.userID = user.uid
+      //         this.dbService.getTasks().subscribe((tasks: Task[] )=> {
+      //           let userTasks = tasks.filter(e => e.selectedUser == this.userID)
+      //           this.storage.set('tasks', userTasks).then(tasks => console.log(tasks))
+      //         })
+      //       }
+      //     });
+      //   })
     
-        this.network.onDisconnect().subscribe(() => {
-          this.storage.get('tasks').then(tasks => console.log(tasks))
-          console.log('offline mode ***_***');
-        })
+      //   // offline 
+    
+      //   this.network.onDisconnect().subscribe(() => {
+      //     this.storage.get('tasks').then(tasks => console.log(tasks))
+      //     console.log('offline mode ***_***');
+      //   })
 
   }
   ngOnDestroy(): void {

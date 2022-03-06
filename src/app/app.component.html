@@ -1,3 +1,21 @@
 <ion-app>
+  <ion-split-pane menuId="first" contentId="main">
+    <ion-menu menuId="first" contentId="main" type="overlay">
+      <ion-content>
+        <ion-list id="inbox-list">
+          <ion-list-header>Hello! John</ion-list-header>
+          <ion-note>johndoe@gmail.com</ion-note>
+          <ion-menu-toggle auto-hide="false" *ngFor="let pages of Pages; let i = index">
+            <ion-item  routerDirection="root" [routerLink]="[pages.url]" lines="none"
+              detail="false">
+              <ion-icon slot="start" [ios]="pages.icon + '-outline'" [md]="pages.icon + '-sharp'"></ion-icon>
+              <ion-label>{{ pages.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="cccc"></ion-router-outlet>
+  </ion-split-pane>
   <ion-router-outlet></ion-router-outlet>
 </ion-app>

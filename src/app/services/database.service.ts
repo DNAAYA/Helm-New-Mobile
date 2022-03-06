@@ -14,6 +14,7 @@ import { DuplicatedQuestion } from '../models/duplicatedQuestion';
 import { Network } from '@ionic-native/network/ngx';
 import { Storage } from '@ionic/storage';
 import { NetworkService } from './network.service';
+import { Audit } from '../models/audit';
 
 
 
@@ -52,10 +53,14 @@ export class DatabaseService {
     return this.dbStore.collection('tasks').valueChanges();
   }
 
-  getTaskDetails(taskID): Observable<any> {
-    return this.dbStore.collection(`tasks`).valueChanges().pipe(
-      map(data => data.filter((task: Task) => task.tid == taskID))
-    )
+  getTaskDetails(taskID): Promise <Task> {
+    return  new Promise((resolve, reject)=> {
+      this.dbStore.collection(`tasks`).valueChanges().subscribe((res: Task[]) => {
+        console.log('tasks', res);
+        resolve(res.find(e => e.tid == taskID))
+      }, reject)
+    })
+    
   }
 
 
@@ -262,7 +267,8 @@ export class DatabaseService {
           let duplicatedQuestion: DuplicatedQuestion = {
             questions: ques,
             duplicated_ID: '',
-            parentDiv_ID: res.key
+            parentDiv_ID: res.key,
+            type: 'duplicated'
           }
           this.duplicateQuestion(res.key, duplicatedQuestion);
         })
@@ -368,14 +374,43 @@ export class DatabaseService {
   }
 
 
-  sendAnswer(questionID, question: Question) {
-    console.log('update answer: question id', questionID );
-    console.log('update answer: question ', question );
-
-    this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
-      (res) => {
-        console.log('update answer success >>>');
-      }
-    )
+  addAudit(audit: Audit) {
+    console.log('audit before add', audit );
+    this.database.ref('/Audits/').push(audit).then(res => {
+      this.database.ref(`/Audits/${res.key}/`).update({
+        id: res.key
+      });
+      this.database.ref('/Audits/').on('value', val => {
+        let result = val.val();
+        let audit: Audit = Object.keys(result).map(k => result[k]).find((e: Audit) => e.id == res.key);
+        this.storage.set(`TaskAudit-${audit.taskID}`, audit);
+      })
+    })
+    // this.database.ref(`/Questions/${questionID}/`).update({answer: question.answer }).then(
+    //   (res) => {
+    //     console.log('update answer success >>>');
+    //   }
+    // )
   }
+
+  getAuditByTaskID(auditID) : Promise <Audit> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Audits/${auditID}`).on('value', val => {
+        let res = val.val();
+        if(res) {
+        let audit = Object.keys(res).map(k => res[k]).find((e: Audit) => e.id == auditID);
+        resolve(audit)
+        }
+      }, reject)
+    })
+  }
+  addQuestionToAudit(auditID, q: Question) {
+    console.log('audit-id', auditID)
+    this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
+  }
+
+  // addDivisionToAudit(auditID, division) {
+  //   console.log('audit-id', auditID)
+  //   this.database.ref(`Audits/${auditID}/Questions`).push(q).then(res => console.log('question added to audit'))
+  // }
 }

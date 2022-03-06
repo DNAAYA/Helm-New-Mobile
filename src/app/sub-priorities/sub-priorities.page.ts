@@ -22,12 +22,12 @@ duplicatedSub = [];
     private alertController: AlertController,
     private network: Network,
     private storage: Storage,
-    private localDB: LocalStorageService
+    // private localDB: LocalStorageService
   ) { }
 
   ngOnInit() {
     let prID = this.activatedRoute.snapshot.params['id'];
-    this.localDB.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
+    this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
       this.storage.set('SubPriorities', subs);
       this.subPrioritiesList = subs;;
       console.log('local sub priorities', this.subPrioritiesList)
@@ -36,7 +36,9 @@ duplicatedSub = [];
 
 
   async getDuplicatedSup(subid) {
-    this.localDB.getDuplicatedSub(subid).then((subs: DuplicatedSub[]) => {
+    // console.log('sub id')
+    this.dbService.getDuplicatedSub(subid).then((subs: DuplicatedSub[]) => {
+      console.log('duplicated sup',subs )
       this.duplicatedSub = subs;
       })
     console.log('hello getDuplicatedSup', this.duplicatedSub);
@@ -83,5 +85,8 @@ duplicatedSub = [];
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateSubPriority(duplicateSub);
   }
+  
+  save() {
 
+  }
 }

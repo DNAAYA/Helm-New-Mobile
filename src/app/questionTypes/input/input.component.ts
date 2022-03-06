@@ -18,6 +18,7 @@ export class InputComponent implements OnInit{
 
   ngOnInit() {
 
+
     console.log('question Input >>>', this.question)
     let _measurement0 = this.question.question.includes('/measurement0/');
     let _measurement1 = this.question.question.includes('/measurement1/');

@@ -26,6 +26,8 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 
 // import { Storage } from '@ionic/storage';
 import { Network } from '@ionic-native/network/ngx';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -52,6 +54,8 @@ import { Network } from '@ionic-native/network/ngx';
     Network,
     FilePath,
     CallNumber,
+    SplashScreen,
+    StatusBar,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
   schemas: [NO_ERRORS_SCHEMA],

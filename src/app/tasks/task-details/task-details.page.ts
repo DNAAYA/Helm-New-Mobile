@@ -5,6 +5,7 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
+import { Audit } from 'src/app/models/audit';
 import { Task } from 'src/app/models/task';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Todo, TodoService } from 'src/app/services/todo.service';
@@ -61,15 +62,12 @@ export class TaskDetailsPage implements OnInit {
   ) { }
 
  async ngOnInit() {
-    this.taskID = this.activatedRoute.snapshot.params['id'];
-      // add task id to local storage
-    
-
-    console.log('task id', this.taskID);
-   await this.storage.get('tasks').then((res: Task[]) => {
-      this.taskDetails = res.find(e=> e.tid == this.taskID);
+      this.taskID = this.activatedRoute.snapshot.params['id']
+      console.log('task id', this.taskID);
+       await this.dbService.getTaskDetails(this.taskID).then((res: Task) => {
+        this.taskDetails = res
+      })
       console.log('task details', this.taskDetails);
-    })
   }
 
   async loadTodo(){
@@ -699,25 +697,25 @@ async editTimeslot(){
   
   }
 
-  async addToLocalStorage() {
-    // #0: add task id to local storage
-    await this.storage.set('taskID_helm', this.taskID);
-
-    // #1: add task to local storage
-    await this.storage.set(`helmTask-${this.taskID}`, this.taskDetails)
-
-    // #2: add priorities to local storage
+   addToLocalStorage(t) {
     
+    // let id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
+    let audit: Audit = {
+      createdAt: Date.now(),
+      createdBy: t.selectedUser,
+      id: '',
+      subTitle: '',
+      divTitle: '',
+      title: t.title,
+      taskID: t.tid,
+      divs: [{}],
+      questions: [],
+      subs: [{}]
+      
+    }
+    this.dbService.addAudit(audit);
+    // add task id to local storage
+     this.storage.set(`helmTask-`, this.taskDetails)
 
-    // #3: add sub Priorities to local storage
-
-
-    // #4: add divs to local storage
-
-
-    // #5: add question to local storage
-
-
-    // #6: add audit to local storage
   }
 }

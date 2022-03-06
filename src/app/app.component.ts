@@ -2,7 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Router } from '@angular/router';
 import { Network } from '@ionic-native/network/ngx';
-import { AlertController, ToastController } from '@ionic/angular';
+import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { AlertController, Platform, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { observable, Subscription } from 'rxjs';
 import { AuthService } from './services/auth.service';
@@ -21,7 +23,25 @@ export class AppComponent implements OnInit, OnDestroy {
   networkAlert;
   subscription: Subscription ;
   database = this.db.database.app.database('https://helm-8734b-4d96d.firebaseio.com/');  
-
+  
+  activePageTitle = 'Dashboard';
+  Pages = [
+    {
+      title: 'Dashboard',
+      url: '',
+      icon: 'albums'
+    },
+    {
+      title: 'Login',
+      url: '/login',
+      icon: 'person'
+    },
+    {
+      title: 'Register',
+      url: '/register',
+      icon: 'person'
+    }
+  ];
   constructor(
     private networkServ: NetworkService,
     private localDB: StorageService,
@@ -29,11 +49,19 @@ export class AppComponent implements OnInit, OnDestroy {
     private db: AngularFireDatabase,
     private networkService: NetworkService,
     private dbServ: DatabaseService,
-    private alertCTRL: AlertController
+    private alertCTRL: AlertController,
+    private platform: Platform,
+    private statusBar: StatusBar,
+    private splashScreen: SplashScreen,
   ) {
-    
+    this.initializeApp();
   }
-
+  initializeApp() {
+    this.platform.ready().then(() => {
+      this.statusBar.styleDefault();
+      this.splashScreen.hide();
+    });
+  }
   
   ngOnInit(): void {
     this.storage.create();

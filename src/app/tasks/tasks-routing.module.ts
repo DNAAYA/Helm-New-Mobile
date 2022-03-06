@@ -37,7 +37,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/tasks/tasks/new_tasks',
+    redirectTo: '/tasks/new_tasks',
     pathMatch: 'full'
   }
 ];

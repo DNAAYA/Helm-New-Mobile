@@ -19,7 +19,7 @@ export class DivisionsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
     private alertController: AlertController,
-    private localDB: LocalStorageService
+  //  private localDB: LocalStorageService
   ) { }
 
 async  ngOnInit() {
@@ -32,7 +32,7 @@ async  ngOnInit() {
 
     if(this.type == 'main') {
       // get sub priorities 
-    await  this.localDB.getDivisionBySubID(subID).then((divs: Division[]) => {
+    await  this.dbService.getDivisionBySubID(subID).then((divs: Division[]) => {
         this.divisionList = divs;
       }) 
       console.log('Main content Division ..', this.divisionList)
@@ -86,7 +86,7 @@ async  ngOnInit() {
   
   getDuplicatedDiv(subID) {
     console.log('getDuplicatedDiv ..', subID)
-    this.localDB.getDuplicatedDivBySubID(subID).then(res => {
+    this.dbService.getDuplicatedDivBySubID(subID).then(res => {
       this.duplicatedDivs = res;
       console.log('duplicated Divisions', res)
     })

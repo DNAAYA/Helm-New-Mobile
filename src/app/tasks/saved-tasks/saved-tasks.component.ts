@@ -27,10 +27,16 @@ export class SavedTasksComponent implements OnInit {
    }
 
   async ngOnInit() {
-   await this.storage.get('tasks').then((res: Task[]) => {
-      this.savedtaskList = res.filter(e=> e.completed == true)
-      console.log('saved tasks from local storage', res)
-    })
+    this.ngAuth.onAuthStateChanged(async user => {
+      if (user === null) {
+        this.router.navigate(['/login'])
+      } else {
+        this.userID = user.uid
+       await   this.dbService.getSavedTasks(this.userID).subscribe((tasks: Task[] )=> {
+         this.savedtaskList = tasks
+        })
+      }
+    });
   }
 
   
