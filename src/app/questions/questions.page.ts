@@ -35,8 +35,9 @@ export class QuestionsPage implements OnInit {
    taskDetails: Task;
    auditDetails: Audit;
    divList;
-  duplicatedSubID: any = '';
-  duplicatedDivID: any = '';
+  duplicatedSubID;
+  duplicatedDivID;
+  subId: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -48,7 +49,7 @@ export class QuestionsPage implements OnInit {
 
   async ngOnInit() {
    this.divID = this.activatedRoute.snapshot.params['divId'];
-   let subId = this.activatedRoute.snapshot.params['subId'];
+   this.subId = this.activatedRoute.snapshot.params['subId'];
    let prId = this.activatedRoute.snapshot.params['prId'];
    this.type = this.activatedRoute.snapshot.params['type'];
 
@@ -67,19 +68,20 @@ export class QuestionsPage implements OnInit {
           console.log('main question list >>>', this.questionList);
         })
     } else {
+      console.log('diiiv is', this.divID)
        await this.getDuplicatedQuestion(this.divID);
         console.log('duplicated question ..', this.questionList)
     }
 
     // get divisions
-    await this.getDivision(subId, this.divID, prId);
+    await this.getDivision(this.subId, this.divID, prId);
 
   }
 
 
 
 
-  getDivision(subId, divID, prID) {
+ async getDivision(subId, divID, prID) {
     if(this.type == 'main') {
       console.log('priority id', prID)
       this.dbService.getDivisionBySubID(subId).then((divs: Division[]) => {
@@ -107,12 +109,11 @@ export class QuestionsPage implements OnInit {
       })
     } else {
       console.log('priority id', prID)
-      this.dbService.getDuplicatedDivBySubID(subId).then((divs: DuplicateDivision[]) => {
-        console.log('divisions list', divs);
+     await this.dbService.getDuplicatedDivBySubID(subId).then(async (divs: DuplicateDivision[]) => {
+        
         
         this.indexofDivision = divs.findIndex(i => i.duplicated_ID == divID);
         this._thisDivision = divs[this.indexofDivision];
-        this.duplicatedDivID = this._thisDivision.duplicated_ID
         this._previousDiv = divs[this.indexofDivision - 1];
         this._nextDiv = divs[this.indexofDivision + 1];
   
@@ -128,7 +129,7 @@ export class QuestionsPage implements OnInit {
             this.duplicatedSubID = this._thisSub.duplicated_ID;
             this._previousSub = subs[this.indexofSub - 1];
             this._nextSub = subs[this.indexofSub + 1];
-            console.log('Duplicated previous Sub <=', this._previousSub);
+            console.log('Duplicated  Sub <=', this.duplicatedSubID);
             console.log('Duplicated next Sub =>', this._nextSub);
           })
         }
@@ -141,28 +142,35 @@ export class QuestionsPage implements OnInit {
   getDuplicatedQuestion(divID) {
     console.log('getDuplicatedDiv ..', divID)
     this.dbService.getDuplicatedQuestionByDuplicatedDivision(divID).then((res: DuplicatedQuestion[]) => {
+      console.log('duplicated question list???', res)
       this.questionList = res
     })
   }
 
   ionViewWillLeave() {
-   
+  // this.Save();
   }
 
-  Save() {
-
-
-  
-    this.questionList.forEach((q: Question) => {
-      let auditQ: AuditQuestion = {
-        question : q,
-        duplicated_SubID: this.duplicatedSubID,
-        duplicated_divID: this.duplicatedDivID,
-      }
-      // this.replaceServ.generateAssessmentPoint(q);
-     this.dbService.addQuestionToAudit(this.taskID, auditQ, q.question_ID);
-
-    });
+  async Save() {
     
+    console.log('**********',this.questionList.length)
+    this.questionList.forEach((q) => {
+     // console.log('question element', q);
+      let auditQ = new AuditQuestion(q);
+
+      if(q.duplicated_ID) {
+        auditQ.division_ID = this.divID;
+        auditQ.sub_ID = this.subId;
+        auditQ.question_ID = q.duplicated_ID
+        this.dbService.addQuestionToAudit(this.taskID, auditQ);
+      } else {
+        auditQ.division_ID = this.divID;
+        auditQ.sub_ID = this.subId;
+        auditQ.question_ID = q.question_ID
+        this.dbService.addQuestionToAudit(this.taskID, auditQ);
+
+      }
+     // console.log('test auditQ', auditQ)
+    });
   }
 }

@@ -16,7 +16,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
     loadChildren: () => import('./sub-priorities/sub-priorities.module').then( m => m.SubPrioritiesPageModule)
   },
   {
-    path: 'divisions/:type/:subID/:prID',
+    path: 'divisions/:type/:subID',
     loadChildren: () => import('./divisions/divisions.module').then( m => m.DivisionsPageModule)
   },
   {

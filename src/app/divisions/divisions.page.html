@@ -35,7 +35,7 @@
 
   <ion-list *ngIf="duplicatedDivs">
     <ion-item *ngFor="let div of duplicatedDivs"
-      [routerLink]="['/questions/'+'duplicated/'+ div?.duplicated_ID+ '/' + div?.division.sub_ID +'/' + div?.division.priority_ID]"
+      [routerLink]="['/questions/'+'duplicated/'+ div?.duplicated_ID + '/' + div?.parent_SubID +'/' + div?.parent_DivID]"
       routerLinkActive="router-link-active">
       <ion-label>{{div?.title}}</ion-label>
     </ion-item>

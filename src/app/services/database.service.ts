@@ -99,25 +99,10 @@ export class DatabaseService {
 
   getSubPriorityWithPriorityID(priorityID): Promise <Subpriority[]> {
     return new Promise((resolve, reject)=> {
-      this.networkService.onNetworkChange().subscribe(status => {
-        if(status == 0) {
-          console.log('status network Online >>>>>', status);
-          this.database.ref('/SubPriorities/').on('value',async val => {
-            let res = val.val();
-           let subPrioritiesList = Object.keys(res).map(k => res[k]);
-          await this.storage.set('SubPriorities', subPrioritiesList).then((res: Subpriority[]) => {
-             console.log('result after add subPrioritiesList in local storage >>', res)
-             let subs = res.filter(e => e.priority_ID == priorityID);
-             resolve(subs)
-           }, reject)
-          })
-        } 
-        else {
-          console.log('status network Offline >>>>>', status)
-          this.storage.get('SubPriorities').then((res: Subpriority[]) => {
-            resolve(res.filter(e => e.priority_ID == priorityID))
-          }, reject)
-        }
+      this.database.ref('/SubPriorities/').on('value', val => {
+        let res = val.val();
+        let subPrioritiesList = Object.keys(res).map(k => res[k]).filter((e: Subpriority) => e.priority_ID == priorityID)
+        resolve(subPrioritiesList)
       })
     })
   }
@@ -203,16 +188,12 @@ export class DatabaseService {
   }
 
 
-  getQuestionByDivision(divisionID): Promise <Question>{
+  getQuestionByDivision(divisionID): Promise <Question[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref(`/Questions/`).on('value', val => {
         let res = val.val();
-       let questions = Object.keys(res).map(k => res[k]);
-       questions.forEach(element => {
-         if(element.division_ID == divisionID) {
-          resolve(element)
-         }
-       });
+        let questions = Object.keys(res).map(k => res[k]).filter((e: Question) => e.division_ID == divisionID)
+        resolve(questions)
       }, reject)
     })
   }
@@ -242,8 +223,7 @@ export class DatabaseService {
   }
 
 
-  duplicateQuestion(parentID, question: DuplicatedQuestion) {
-    question.parentDiv_ID = parentID;
+  duplicateQuestion(question: DuplicatedQuestion) {
     this.database.ref('/duplicated-question/').push(question).then(res => {
       this.database.ref(`/duplicated-question/${res.key}/`).update({
         duplicated_ID: res.key
@@ -252,30 +232,22 @@ export class DatabaseService {
   }
 
   duplicateDivision(division: DuplicateDivision) {
-    let parentID =  division.division.divison_ID;
-    division.parentID = parentID;
-    this.getDivision(parentID).then((div: Division) => {
-      console.log('division ', div);
-
-      division.division = div;
-      this.database.ref(`/duplicated-division/`).push(division).then(res => {
-        this.database.ref(`/duplicated-division/${res.key}/`).update({
-          duplicated_ID: res.key
+    this.database.ref(`/duplicated-division/`).push(division).then(res => {
+      this.database.ref(`/duplicated-division/${res.key}/`).update({
+        duplicated_ID: res.key
+      });
+      // duplicate question after division
+      this.getQuestionByDivision(division.parent_DivID)
+      .then((ques: Question[]) => {
+        ques.forEach(q => {
+          let duplicatedQuestion = new DuplicatedQuestion(q);
+          duplicatedQuestion.parentDiv_ID = res.key;
+          duplicatedQuestion.parentSub_ID = division.parent_SubID
+          this.duplicateQuestion(duplicatedQuestion);
         });
-        // duplicate question after division
-        this.getQuestionByPr_Sub_Division(div.priority_ID, div.sub_ID, div.divison_ID)
-        .then((ques: Question[]) => {
-          let duplicatedQuestion: DuplicatedQuestion = {
-            questions: ques,
-            duplicated_ID: '',
-            parentDiv_ID: res.key,
-            type: 'duplicated'
-          }
-          this.duplicateQuestion(res.key, duplicatedQuestion);
-        })
+        
       })
     })
-  
   }
 
 // duplicated sub & duplicate division & duplicate question 
@@ -287,15 +259,15 @@ export class DatabaseService {
         duplicated_ID: key
       })
       // get all divisions by sub id to copy into duplicated divisions;
-      this.getDivisionBySubID(subPriority.parentSub.sub_ID).then((divs: Division[]) => {
+      this.getDivisionBySubID(subPriority.parent_SubID).then((divs: Division[]) => {
         divs.forEach((div: Division) => {
           let duplicateDiv: DuplicateDivision  = {
-            division: div,
             duplicated_ID: '',
-            parentID: div.divison_ID,
+            parent_DivID: div.divison_ID,
+            parent_SubID: res.key,
             title: `# ${div.division_name}`
           }
-          this.duplicateDivision(duplicateDiv);
+        this.duplicateDivision(duplicateDiv)
         });
       })
       // duplicate division after duplicate sub
@@ -306,11 +278,9 @@ export class DatabaseService {
   getDuplicatedSub(subID) : Promise <DuplicatedSub[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref('/duplicated-subPriority/').on('value', val => {
-
         let res = val.val();
         if(res) {
-          let dSubs = Object.keys(res).map(k => res[k]);
-          let duplicatedSub = dSubs.filter(e => e.parentSub.sub_ID == subID);
+          let duplicatedSub = Object.keys(res).map(k => res[k]).filter((e: DuplicatedSub) => e.parent_SubID == subID);
            resolve(duplicatedSub)
         } else {
           resolve(res)
@@ -323,11 +293,9 @@ export class DatabaseService {
   getDuplicatedDiv(divID) : Promise <DuplicatedSub[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref('/duplicated-division/').on('value', val => {
-
         let res = val.val();
         if(res) {
-          let dDivs = Object.keys(res).map(k => res[k]);
-          let duplicated_Divs = dDivs.filter(e => e.parentID == divID);
+          let duplicated_Divs = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_DivID == divID);
            resolve(duplicated_Divs)
         } else {
           resolve(res)
@@ -344,13 +312,11 @@ export class DatabaseService {
 
         let res = val.val();
         if(res) {
-        let dDivs = Object.keys(res).map(k => res[k]);
-        let duplicatedDiv = dDivs.filter(e => e.division.sub_ID == subID);
+        let duplicatedDiv = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_SubID == subID);
         resolve(duplicatedDiv)
         } else {
           resolve(res)
         }
-    
       }, reject)
     })
   }
@@ -362,11 +328,10 @@ export class DatabaseService {
         let res = val.val();
         console.log('result',  res)
         if(res) {
-        let dquestions = Object.keys(res).map(k => res[k])
+        let dquestions = Object.keys(res).map(k => res[k]).filter((e: DuplicatedQuestion) => e.parentDiv_ID == divID);
        // console.log('duplicated questions', dquestions);
-        let questionList = dquestions.filter(e => e.parentDiv_ID == divID);
-         console.log('questionList', questionList);
-        resolve(questionList[0].questions)
+         console.log('questionList', dquestions);
+        resolve(dquestions)
         } else {
           resolve(res)
         }
@@ -418,20 +383,33 @@ export class DatabaseService {
   }
 
   ///////////////// PAUSE ?????????? check if question exist before add another question;
-  addQuestionToAudit(taskID, q: AuditQuestion, questionID) {
+  addQuestionToAudit(taskID, q: AuditQuestion) {
+    console.log('task ID >>>', taskID);
+    console.log('AuditQuestionnn >>>', q);
+
     this.getAuditByTaskID(taskID).then((audit: Audit) => {
-      console.log('task audit', audit)
+      //console.log('task audit', audit)
       this.database.ref(`/Audits/${audit.id}/Questions`).on('value', val => {
         let arr = val.val();
         if(arr) {
-          let question = Object.keys(arr).map(k => arr[k]).find((q: AuditQuestion) => q.question.question_ID == questionID);
+          let question = Object.keys(arr).map(k => arr[k]).find((q: AuditQuestion) => q.question_ID == q.question_ID);
           if(question) {
-            this.database.ref(`/Audits/${audit.id}/Questions/${questionID}`).update(q);
+            this.database.ref(`/Audits/${audit.id}/Questions/${question.id}/`).update(q);
            } else {
-            this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
+            console.log('>>>>>>>>>>><<<<<<<<')
+            this.database.ref(`/Audits/${audit.id}/Questions/`).push(q).then(res => {
+              this.database.ref(`/Audits/${audit.id}/Questions/${res.key}/`).update({
+                id: res.key
+              });
+            })
            }
         } else {
-          this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
+          console.log('>>>>>>>>>>>')
+          this.database.ref(`/Audits/${audit.id}/Questions/`).push(q).then(res => {
+            this.database.ref(`/Audits/${audit.id}/Questions/${res.key}/`).update({
+              id: res.key
+            });
+          })
 
         }
         
@@ -441,11 +419,11 @@ export class DatabaseService {
    
   }
 
-  addDivisionToAudit(taskID, division) {
-    this.getAuditByTaskID(taskID).then((audit: Audit) => {
-      console.log('task audit', audit)
-      this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
-    })
-  }
+  // addDivisionToAudit(taskID, division) {
+  //   this.getAuditByTaskID(taskID).then((audit: Audit) => {
+  //     console.log('task audit', audit)
+  //     this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
+  //   })
+  // }
 
 }

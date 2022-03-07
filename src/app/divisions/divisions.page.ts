@@ -24,10 +24,8 @@ export class DivisionsPage implements OnInit {
 
 async  ngOnInit() {
     let subID = this.activatedRoute.snapshot.params['subID'];
-    let prID = this.activatedRoute.snapshot.params['prID'];
      this.type = this.activatedRoute.snapshot.params['type'];
     console.log('Sub priority ID', subID);
-    console.log(' priority ID', prID);
     console.log(' router type', this.type);
 
     if(this.type == 'main') {
@@ -75,10 +73,10 @@ async  ngOnInit() {
 
   duplicateDivision(div: Division, title) {
     let duplicateDiv: DuplicateDivision  = {
-      division: div,
       duplicated_ID: '',
-      title: title,
-      parentID: div.divison_ID
+      title: `# ${title}`,
+      parent_DivID: div.divison_ID,
+      parent_SubID: div.sub_ID
     }
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateDivision(duplicateDiv);
