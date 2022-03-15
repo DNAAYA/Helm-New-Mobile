@@ -295,8 +295,9 @@ export class DatabaseService {
       this.database.ref('/duplicated-division/').on('value', val => {
         let res = val.val();
         if(res) {
-          let duplicated_Divs = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_DivID == divID);
-           resolve(duplicated_Divs)
+          let duplicated_Divs = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_DivID == divID)
+          console.log('duplicated_Divs >>>', duplicated_Divs)
+          resolve(duplicated_Divs)
         } else {
           resolve(res)
         }

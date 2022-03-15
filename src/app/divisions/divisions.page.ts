@@ -86,13 +86,16 @@ async  ngOnInit() {
     console.log('getDuplicatedDiv ..', subID)
     this.dbService.getDuplicatedDivBySubID(subID).then(res => {
       this.duplicatedDivs = res;
-      console.log('duplicated Divisions', res)
+      console.log('duplicated Divisions', this.duplicatedDivs)
     })
   }
 
-  getDuplicatedDivByDivID(divID) {
-    this.dbService.getDuplicatedDiv(divID).then(res => {
+  async getDuplicatedDivByDivID(divID) {
+    await this.dbService.getDuplicatedDiv(divID).then(res => {
+      console.log('duplicated divisions <<>>>', res)
+
       this.duplicatedDivs = res;
+      console.log('duplicated divisions', this.duplicatedDivs)
     })
 
   }

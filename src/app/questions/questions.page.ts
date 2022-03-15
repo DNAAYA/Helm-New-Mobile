@@ -163,13 +163,14 @@ export class QuestionsPage implements OnInit {
         auditQ.sub_ID = this.subId;
         auditQ.question_ID = q.duplicated_ID
         this.dbService.addQuestionToAudit(this.taskID, auditQ);
-      } else {
-        auditQ.division_ID = this.divID;
-        auditQ.sub_ID = this.subId;
-        auditQ.question_ID = q.question_ID
-        this.dbService.addQuestionToAudit(this.taskID, auditQ);
-
       }
+      //  else {
+      //   auditQ.division_ID = this.divID;
+      //   auditQ.sub_ID = this.subId;
+      //   auditQ.question_ID = q.question_ID
+      //   this.dbService.addQuestionToAudit(this.taskID, auditQ);
+
+      // }
      // console.log('test auditQ', auditQ)
     });
   }
