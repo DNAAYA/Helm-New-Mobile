@@ -30,7 +30,7 @@ async  ngOnInit() {
 
     if(this.type == 'main') {
       // get sub priorities 
-    await  this.dbService.getDivisionBySubID(subID).then((divs: Division[]) => {
+    await  this.dbService.getDivisionsBySubID(subID).then((divs: Division[]) => {
         this.divisionList = divs;
       }) 
       console.log('Main content Division ..', this.divisionList)

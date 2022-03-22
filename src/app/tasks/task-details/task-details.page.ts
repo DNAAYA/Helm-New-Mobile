@@ -704,13 +704,10 @@ async editTimeslot(){
       createdAt: Date.now(),
       createdBy: t.selectedUser,
       id: '',
-      subTitle: '',
-      divTitle: '',
       title: t.title,
       taskID: t.tid,
-      divs: [{}],
+      reported: false,
       questions: [],
-      subs: [{}]
       
     }
     this.dbService.addAudit(audit, this.taskID);

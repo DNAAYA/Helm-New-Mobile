@@ -98,10 +98,14 @@ export class DatabaseService {
   }
 
   getSubPriorityWithPriorityID(priorityID): Promise <Subpriority[]> {
+    console.log('priority id', priorityID)
     return new Promise((resolve, reject)=> {
       this.database.ref('/SubPriorities/').on('value', val => {
         let res = val.val();
+    console.log('all subpriorities', res)
+
         let subPrioritiesList = Object.keys(res).map(k => res[k]).filter((e: Subpriority) => e.priority_ID == priorityID)
+        console.log('subpriorities list >> ', subPrioritiesList);
         resolve(subPrioritiesList)
       })
     })
@@ -136,15 +140,12 @@ export class DatabaseService {
     })
   }
 
-  getDivisionBySubID(subID) {
-    let filteredDivisions = [];
+  getDivisionsBySubID(subID) {
     return new Promise((resolve, reject)=> {
       this.database.ref(`/Divisions/`).on('value', val => {
         let res = val.val();
-       let divList = Object.keys(res).map(k => res[k]);
-       filteredDivisions = divList.filter(d => d.sub_ID == subID);    
-        resolve(filteredDivisions)
-        
+       let divList = Object.keys(res).map(k => res[k]).filter(d => d.sub_ID == subID);
+        resolve(divList)
       }, reject)
     })
   }
@@ -159,6 +160,7 @@ export class DatabaseService {
     })
   }
 
+  
   getQuestion(qID): Promise <Question> {
     return new Promise((resolve, reject)=> {
       this.database.ref(`/Questions/`).on('value', val => {
@@ -259,7 +261,7 @@ export class DatabaseService {
         duplicated_ID: key
       })
       // get all divisions by sub id to copy into duplicated divisions;
-      this.getDivisionBySubID(subPriority.parent_SubID).then((divs: Division[]) => {
+      this.getDivisionsBySubID(subPriority.parent_SubID).then((divs: Division[]) => {
         divs.forEach((div: Division) => {
           let duplicateDiv: DuplicateDivision  = {
             duplicated_ID: '',
@@ -384,39 +386,43 @@ export class DatabaseService {
   }
 
   ///////////////// PAUSE ?????????? check if question exist before add another question;
-  addQuestionToAudit(taskID, q: AuditQuestion) {
-    console.log('task ID >>>', taskID);
-    console.log('AuditQuestionnn >>>', q);
+  addQuestionToAudit(auditID, q: AuditQuestion) {
 
-    this.getAuditByTaskID(taskID).then((audit: Audit) => {
-      //console.log('task audit', audit)
-      this.database.ref(`/Audits/${audit.id}/Questions`).on('value', val => {
+
+      this.database.ref(`/Audits/${auditID}/Questions`).once('value', val => {
         let arr = val.val();
+      //  console.log('questions inside audit:', arr)
         if(arr) {
-          let question = Object.keys(arr).map(k => arr[k]).find((q: AuditQuestion) => q.question_ID == q.question_ID);
+          console.log('audit question ducoment  exist:  ');
+          let question = Object.keys(arr).map(k => arr[k]).find((auditQ: AuditQuestion) => auditQ.question_ID == q.question_ID);
           if(question) {
-            this.database.ref(`/Audits/${audit.id}/Questions/${question.id}/`).update(q);
+            console.log('question exist in audit questions..', question);
+            console.log('question before update..', q);
+
+             this.database.ref(`/Audits/${auditID}/Questions/`).child(question.id).update({
+               answer: q.answer,
+               inputs: q.inputs
+             })
            } else {
-            console.log('>>>>>>>>>>><<<<<<<<')
-            this.database.ref(`/Audits/${audit.id}/Questions/`).push(q).then(res => {
-              this.database.ref(`/Audits/${audit.id}/Questions/${res.key}/`).update({
+             console.log('question not exist in audit questions..', q)
+            this.database.ref(`/Audits/${auditID}/Questions`).push(q).then(res => {
+              console.log('result after add question', res.key);
+              this.database.ref(`/Audits/${auditID}/Questions/${res.key}/`).update({
                 id: res.key
               });
             })
            }
-        } else {
-          console.log('>>>>>>>>>>>')
-          this.database.ref(`/Audits/${audit.id}/Questions/`).push(q).then(res => {
-            this.database.ref(`/Audits/${audit.id}/Questions/${res.key}/`).update({
-              id: res.key
-            });
-          })
-
         }
-        
-         
+        else {
+          console.log('audit question ducoment Not exist:');
+            this.database.ref(`/Audits/${auditID}/Questions`).push(q).then(res => {
+              console.log('result after add question', res.key);
+              this.database.ref(`/Audits/${auditID}/Questions/${res.key}/`).update({
+                id: res.key
+              });
+            })  
+        }  
       })
-    })
    
   }
 
@@ -426,5 +432,12 @@ export class DatabaseService {
   //     this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
   //   })
   // }
+
+
+  generateReport(auditID) {
+    return this.database.ref(`/Audits/${auditID}/`).update({
+        reported: true
+      });
+  }
 
 }

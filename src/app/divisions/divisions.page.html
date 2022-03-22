@@ -32,10 +32,10 @@
   </ion-accordion-group>
 
   <ion-list *ngIf="duplicatedDivs">
-    <ion-item *ngFor="let ddiv of duplicatedDivs"
-      [routerLink]="['/questions/'+'duplicated/'+ ddiv?.duplicated_ID + '/' + ddiv?.parent_SubID +'/' + ddiv?.parent_DivID]"
+    <ion-item *ngFor="let i of duplicatedDivs"
+      [routerLink]="['/questions/'+'duplicated/'+ i?.duplicated_ID + '/' + i?.parent_SubID +'/' + i?.parent_DivID]"
       routerLinkActive="router-link-active">
-      <ion-label>{{ddiv?.title}}</ion-label>
+      {{i.title}}
     </ion-item>
   </ion-list>
 </ion-content>

@@ -17,8 +17,6 @@ export class InputComponent implements OnInit{
   constructor() { }
 
   ngOnInit() {
-
-
     console.log('question Input >>>', this.question)
     let _measurement0 = this.question.question.includes('/measurement0/');
     let _measurement1 = this.question.question.includes('/measurement1/');
@@ -27,7 +25,6 @@ export class InputComponent implements OnInit{
     let _number1 = this.question.question.includes('/number1/');
 
     let _text = this.question.question.includes('/text/');
-
 
     // _measurement0 && _measurement1
     if(_measurement0 && _measurement1 && _text) {
@@ -74,6 +71,9 @@ export class InputComponent implements OnInit{
     } 
     else if (_number0) {
       let part1 = this.question.question.split('/number0/');
+      this.questionWithInput.push(...part1)
+     } else if(_text){
+       let part1 = this.question.question.split('/text/');
       this.questionWithInput.push(...part1)
      }
   }

@@ -4,7 +4,9 @@
       <ion-menu-button autoHide="false"></ion-menu-button>
     </ion-buttons>
 
-    <ion-title class="headerFontSize">{{_thisDivision?.division_name}}</ion-title>
+    <ion-title class="headerFontSize" *ngIf="type == 'main'">{{_thisDivision?.division_name}}</ion-title>
+    <ion-title class="headerFontSize" *ngIf="type == 'duplicated'">{{_thisDivision?.title}}</ion-title>
+
   </ion-toolbar>
 </ion-header>
 
@@ -31,7 +33,7 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar *ngIf="type == 'main' ">
     <ion-buttons slot="start">
       <ion-fab-buttons color="secondary" *ngIf="_previousDiv"
         [routerLink]="['/questions/' + type + '/'+ _previousDiv?.divison_ID + '/' + _previousDiv?.sub_ID + '/' + _previousDiv?.priority_ID]"
@@ -47,14 +49,10 @@
       </ion-fab-buttons>
     </ion-buttons>
 
-    <!-- <ion-buttons slot="start">
 
-      <ion-button  color="primary" (click)="saveAnswer()" shape="round">
-        Save
-      </ion-button>
-    </ion-buttons> -->
-
-
+    <ion-button color="success" (click)="generateReport()">
+      Generate Report
+    </ion-button>
 
     <ion-buttons slot="end">
       <ion-fab-buttons
@@ -66,6 +64,43 @@
 
       <ion-fab-buttons color="secondary" *ngIf="_nextSub"
         [routerLink]="['/sub-priorities/' + _nextSub?.priority_ID ]"
+        routerLinkActive="router-link-active">
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+        <!-- {{_previousDiv?.division_name}} -->
+      </ion-fab-buttons>
+    </ion-buttons>
+  </ion-toolbar>
+
+
+  <ion-toolbar *ngIf="type == 'duplicated' ">
+    <ion-buttons slot="start">
+      <ion-fab-buttons color="secondary" *ngIf="_previousDiv"
+        [routerLink]="['/questions/' + type + '/'+ _previousDiv?.duplicated_ID + '/' + _previousDiv?.parent_SubID + '/' + _previousDiv?.parent_DivID]"
+        routerLinkActive="router-link-active">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <!-- {{_previousDiv?.division_name}} -->
+      </ion-fab-buttons>
+      <ion-fab-buttons color="secondary" *ngIf="_previousSub"
+        [routerLink]="['/sub-priorities/' +  _previousSub?.priority_ID ]" routerLinkActive="router-link-active">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <!-- {{_previousDiv?.division_name}} -->
+      </ion-fab-buttons>
+    </ion-buttons>
+  
+
+    <ion-button color="success" (click)="generateReport()">
+      Generate Report
+    </ion-button>
+
+    <ion-buttons slot="end">
+      <ion-fab-buttons
+        [routerLink]="['/questions/'+ type + '/' +_nextDiv?.duplicated_ID + '/' + _nextDiv?.parent_SubID + '/' + _nextDiv?.parent_DivID]"
+        routerLinkActive="router-link-active" color="secondary" *ngIf="_nextDiv">
+        <!-- {{_nextDiv?.division_name}} -->
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </ion-fab-buttons>
+  
+      <ion-fab-buttons color="secondary" *ngIf="_nextSub" [routerLink]="['/sub-priorities/' + _nextSub?.priority_ID ]"
         routerLinkActive="router-link-active">
         <ion-icon name="arrow-forward-outline"></ion-icon>
         <!-- {{_previousDiv?.division_name}} -->

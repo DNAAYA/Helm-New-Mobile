@@ -38,6 +38,7 @@ export class QuestionsPage implements OnInit {
   duplicatedSubID;
   duplicatedDivID;
   subId: any;
+  prId: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -50,54 +51,57 @@ export class QuestionsPage implements OnInit {
   async ngOnInit() {
    this.divID = this.activatedRoute.snapshot.params['divId'];
    this.subId = this.activatedRoute.snapshot.params['subId'];
-   let prId = this.activatedRoute.snapshot.params['prId'];
+    this.prId = this.activatedRoute.snapshot.params['prId'];
    this.type = this.activatedRoute.snapshot.params['type'];
 
-    this.storage.get('helmTask-').then((res: Task) => {
-      this.taskID = res.tid;
-      this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
-        console.log('audit from storage', audit)
-        this.auditDetails = audit;
-      })
+    // this.storage.get('helmTask-').then((res: Task) => {
+    //   this.taskID = res.tid;
+    //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
+    //     console.log('audit from storage', audit)
+    //     this.auditDetails = audit;
+    //   })
 
-    })
+    // })
 
-     if(this.type == 'main') {
-       await this.dbService.getQuestionByDivID(this.divID).then((questions: Question[]) => {
-          this.questionList = questions ;
-          console.log('main question list >>>', this.questionList);
-        })
-    } else {
-      console.log('diiiv is', this.divID)
-       await this.getDuplicatedQuestion(this.divID);
-        console.log('duplicated question ..', this.questionList)
-    }
-
+     
+    await this.getQuestions();
     // get divisions
-    await this.getDivision(this.subId, this.divID, prId);
+    await this.getDivision();
 
   }
 
 
-
-
- async getDivision(subId, divID, prID) {
+async getQuestions() {
     if(this.type == 'main') {
-      console.log('priority id', prID)
-      this.dbService.getDivisionBySubID(subId).then((divs: Division[]) => {
-        console.log('divisions list', divs);
-        
-        this.indexofDivision = divs.findIndex(i => i.divison_ID == divID);
+       await this.dbService.getQuestionByDivID(this.divID).then((questions: Question[]) => {
+          this.questionList = questions ;
+          console.log('main question list >>>', this.questionList);
+        })
+    }
+     else {
+        await this.dbService.getDuplicatedQuestionByDuplicatedDivision(this.divID).then((res: DuplicatedQuestion[]) => {
+        this.questionList = res;
+        console.log('duplicated question list >>>', this.questionList)
+      })
+    }
+}
+
+ async getDivision() {
+    if(this.type == 'main') 
+    {
+      this.dbService.getDivisionsBySubID(this.subId).then((divs: Division[]) => {
+        console.log('Main division list >> >> ', divs);
+        this.indexofDivision = divs.findIndex(i => i.divison_ID == this.divID);
         this._thisDivision = divs[this.indexofDivision];
         this._previousDiv = divs[this.indexofDivision - 1];
         this._nextDiv = divs[this.indexofDivision + 1];
   
-        console.log('previous division', this._previousDiv);
-        console.log('next division', this._nextDiv);
+        console.log('previous division << <<', this._previousDiv);
+        console.log('next division >> >>', this._nextDiv);
   
         if(!this._nextDiv) {
-          this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
-            this.indexofSub = subs.findIndex(i => i.sub_ID == subId);
+          this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
+            this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
             this._thisSub = subs[this.indexofSub];
             this._previousSub = subs[this.indexofSub - 1];
             this._nextSub = subs[this.indexofSub + 1];
@@ -107,30 +111,38 @@ export class QuestionsPage implements OnInit {
         }
   
       })
-    } else {
-      console.log('priority id', prID)
-     await this.dbService.getDuplicatedDivBySubID(subId).then(async (divs: DuplicateDivision[]) => {
-        
-        
-        this.indexofDivision = divs.findIndex(i => i.duplicated_ID == divID);
+    }
+     else {
+      await this.dbService.getDuplicatedDivBySubID(this.subId).then(async (divs: DuplicateDivision[]) => {
+        this.indexofDivision = divs.findIndex(i => i.duplicated_ID == this.divID);
+       console.log('# 1) indexofDivision>  ', this.indexofDivision)
+
         this._thisDivision = divs[this.indexofDivision];
+
+       console.log('# 2) _thisDivision>  ', this._thisDivision)
+
         this._previousDiv = divs[this.indexofDivision - 1];
+
+       console.log('# 3) _previousDiv>  ', this._previousDiv)
+
         this._nextDiv = divs[this.indexofDivision + 1];
-  
-        console.log('Duplicated previous division <=', this._previousDiv);
-        console.log('Duplicated next division =>', this._nextDiv);
-  
+
+       console.log('# 4) _nextDiv>  ', this._nextDiv)
+
         if(!this._nextDiv) {
-          this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
-            this.indexofSub = subs.findIndex(i => i.sub_ID == subId);
+          console.log('priority id', this.prId)
+          this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
+            this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
+          console.log('sub list', subs)
 
             
             this._thisSub = subs[this.indexofSub];
+            console.log('this sub >>', this._thisSub);
+
             this.duplicatedSubID = this._thisSub.duplicated_ID;
             this._previousSub = subs[this.indexofSub - 1];
             this._nextSub = subs[this.indexofSub + 1];
-            console.log('Duplicated  Sub <=', this.duplicatedSubID);
-            console.log('Duplicated next Sub =>', this._nextSub);
+  
           })
         }
   
@@ -138,40 +150,40 @@ export class QuestionsPage implements OnInit {
     }
 
   }
-  
-  getDuplicatedQuestion(divID) {
-    console.log('getDuplicatedDiv ..', divID)
-    this.dbService.getDuplicatedQuestionByDuplicatedDivision(divID).then((res: DuplicatedQuestion[]) => {
-      console.log('duplicated question list???', res)
-      this.questionList = res
+
+  ionViewWillLeave() {
+   this.Save();
+  }
+
+  generateReport() {
+    this.Save();
+    this.dbService.generateReport('-MyELsa29JPl4wuHTycp').then(res => {
+      
+      console.log('result after generate report', res)
     })
   }
 
-  ionViewWillLeave() {
-  // this.Save();
-  }
+   Save() {
+     console.log('save ... ')
+     let auditQuestionArr = [];
+     this.questionList.map((q) => {
+        let auditQ = new AuditQuestion(q);
 
-  async Save() {
-    
-    console.log('**********',this.questionList.length)
-    this.questionList.forEach((q) => {
-     // console.log('question element', q);
-      let auditQ = new AuditQuestion(q);
+        if(this.type == 'duplicated') {
+          auditQ.division_ID = this.divID;
+          auditQ.sub_ID = this.subId;
+          auditQ.question_ID = q.duplicated_ID
+        }
+        else {
+          auditQ.division_ID = this.divID;
+          auditQ.sub_ID = this.subId;
+          auditQ.question_ID = q.question_ID
+        }
+    //    TODO: //remove audit id and make it dynamic from local storage
+      this.dbService.addQuestionToAudit('-MyZngejZxZlGLhV34QG', auditQ);
+     })
 
-      if(q.duplicated_ID) {
-        auditQ.division_ID = this.divID;
-        auditQ.sub_ID = this.subId;
-        auditQ.question_ID = q.duplicated_ID
-        this.dbService.addQuestionToAudit(this.taskID, auditQ);
-      }
-      //  else {
-      //   auditQ.division_ID = this.divID;
-      //   auditQ.sub_ID = this.subId;
-      //   auditQ.question_ID = q.question_ID
-      //   this.dbService.addQuestionToAudit(this.taskID, auditQ);
+    // console.log('test auditQ before add', auditQuestionArr)
 
-      // }
-     // console.log('test auditQ', auditQ)
-    });
   }
 }
