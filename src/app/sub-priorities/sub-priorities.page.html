@@ -19,13 +19,16 @@
       </ion-item>
 
       <ion-list slot="content">
-        <ion-item [routerLink]="['/divisions/'+'main/'+ sub.sub_ID]">
+        <ion-item [routerLink]="['/divisions/'+'main/'+ sub.sub_ID + '/' + auditKey]">
           <ion-label>{{sub.sub_name}}</ion-label>
         </ion-item>
         
         <ion-item *ngFor="let i of duplicatedSub"
-          [routerLink]="['/divisions/'+'duplicated/'+ i?.duplicated_ID]">
-          <ion-label>{{i.subTitle}}</ion-label>
+          >
+          <ion-label [routerLink]="['/divisions/'+'duplicated/'+ i?.duplicated_ID + '/' + auditKey]" >{{i.subTitle}}</ion-label>
+          <ion-button color="danger" (click)="deleteDuplicate(i.duplicated_ID)">
+            <ion-icon slot="icon-only" name="remove-circle-outline"></ion-icon>
+          </ion-button>
         </ion-item>
 
         <!-- <ion-item [routerLink]="['/divisions/'+ sub.sub_ID+'/' + sub.priority_ID]"

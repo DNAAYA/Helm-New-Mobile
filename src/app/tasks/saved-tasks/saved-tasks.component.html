@@ -3,7 +3,6 @@
   <div *ngFor="let task of savedtaskList" >
   
     <ion-card class="card-style" [routerLink]="'/task-details/'+task.tid">
-      
       <ion-card-header style="color: black;">
         {{  task.title  }}
       </ion-card-header>

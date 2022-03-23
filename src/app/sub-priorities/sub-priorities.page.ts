@@ -16,6 +16,7 @@ import { LocalStorageService } from '../services/local-storage.service';
 export class SubPrioritiesPage implements OnInit {
 subPrioritiesList = [];
 duplicatedSub = [];
+  auditKey: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -27,6 +28,8 @@ duplicatedSub = [];
 
   ngOnInit() {
     let prID = this.activatedRoute.snapshot.params['id'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+
     this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
       this.subPrioritiesList = subs;;
      // console.log('local sub priorities', this.subPrioritiesList)
@@ -84,6 +87,9 @@ duplicatedSub = [];
     this.dbService.duplicateSubPriority(duplicateSub);
   }
   
+  deleteDuplicate(id){
+    this.dbService.deleteDuplicateSubPriority(id);
+  }
   save() {
 
   }

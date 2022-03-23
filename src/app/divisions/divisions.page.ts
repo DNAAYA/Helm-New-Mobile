@@ -15,16 +15,19 @@ export class DivisionsPage implements OnInit {
   divisionList = [];
   duplicatedDivs = [];
   type;
+  auditKey: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
+    //  private localD   B: LocalStorageService
     private alertController: AlertController,
-  //  private localDB: LocalStorageService
   ) { }
 
 async  ngOnInit() {
     let subID = this.activatedRoute.snapshot.params['subID'];
-     this.type = this.activatedRoute.snapshot.params['type'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+
     console.log('Sub priority ID', subID);
     console.log(' router type', this.type);
 
