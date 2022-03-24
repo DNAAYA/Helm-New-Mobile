@@ -2,7 +2,9 @@
 
     <div *ngIf="auditQuestion">
 
-      <span class="label label-primary">{{auditQuestion.question}}</span>
+      <ion-card-header style="color: black;font-size: larger;">
+        {{auditQuestion.question}}
+      </ion-card-header>
       <div class="form-group" role="group">
         <label class="radio-inline">
           <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
@@ -28,25 +30,31 @@
     </div>
 
     <div *ngIf="!auditQuestion">
-      <span class="label label-primary">{{question.question}}</span>
-      <div class="form-group" role="group">
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
-        </label>
-      </div>
+      
+      <ion-card-header style="color: black;font-size: larger;">
+        {{question.question}}
+      </ion-card-header>
+      <ion-card-content>
+        <div class="form-group" role="group">
+          <label class="radio-inline">
+            <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
+          </label>
+        </div>
+      </ion-card-content>
+
       <ion-label *ngIf="question.answer == 'No'">{{question.wrong_en}}</ion-label>
       
       <!-- #TODO: update input with right statment or wrong statmen -->
       
       <div *ngIf="question.answer == 'Yes'">
         <p> {{rightAnswer[0]}}
-          <input type="number" placeholder="number...." />
+          <input style="display: inline-block;width: 40px;margin: 4px;" type="number" placeholder="number...." />
           {{rightAnswer[1]}}
         </p>
       </div>

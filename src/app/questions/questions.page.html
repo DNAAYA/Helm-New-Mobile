@@ -5,15 +5,13 @@
       <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
     <ion-buttons slot="end">
       <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
-      <ion-button style="border-radius: 2px;" size="large" color="dark" fill="solid" (click)="generateReport()">
+      <ion-button shape="round" style="color: black;font-weight: bold;font-size: inherit;" size="large"  fill="solid" (click)="generateReport()">
         <ion-icon name="document-text-outline"></ion-icon>
-        Export
+        &nbsp; Export
       </ion-button>
     </ion-buttons>
-
     <ion-title class="headerFontSize" *ngIf="type == 'main'">{{_thisDivision?.division_name}}</ion-title>
     <ion-title class="headerFontSize" *ngIf="type == 'duplicated'">{{_thisDivision?.title}}</ion-title>
-
   </ion-toolbar>
 </ion-header>
 

@@ -10,43 +10,42 @@
   </div>
 </div> -->
 
+  <div *ngIf="auditQuestion" >
+  
+      <ion-card-header style="color: black;font-size: larger;">
+        {{auditQuestion.question}}
+      </ion-card-header>
+      <ion-card-content>
+        <div class="form-group" role="group">
+          <label style="padding-right: 12px;" class="radio-inline ">
+            <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
+          </label>
+          <label style="padding-right: 12px;" class="radio-inline">
+            <input type="radio" name="optradio" value="No" [(ngModel)]="auditQuestion.answer">No
+          </label>
+          <label style="padding-right: 12px;" class="radio-inline">
+            <input type="radio" name="optradio" value="N/A" [(ngModel)]="auditQuestion.answer" checked>N/A
+          </label>
+        </div>
+      </ion-card-content>
+  </div> 
 
-
-<div *ngIf="auditQuestion">
-  <span class="label label-primary">{{auditQuestion.question}}</span>
-  <div class="form-group" role="group">
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="No" [(ngModel)]="auditQuestion.answer">No
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="N/A" [(ngModel)]="auditQuestion.answer" checked>N/A
-    </label>
-  </div>
-</div>
-<ion-label class="fixed">{{auditQuestion.question}} </ion-label>
-
-
-
-
-
-
-
-<div *ngIf="!auditQuestion">
-  <span class="label label-primary">{{question.question}}</span>
-  <div class="form-group" role="group">
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
-    </label>
-  </div>
-
-
-</div>
+  <div *ngIf="!auditQuestion">
+  
+    <ion-card-header style="color: black;">
+      {{question.question}}
+    </ion-card-header>
+    <ion-card-content>
+      <div class="form-group" role="group">
+        <label class="radio-inline">
+          <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
+        </label>
+      </div>
+    </ion-card-content>
+</div> 
