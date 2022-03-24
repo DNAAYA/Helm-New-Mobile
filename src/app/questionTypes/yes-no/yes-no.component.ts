@@ -16,8 +16,8 @@ export class YesNoComponent implements OnInit {
   ) { }
 
  async ngOnInit() {
-    await this.db.checkAuditQuestions(this.auditKey, this.question.question_ID).then((res => {
-      console.log('check audit question result>> ', res);
+    await this.db.checkAuditQuestions(this.auditKey, this.question).then((res => {
+     // console.log('check audit question result>> ', res);
       if(res['status'] == true) {
         this.auditQuestion = res['question'];
       }

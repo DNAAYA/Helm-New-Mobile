@@ -39,7 +39,7 @@ duplicatedSub = [];
 
   async getDuplicatedSup(subid) {
     // console.log('sub id')
-    this.dbService.getDuplicatedSub(subid).then((subs: DuplicatedSub[]) => {
+    this.dbService.getDuplicatedSub(this.auditKey,subid).then((subs: DuplicatedSub[]) => {
       console.log('duplicated sup',subs )
       this.duplicatedSub = subs;
       })
@@ -66,7 +66,7 @@ duplicatedSub = [];
           id: 'save-button',
           handler: (object) => {
             console.log('handler object', object.subTitle)
-            this.duplicateSupPriority(sub, object.subTitle);
+            this.duplicateSupPriority(sub.sub_ID, object.subTitle);
           }
         }
       ]
@@ -80,15 +80,15 @@ duplicatedSub = [];
   duplicateSupPriority(subID, title) {
     let duplicateSub: DuplicatedSub = {
       duplicated_ID: '',
-      parent_SubID: subID.sub_ID,
+      parent_SubID: subID,
       subTitle: `# ${title}`
     }
   //  console.log('Confirm save: subtitle', object);
-    this.dbService.duplicateSubPriority(duplicateSub);
+    this.dbService.duplicateSubPriority(this.auditKey,duplicateSub);
   }
   
   deleteDuplicate(id){
-    this.dbService.deleteDuplicateSubPriority(id);
+    this.dbService.deleteDuplicateSubPriority(this.auditKey,id);
   }
   save() {
 

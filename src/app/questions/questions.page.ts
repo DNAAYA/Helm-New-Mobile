@@ -54,10 +54,14 @@ export class QuestionsPage implements OnInit {
   async ngOnInit() {
    this.divID = this.activatedRoute.snapshot.params['divId'];
    this.subId = this.activatedRoute.snapshot.params['subId'];
-   this.prId = this.activatedRoute.snapshot.params['prId'];
+
+   // this.prId = this.activatedRoute.snapshot.params['prId'];
    this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
 
+    if(this.type == 'main') {
+      this.prId = this.activatedRoute.snapshot.params['prId'];
+    }
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
     //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
@@ -83,7 +87,7 @@ async getQuestions() {
         })
     }
      else {
-        await this.dbService.getDuplicatedQuestionByDuplicatedDivision(this.divID).then((res: DuplicatedQuestion[]) => {
+        await this.dbService.getDuplicatedQuestionByDuplicatedDivision(this.auditKey,this.divID).then((res: DuplicatedQuestion[]) => {
         this.questionList = res;
         console.log('duplicated question list >>>', this.questionList)
       })
@@ -94,14 +98,14 @@ async getQuestions() {
     if(this.type == 'main') 
     {
       this.dbService.getDivisionsBySubID(this.subId).then((divs: Division[]) => {
-        console.log('Main division list >> >> ', divs);
+      //  console.log('Main division list >> >> ', divs);
         this.indexofDivision = divs.findIndex(i => i.divison_ID == this.divID);
         this._thisDivision = divs[this.indexofDivision];
         this._previousDiv = divs[this.indexofDivision - 1];
         this._nextDiv = divs[this.indexofDivision + 1];
   
-        console.log('previous division << <<', this._previousDiv);
-        console.log('next division >> >>', this._nextDiv);
+       // console.log('previous division << <<', this._previousDiv);
+       // console.log('next division >> >>', this._nextDiv);
   
         if(!this._nextDiv) {
           this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
@@ -109,45 +113,49 @@ async getQuestions() {
             this._thisSub = subs[this.indexofSub];
             this._previousSub = subs[this.indexofSub - 1];
             this._nextSub = subs[this.indexofSub + 1];
-            console.log('previous Sub', this._previousSub);
-            console.log('next Sub', this._nextSub);
+         //   console.log('previous Sub', this._previousSub);
+           // console.log('next Sub', this._nextSub);
           })
         }
   
       })
     }
      else {
-      await this.dbService.getDuplicatedDivBySubID(this.subId).then(async (divs: DuplicateDivision[]) => {
+      await this.dbService.getDuplicatedDivBySubID(this.auditKey, this.subId).then(async (divs: DuplicateDivision[]) => {
         this.indexofDivision = divs.findIndex(i => i.duplicated_ID == this.divID);
-       console.log('# 1) indexofDivision>  ', this.indexofDivision)
+     //  console.log('# 1) indexofDivision>  ', this.indexofDivision)
 
         this._thisDivision = divs[this.indexofDivision];
 
-       console.log('# 2) _thisDivision>  ', this._thisDivision)
-
+    //   console.log('# 2) _thisDivision>  ', this._thisDivision)
+//
         this._previousDiv = divs[this.indexofDivision - 1];
 
-       console.log('# 3) _previousDiv>  ', this._previousDiv)
+      // console.log('# 3) _previousDiv>  ', this._previousDiv)
 
         this._nextDiv = divs[this.indexofDivision + 1];
 
-       console.log('# 4) _nextDiv>  ', this._nextDiv)
+    //   console.log('# 4) _nextDiv>  ', this._nextDiv)
 
         if(!this._nextDiv) {
-          console.log('priority id', this.prId)
-          this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
-            this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
-          console.log('sub list', subs)
-
-            
-            this._thisSub = subs[this.indexofSub];
-            console.log('this sub >>', this._thisSub);
-
-            this.duplicatedSubID = this._thisSub.duplicated_ID;
-            this._previousSub = subs[this.indexofSub - 1];
-            this._nextSub = subs[this.indexofSub + 1];
+         // console.log('priority id', this.prId);
+          let parentDivID = this.activatedRoute.snapshot.params['prId'];
+          // #TODO: Fix Next sub error {subId != this.subID};
+          await this.dbService.getDivision(parentDivID).then(async (div: Division) => {
+            await this.dbService.getSubPriorityWithPriorityID(div.priority_ID).then((subs: Subpriority[]) => {
+            //  console.log('sub ID', this.subId);
+              this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
+           //   console.log('sub list', subs);
+              this._thisSub = subs[this.indexofSub];
+            //  console.log('this sub >>', this._thisSub);
   
+              this.duplicatedSubID = this._thisSub.duplicated_ID;
+              this._previousSub = subs[this.indexofSub - 1];
+              this._nextSub = subs[this.indexofSub + 1];
+    
+            })
           })
+         
         }
   
       })
@@ -182,19 +190,23 @@ async getQuestions() {
         let auditQ = new AuditQuestion(q);
 
         if(this.type == 'duplicated') {
-          auditQ.division_ID = this.divID;
-          auditQ.sub_ID = this.subId;
-          auditQ.question_ID = q.duplicated_ID
+          // auditQ.division_ID = this.divID;
+          // auditQ.sub_ID = this.subId;
+          // auditQ.question_ID = q.duplicated_ID;
+          this.dbService.updateDuplicatedQuestion(this.auditKey, q);
+          
         }
         else {
           auditQ.division_ID = this.divID;
           auditQ.sub_ID = this.subId;
-          auditQ.question_ID = q.question_ID
+          auditQ.question_ID = q.question_ID;
+
+          //    TODO: //remove audit id and make it dynamic from local storage
+          this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
+            this.presentToast();
+          })
         }
-    //    TODO: //remove audit id and make it dynamic from local storage
-      this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
-        this.presentToast();
-      })
+    
 
      })
 
