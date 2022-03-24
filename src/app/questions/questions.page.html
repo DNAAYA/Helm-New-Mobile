@@ -29,7 +29,7 @@
           <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
         <div slot="end" *ngIf="type == 'main'">
-          <ion-buttons [routerLink]="['/details/' + q.question_ID + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
+          <ion-buttons *ngIf="type == 'main'" [routerLink]="['/details/' + q.question_ID + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
             <ion-icon size="" name="chevron-forward-outline">
             </ion-icon>
           </ion-buttons>
