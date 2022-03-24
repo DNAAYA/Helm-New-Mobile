@@ -16,14 +16,17 @@ export class YesNoComponent implements OnInit {
   ) { }
 
  async ngOnInit() {
+
+    
     await this.db.checkAuditQuestions(this.auditKey, this.question).then((res => {
+      console.log('audit question  >> ', res)
      // console.log('check audit question result>> ', res);
       if(res['status'] == true) {
         this.auditQuestion = res['question'];
-      }
+        console.log('audit duplicate question answer >> ', this.auditQuestion)
+      } 
     }))
     // console.log('audit Key', this.auditKey)
    // console.log('changes', this.question)
   }
-
 }

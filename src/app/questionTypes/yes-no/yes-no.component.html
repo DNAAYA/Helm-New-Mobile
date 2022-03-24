@@ -1,33 +1,59 @@
-
+<!-- <h1 class="label label-danger">auditQuestion</h1> -->
 
 <div *ngIf="auditQuestion">
-  <span class="label label-primary">{{auditQuestion.question}}</span>
-  <div class="form-group" role="group">
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="No" [(ngModel)]="auditQuestion.answer">No
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="N/A" [(ngModel)]="auditQuestion.answer" checked>N/A
-    </label>
-  </div>
+    <!-- <h1 class="label label-danger">auditQuestion</h1> -->
+
+<ion-radio-group [(ngModel)]="auditQuestion.answer">
+  <ion-label>{{auditQuestion.question}} </ion-label>
+  <ion-grid>
+    <ion-row class="ion-padding-top IonGroupPadding">
+      <ion-col>
+        <ion-label>Yes</ion-label>
+        <ion-radio value="Yes">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>No</ion-label>
+        <ion-radio value="No">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>N/A</ion-label>
+        <ion-radio value="N/A"></ion-radio>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-radio-group>
 </div>
+
 
 <div *ngIf="!auditQuestion">
-  <span class="label label-primary">{{question.question}}</span>
-  <div class="form-group" role="group">
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
-    </label>
-    <label class="radio-inline">
-      <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
-    </label>
-  </div>
+    <!-- <h1 class="label label-prmary">Question</h1> -->
 
-
+<ion-radio-group [(ngModel)]="question.answer">
+  <ion-label>{{question.question}} </ion-label>
+  <ion-grid>
+    <ion-row class="ion-padding-top IonGroupPadding">
+      <ion-col>
+        <ion-label>Yes</ion-label>
+        <ion-radio value="Yes">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>No</ion-label>
+        <ion-radio value="No">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>N/A</ion-label>
+        <ion-radio value="N/A"></ion-radio>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-radio-group>
 </div>
+
+<!-- <ion-text color="danger" >
+  <h4 >There is No Question in this division please change the Previous Answer</h4>
+</ion-text> -->
+

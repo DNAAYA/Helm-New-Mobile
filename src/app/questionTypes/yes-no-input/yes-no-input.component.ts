@@ -1,6 +1,4 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { AuditQuestion } from 'src/app/models/auditQuestion';
-import { Question } from 'src/app/models/question';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
@@ -20,7 +18,7 @@ export class YesNoInputComponent implements OnInit {
 
   async ngOnInit() {
     console.log('audit Key', this.auditKey);
-     await this.db.checkAuditQuestions(this.auditKey, this.question.question_ID).then((res => {
+     await this.db.checkAuditQuestions(this.auditKey, this.question).then((res => {
       console.log('check audit question result>> ', res);
       if(res['status'] == true) {
         this.auditQuestion = res['question'];

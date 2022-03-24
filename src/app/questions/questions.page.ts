@@ -41,6 +41,7 @@ export class QuestionsPage implements OnInit {
   subId: any;
   prId: any;
   auditKey: any;
+  test = ''
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -84,12 +85,14 @@ async getQuestions() {
        await this.dbService.getQuestionByDivID(this.divID).then((questions: Question[]) => {
           this.questionList = questions ;
           console.log('main question list >>>', this.questionList);
+          //this.checkRadio(this.questionList)
         })
     }
      else {
         await this.dbService.getDuplicatedQuestionByDuplicatedDivision(this.auditKey,this.divID).then((res: DuplicatedQuestion[]) => {
         this.questionList = res;
         console.log('duplicated question list >>>', this.questionList)
+        //this.checkRadio(this.questionList)
       })
     }
 }
@@ -186,7 +189,7 @@ async getQuestions() {
    Save() {
      console.log('save ... ')
      let auditQuestionArr = [];
-     this.questionList.map((q) => {
+     this.questionList.map((q: Question) => {
         let auditQ = new AuditQuestion(q);
 
         if(this.type == 'duplicated') {
@@ -197,6 +200,7 @@ async getQuestions() {
           
         }
         else {
+
           auditQ.division_ID = this.divID;
           auditQ.sub_ID = this.subId;
           auditQ.question_ID = q.question_ID;
@@ -212,5 +216,21 @@ async getQuestions() {
 
     // console.log('test auditQ before add', auditQuestionArr)
 
+  }
+  checkRadio(questions: any[]) {
+    questions.forEach((question,i) => {
+      console.log(question,document.getElementById('a'))
+      if (question.answer === 'Yes') document.getElementById('a').setAttribute('checked','true')
+      if (question.answer === 'No') document.getElementById('b').setAttribute('checked','true')
+      if (question.answer === 'N/A') document.getElementById('c').setAttribute('checked','true')
+    });
+
+    // if (this.question.answer === 'Yes') document.getElementById('a').setAttribute('checked','true')
+    // if (this.question.answer === 'No') document.getElementById('b').setAttribute('checked','true')
+    // if (this.question.answer === 'N/A') document.getElementById('c').setAttribute('checked','true')
+  }
+  onFocusPlace(event,q) {
+    console.log(event.target.value,q.answer)
+    q.answer = event.target.value
   }
 }

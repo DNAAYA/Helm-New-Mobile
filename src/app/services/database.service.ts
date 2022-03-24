@@ -494,18 +494,18 @@ export class DatabaseService {
   }
 
   checkAuditQuestions(auditKey, quest) : Promise <object> {
-    console.log('audit key >>', auditKey)
-    console.log('question  >>', quest)
+    // console.log('audit key >>', auditKey)
+    // console.log('question  >>', quest)
     if(quest.duplicated_ID) {
       console.log('question is duplicated ******* ',quest )
       return new Promise((resolve, reject)=> {
         this.database.ref(`/Audits/${auditKey}/duplicated-question/`).on('value', val => {
           let res = val.val();
           if(res) {
-          console.log('audit questions result >> ', res);
+          // console.log('audit questions result >> ', res);
   
           let question = Object.keys(res).map(k => res[k]).find((q: AuditQuestion) => q.question_ID == quest.duplicated_ID);
-          console.log('question >> ', question);
+          // console.log('question >> ', question);
           resolve({
             status: true,
             question: question
@@ -519,16 +519,20 @@ export class DatabaseService {
         }, reject)
       })
      
-    } else {
-      console.log('question is Main ******* ',quest )
+    } 
+    else {
+       
 
       return new Promise((resolve, reject)=> {
         this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
           let res = val.val();
           if(res) {
-          console.log('audit questions result >> ', res);
+            console.log('question is Main *** ID**** ',quest.question_ID)
+            console.log('question is Main *** main list**** ',res)
+            
+
   
-          let question = Object.keys(res).map(k => res[k]).find((q: AuditQuestion) => q.question_ID == quest.question_ID);
+          let question = Object.keys(res).map(k => res[k]).find((q: AuditQuestion) => q.question_ID === quest. question_ID);
           console.log('question >> ', question);
           resolve({
             status: true,
