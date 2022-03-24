@@ -2,21 +2,6 @@
 
     <div *ngIf="auditQuestion">
 
-      <!-- <ion-card-header style="color: black;font-size: larger;">
-        {{auditQuestion.question}}
-      </ion-card-header>
-      <div class="form-group" role="group">
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="No" [(ngModel)]="auditQuestion.answer">No
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="N/A" [(ngModel)]="auditQuestion.answer" checked>N/A
-        </label>
-      </div>
-      <ion-label *ngIf="question.answer == 'No'">{{auditQuestion.wrong_en}}</ion-label> -->
       <ion-radio-group [(ngModel)]="auditQuestion.answer">
         <ion-label>{{auditQuestion.question}} </ion-label>
         <ion-grid>
@@ -53,24 +38,13 @@
     </div>
 
     <div *ngIf="!auditQuestion">
-      
-      <!-- <ion-card-header style="color: black;font-size: larger;">
-        <div class="form-group" role="group">
-          <label class="radio-inline">
-            <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
-          </label>
-          <label class="radio-inline">
-            <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
-          </label>
-        </div>
-      </ion-card-content> -->
 
       <ion-radio-group [(ngModel)]="question.answer">
+        <ion-label>{{question.question}} </ion-label>
         <ion-grid>
+          <ion-row class="ion-padding-top IonGroupPadding">
             <ion-col>
+              <ion-label>Yes</ion-label>
               <ion-radio value="Yes">
               </ion-radio>
             </ion-col>
@@ -88,10 +62,13 @@
       </ion-radio-group>
 
       <ion-label *ngIf="question.answer == 'No'">{{question.wrong_en}}</ion-label>
+      
       <!-- #TODO: update input with right statment or wrong statmen -->
       
+      <div *ngIf="question.answer == 'Yes'">
         <p> {{rightAnswer[0]}}
           <input style="display: inline-block;width: 40px;margin: 4px;" type="number" placeholder="number...." />
+          {{rightAnswer[1]}}
         </p>
       </div>
 

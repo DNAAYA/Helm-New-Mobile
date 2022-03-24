@@ -1,55 +1,26 @@
-<!-- 
-<div class="container">
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card card-1">
-        <h3>Ionic Native</h3>
-        <p>A curated set of   ES5/ES6/TypeScript wrappers for plugins to easily add any native functionality to your Ionic apps.</p>
-      </div>
-    </div>
-  </div>
-</div> -->
+<!-- <h1 class="label label-danger">auditQuestion</h1> -->
 
-  <!-- <div *ngIf="auditQuestion" >
+<!-- <div *ngFor="let task of taskList">
   
-      <ion-card-header style="color: black;font-size: larger;">
-        {{auditQuestion.question}}
-      </ion-card-header>
-      <ion-card-content>
-        <div class="form-group" role="group">
-          <label   class="radio-inline ">
-            <input type="radio" name="optradio" value="Yes" [(ngModel)]="auditQuestion.answer">Yes
-          </label>
-          <label   class="radio-inline">
-            <input type="radio" name="optradio" value="No" [(ngModel)]="auditQuestion.answer">No
-          </label>
-          <label   class="radio-inline">
-            <input type="radio" name="optradio" value="N/A" [(ngModel)]="auditQuestion.answer" checked>N/A
-          </label>
-        </div>
-      </ion-card-content>
-  </div> 
 
-  <div *ngIf="!auditQuestion">
-  
     <ion-card-header style="color: black;">
-      {{question.question}}
+      {{  task.title  }}
     </ion-card-header>
     <ion-card-content>
-      <div class="form-group" role="group">
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="Yes" [(ngModel)]="question.answer">Yes
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="No" [(ngModel)]="question.answer">No
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="optradio" value="N/A" [(ngModel)]="question.answer" checked>N/A
-        </label>
-      </div>
+      <ion-buttons style="display: flow-root;" icon-only item-end clear [routerLink]="'/task-details/'+task.tid">
+        <ion-icon style="color: #3C3C3B; float: right;" name="chevron-forward-outline">
+        </ion-icon>
+      </ion-buttons>
     </ion-card-content>
-</div>  -->
-<!-- <h1 class="label label-danger">auditQuestion</h1> -->
+  </ion-card>
+
+
+
+</div> -->
+
+
+
+
 
 <div *ngIf="auditQuestion">
     <!-- <h1 class="label label-danger">auditQuestion</h1> -->
@@ -57,7 +28,7 @@
 <ion-radio-group [(ngModel)]="auditQuestion.answer">
   <ion-label>{{auditQuestion.question}} </ion-label>
   <ion-grid>
-    <ion-row class="ion-padding-top IonGroupPadding">
+    <ion-row>
       <ion-col>
         <ion-label>Yes</ion-label>
         <ion-radio value="Yes">
@@ -82,9 +53,9 @@
     <!-- <h1 class="label label-prmary">Question</h1> -->
 
 <ion-radio-group [(ngModel)]="question.answer">
-  <ion-label>{{question.question}} </ion-label>
+  <ion-label>{{question.question}}</ion-label>
   <ion-grid>
-    <ion-row class="ion-padding-top IonGroupPadding">
+    <ion-row>
       <ion-col>
         <ion-label>Yes</ion-label>
         <ion-radio value="Yes">
