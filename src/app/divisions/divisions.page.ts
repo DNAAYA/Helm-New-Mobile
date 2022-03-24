@@ -75,6 +75,7 @@ async  ngOnInit() {
   }
 
   duplicateDivision(div: Division, title) {
+    //console.log('')
     let duplicateDiv: DuplicateDivision  = {
       duplicated_ID: '',
       title: `# ${title}`,
@@ -82,19 +83,19 @@ async  ngOnInit() {
       parent_SubID: div.sub_ID
     }
   //  console.log('Confirm save: subtitle', object);
-    this.dbService.duplicateDivision(duplicateDiv);
+    this.dbService.duplicateDivision(this.auditKey,duplicateDiv);
   }
   
   getDuplicatedDiv(subID) {
     console.log('getDuplicatedDiv ..', subID)
-    this.dbService.getDuplicatedDivBySubID(subID).then(res => {
+    this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
       this.duplicatedDivs = res;
       console.log('duplicated Divisions', this.duplicatedDivs)
     })
   }
 
   async getDuplicatedDivByDivID(divID) {
-    await this.dbService.getDuplicatedDiv(divID).then(res => {
+    await this.dbService.getDuplicatedDiv(this.auditKey,divID).then(res => {
       console.log('duplicated divisions <<>>>', res)
 
       this.duplicatedDivs = res;
