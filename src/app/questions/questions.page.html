@@ -51,13 +51,13 @@
       <ion-fab-buttons color="secondary" *ngIf="_previousDiv"
         [routerLink]="['/questions/' + type + '/'+ _previousDiv?.divison_ID + '/' + _previousDiv?.sub_ID + '/' + _previousDiv?.priority_ID + '/' + auditKey]"
         routerLinkActive="router-link-active">
-        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-icon size="large" name="arrow-back-outline"></ion-icon>
         <!-- {{_previousDiv?.division_name}} -->
       </ion-fab-buttons>
       <ion-fab-buttons color="secondary" *ngIf="_previousSub"
         [routerLink]="['/sub-priorities/' +  _previousSub?.priority_ID + '/' + auditKey]"
         routerLinkActive="router-link-active">
-        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-icon  size="large" name="arrow-back-outline"></ion-icon>
         <!-- {{_previousDiv?.division_name}} -->
       </ion-fab-buttons>
     </ion-buttons>
@@ -72,13 +72,13 @@
         [routerLink]="['/questions/'+ type + '/' +_nextDiv?.divison_ID + '/' + _nextDiv?.sub_ID + '/' + _nextDiv?.priority_ID + '/' + auditKey]"
         routerLinkActive="router-link-active" color="secondary" *ngIf="_nextDiv">
         <!-- {{_nextDiv?.division_name}} -->
-        <ion-icon name="arrow-forward-outline"></ion-icon>
+        <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
       </ion-fab-buttons>
 
       <ion-fab-buttons fill="solid"  color="secondary" *ngIf="_nextSub"
         [routerLink]="['/sub-priorities/' + _nextSub?.priority_ID + '/' + auditKey]"
         routerLinkActive="router-link-active">
-        <ion-icon name="arrow-forward-outline"></ion-icon>
+        <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
         <!-- {{_previousDiv?.division_name}} -->
       </ion-fab-buttons>
     </ion-buttons>
