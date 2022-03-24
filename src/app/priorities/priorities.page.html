@@ -13,7 +13,7 @@
   <!-- Card Design Dynamic -->
 
   <ion-row>
-    <ion-col size="6" class="ion-padding" class="card-style-Priority" *ngFor="let pr of prioritiesList" [routerLink]="['/sub-priorities/'+ pr.priority_ID]" routerLinkActive="router-link-active">
+    <ion-col size="6" class="ion-padding" class="card-style-Priority" *ngFor="let pr of prioritiesList" [routerLink]="['/sub-priorities/'+ pr.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active">
       <img [src]="pr.priority_img"> 
     </ion-col>
   </ion-row>

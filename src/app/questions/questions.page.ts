@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Audit } from '../models/audit';
 import { AuditQuestion } from '../models/auditQuestion';
@@ -39,20 +40,23 @@ export class QuestionsPage implements OnInit {
   duplicatedDivID;
   subId: any;
   prId: any;
+  auditKey: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
     // private localDB: LocalStorageService,
     private storage: Storage,
-    private replaceServ: ReplaceService
+    private replaceServ: ReplaceService,
+    private toastController: ToastController
     
   ) { }
 
   async ngOnInit() {
    this.divID = this.activatedRoute.snapshot.params['divId'];
    this.subId = this.activatedRoute.snapshot.params['subId'];
-    this.prId = this.activatedRoute.snapshot.params['prId'];
+   this.prId = this.activatedRoute.snapshot.params['prId'];
    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
 
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
@@ -154,7 +158,15 @@ async getQuestions() {
   ionViewWillLeave() {
    this.Save();
   }
-
+  async presentToast() {
+      const toast = await this.toastController.create({
+        message: 'Your Answers have been saved.',
+        duration: 1000,
+        icon: 'checkmark-outline',
+        color: 'success'
+      });
+      toast.present();
+    }
   generateReport() {
     this.Save();
     this.dbService.generateReport('-MyELsa29JPl4wuHTycp').then(res => {
@@ -180,7 +192,10 @@ async getQuestions() {
           auditQ.question_ID = q.question_ID
         }
     //    TODO: //remove audit id and make it dynamic from local storage
-      this.dbService.addQuestionToAudit('-MyZngejZxZlGLhV34QG', auditQ);
+      this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
+        this.presentToast();
+      })
+
      })
 
     // console.log('test auditQ before add', auditQuestionArr)

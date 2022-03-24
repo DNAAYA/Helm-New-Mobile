@@ -11,7 +11,7 @@ import { Storage } from '@ionic/storage';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/Camera/ngx';
 
-const STORAGE_KEY = 'my_images';
+// const STORAGE_KEY = 'my_images';
 
 @Component({
   selector: 'app-question-details',
@@ -23,6 +23,10 @@ export class QuestionDetailsPage implements OnInit {
   questionID: string;
   saved = false;
   images = [];
+  STORAGE_KEY: string;
+  questionNote: string;
+  type: any;
+  auditKey: any;
 
   constructor(
     public alertController: AlertController, 
@@ -40,6 +44,11 @@ export class QuestionDetailsPage implements OnInit {
     private ref: ChangeDetectorRef, 
     private filePath: FilePath) {
       this.questionID = this.activatedRoute.snapshot.params['qID'];
+      this.type = this.activatedRoute.snapshot.params['type'];
+      this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+
+      
+      this.STORAGE_KEY = `Image${this.questionID}`; 
       window[`myBack`]=()=>{
         console.log('check saved baaaack', this.saved)
         if(!this.saved) {
@@ -53,23 +62,30 @@ export class QuestionDetailsPage implements OnInit {
       this.storage.create();
      }
 
- async ngOnInit() {
+  ngOnInit() {
   this.plt.ready().then(() => {
     this.loadStoredImages();
-    console.log('question id : >>> ', this.questionID)
-    if(this.questionID) {
-       this.getQuestion(this.questionID);
-    }
+      this.getQuestion();
   //  console.log('question information', this.question)
   });
    
   }
 
-  getQuestion(qid) {
-    this.dbService.getQuestion(qid).then((question: Question ) => {
-      this.question = question;
-      console.log('question information', question)
-    })
+  async getQuestion() {
+    await this.dbService.checkAuditQuestions(this.auditKey, this.questionID).then((res => {
+      console.log('check audit question result>> ', res);
+      if(res['status'] == true) {
+        this.question = res['question'];
+          console.log('question information', this.question)
+
+      } else {
+        this.dbService.getQuestion(this.questionID, this.type).then((question: any ) => {
+          this.question = question;
+          console.log('question information', question)
+        })
+      }
+    }))
+
     
   }
   
@@ -95,11 +111,11 @@ export class QuestionDetailsPage implements OnInit {
   deleteImg(imgEntry, position) {
  this.images.splice(position, 1);
  
-    this.storage.get(STORAGE_KEY).then(images => {
+    this.storage.get(this.STORAGE_KEY).then(images => {
       console.log('local storage....', images)
         let arr = JSON.parse(images);
         let filtered = arr.filter(name => name != imgEntry.name);
-        this.storage.set(STORAGE_KEY, JSON.stringify(filtered));
+        this.storage.set(this.STORAGE_KEY, JSON.stringify(filtered));
  
         var correctPath = imgEntry.filePath.substr(0, imgEntry.filePath.lastIndexOf('/') + 1);
  
@@ -110,6 +126,9 @@ export class QuestionDetailsPage implements OnInit {
   }
 
   saveNote() {
+     this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.question.question_ID).then((res) => {
+       console.log('note addded successfully', res )
+     })
     
   }
   async presentActionSheet() {
@@ -184,7 +203,7 @@ export class QuestionDetailsPage implements OnInit {
 
 
   loadStoredImages() {
-    this.storage.get(STORAGE_KEY).then(images => {
+    this.storage.get(this.STORAGE_KEY).then(images => {
       if (images) {
         let arr = JSON.parse(images);
         this.images = [];
@@ -253,14 +272,14 @@ copyFileToLocalDir(namePath, currentName, newFileName) {
 }
 
 updateStoredImages(name) {
-  this.storage.get(STORAGE_KEY).then(images => {
+  this.storage.get(this.STORAGE_KEY).then(images => {
       let arr = JSON.parse(images);
       if (!arr) {
           let newImages = [name];
-          this.storage.set(STORAGE_KEY, JSON.stringify(newImages));
+          this.storage.set(this.STORAGE_KEY, JSON.stringify(newImages));
       } else {
           arr.push(name);
-          this.storage.set(STORAGE_KEY, JSON.stringify(arr));
+          this.storage.set(this.STORAGE_KEY, JSON.stringify(arr));
       }
 
       let filePath = this.file.dataDirectory + name;

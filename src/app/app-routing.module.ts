@@ -12,11 +12,11 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
     loadChildren: () => import('./priorities/priorities.module').then( m => m.PrioritiesPageModule)
   },
   {
-    path: 'sub-priorities/:id',
+    path: 'sub-priorities/:id/:auditKey',
     loadChildren: () => import('./sub-priorities/sub-priorities.module').then( m => m.SubPrioritiesPageModule)
   },
   {
-    path: 'divisions/:type/:subID',
+    path: 'divisions/:type/:subID/:auditKey',
     loadChildren: () => import('./divisions/divisions.module').then( m => m.DivisionsPageModule)
   },
   {
@@ -32,11 +32,11 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
   },
   {
-    path: 'questions/:type/:divId/:subId/:prId',
+    path: 'questions/:type/:divId/:subId/:prId/:auditKey',
     loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule),
   },
   {
-    path: 'details/:qID',
+    path: 'details/:qID/:type/:auditKey',
     loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)
   },
 ];
