@@ -59,7 +59,6 @@ export class Question {
             this.parentAnwer = question.parentAnwer;
             this.parentID = question.parentID;
             this.inputs = question.inputs;
-            this.assessmentPoints = question.assessmentPoints
         }
     }
 }

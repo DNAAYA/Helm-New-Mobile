@@ -16,6 +16,7 @@ import { Storage } from '@ionic/storage';
 import { NetworkService } from './network.service';
 import { Audit } from '../models/audit';
 import { AuditQuestion } from '../models/auditQuestion';
+import { resolve } from 'dns';
 
 
 
@@ -98,26 +99,15 @@ export class DatabaseService {
   }
 
   getSubPriorityWithPriorityID(priorityID): Promise <Subpriority[]> {
+    console.log('priority id', priorityID)
     return new Promise((resolve, reject)=> {
-      this.networkService.onNetworkChange().subscribe(status => {
-        if(status == 0) {
-          console.log('status network Online >>>>>', status);
-          this.database.ref('/SubPriorities/').on('value',async val => {
-            let res = val.val();
-           let subPrioritiesList = Object.keys(res).map(k => res[k]);
-          await this.storage.set('SubPriorities', subPrioritiesList).then((res: Subpriority[]) => {
-             console.log('result after add subPrioritiesList in local storage >>', res)
-             let subs = res.filter(e => e.priority_ID == priorityID);
-             resolve(subs)
-           }, reject)
-          })
-        } 
-        else {
-          console.log('status network Offline >>>>>', status)
-          this.storage.get('SubPriorities').then((res: Subpriority[]) => {
-            resolve(res.filter(e => e.priority_ID == priorityID))
-          }, reject)
-        }
+      this.database.ref('/SubPriorities/').on('value', val => {
+        let res = val.val();
+    console.log('all subpriorities', res)
+
+        let subPrioritiesList = Object.keys(res).map(k => res[k]).filter((e: Subpriority) => e.priority_ID == priorityID)
+        console.log('subpriorities list >> ', subPrioritiesList);
+        resolve(subPrioritiesList)
       })
     })
   }
@@ -151,15 +141,12 @@ export class DatabaseService {
     })
   }
 
-  getDivisionBySubID(subID) {
-    let filteredDivisions = [];
+  getDivisionsBySubID(subID) {
     return new Promise((resolve, reject)=> {
       this.database.ref(`/Divisions/`).on('value', val => {
         let res = val.val();
-       let divList = Object.keys(res).map(k => res[k]);
-       filteredDivisions = divList.filter(d => d.sub_ID == subID);    
-        resolve(filteredDivisions)
-        
+       let divList = Object.keys(res).map(k => res[k]).filter(d => d.sub_ID == subID);
+        resolve(divList)
       }, reject)
     })
   }
@@ -174,13 +161,23 @@ export class DatabaseService {
     })
   }
 
-  getQuestion(qID): Promise <Question> {
+  
+  getQuestion(qID, type): Promise <Question> {
     return new Promise((resolve, reject)=> {
-      this.database.ref(`/Questions/`).on('value', val => {
+      if(type == 'main') {
+        this.database.ref(`/Questions/`).on('value', val => {
+          let res = val.val();
+        let question = Object.keys(res).map(k => res[k]).find(q => q.question_ID == qID);   
+          resolve(question)
+        }, reject)
+      } else {
+        this.database.ref(`/duplicated-question/`).on('value', val => {
         let res = val.val();
-       let questionList = Object.keys(res).map(k => res[k]).find(q => q.question_ID == qID);   
-        resolve(questionList)
-      }, reject)
+        let question = Object.keys(res).map(k => res[k]).find((q: DuplicatedQuestion) => q.duplicated_ID == qID);   
+          resolve(question)
+        }, reject)
+      }
+      
     })
   }
 
@@ -203,16 +200,12 @@ export class DatabaseService {
   }
 
 
-  getQuestionByDivision(divisionID): Promise <Question>{
+  getQuestionByDivision(divisionID): Promise <Question[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref(`/Questions/`).on('value', val => {
         let res = val.val();
-       let questions = Object.keys(res).map(k => res[k]);
-       questions.forEach(element => {
-         if(element.division_ID == divisionID) {
-          resolve(element)
-         }
-       });
+        let questions = Object.keys(res).map(k => res[k]).filter((e: Question) => e.division_ID == divisionID)
+        resolve(questions)
       }, reject)
     })
   }
@@ -242,8 +235,7 @@ export class DatabaseService {
   }
 
 
-  duplicateQuestion(parentID, question: DuplicatedQuestion) {
-    question.parentDiv_ID = parentID;
+  duplicateQuestion(question: DuplicatedQuestion) {
     this.database.ref('/duplicated-question/').push(question).then(res => {
       this.database.ref(`/duplicated-question/${res.key}/`).update({
         duplicated_ID: res.key
@@ -251,31 +243,29 @@ export class DatabaseService {
     })
   }
 
-  duplicateDivision(division: DuplicateDivision) {
-    let parentID =  division.division.divison_ID;
-    division.parentID = parentID;
-    this.getDivision(parentID).then((div: Division) => {
-      console.log('division ', div);
+  updateNoteQuestion(auditKey, qKey, note) {
+    return this.database.ref(`/Audits/${auditKey}/Questions/${qKey}/`).update({
+      note: note
+    })
+  }
 
-      division.division = div;
-      this.database.ref(`/duplicated-division/`).push(division).then(res => {
-        this.database.ref(`/duplicated-division/${res.key}/`).update({
-          duplicated_ID: res.key
+  duplicateDivision(division: DuplicateDivision) {
+    this.database.ref(`/duplicated-division/`).push(division).then(res => {
+      this.database.ref(`/duplicated-division/${res.key}/`).update({
+        duplicated_ID: res.key
+      });
+      // duplicate question after division
+      this.getQuestionByDivision(division.parent_DivID)
+      .then((ques: Question[]) => {
+        ques.forEach(q => {
+          let duplicatedQuestion = new DuplicatedQuestion(q);
+          duplicatedQuestion.parentDiv_ID = res.key;
+          duplicatedQuestion.parentSub_ID = division.parent_SubID
+          this.duplicateQuestion(duplicatedQuestion);
         });
-        // duplicate question after division
-        this.getQuestionByPr_Sub_Division(div.priority_ID, div.sub_ID, div.divison_ID)
-        .then((ques: Question[]) => {
-          let duplicatedQuestion: DuplicatedQuestion = {
-            questions: ques,
-            duplicated_ID: '',
-            parentDiv_ID: res.key,
-            type: 'duplicated'
-          }
-          this.duplicateQuestion(res.key, duplicatedQuestion);
-        })
+        
       })
     })
-  
   }
 
 // duplicated sub & duplicate division & duplicate question 
@@ -287,30 +277,52 @@ export class DatabaseService {
         duplicated_ID: key
       })
       // get all divisions by sub id to copy into duplicated divisions;
-      this.getDivisionBySubID(subPriority.parentSub.sub_ID).then((divs: Division[]) => {
+      this.getDivisionsBySubID(subPriority.parent_SubID).then((divs: Division[]) => {
         divs.forEach((div: Division) => {
           let duplicateDiv: DuplicateDivision  = {
-            division: div,
             duplicated_ID: '',
-            parentID: div.divison_ID,
+            parent_DivID: div.divison_ID,
+            parent_SubID: res.key,
             title: `# ${div.division_name}`
           }
-          this.duplicateDivision(duplicateDiv);
+        this.duplicateDivision(duplicateDiv)
         });
       })
       // duplicate division after duplicate sub
     })
   }
 
+  deleteDuplicateSubPriority(key){
+    return this.database.ref(`/duplicated-question/`).once('value', val => {
+      let arr: [] = val.val();
+      let q = Object.keys(arr).map(k => arr[k]).filter((e: DuplicatedQuestion) => e.parentSub_ID == key);
+      console.log('question array >> ', q);
+      q.forEach((ques: DuplicatedQuestion) => {
+        this.database.ref(`/duplicated-question/${ques.duplicated_ID}`).remove();
+      })
+    }).then(() => {
+      this.database.ref(`/duplicated-division/`).once('value', val => {
+      let arr: [] = val.val();
+      let div = Object.keys(arr).map(k => arr[k]).filter((e: DuplicateDivision) => e.parent_SubID == key);
+      console.log('division array >> ', div);
+      div.forEach((d: DuplicateDivision) => {
+        this.database.ref(`/duplicated-division/${d.duplicated_ID}`).remove();
+      })
+    })
+    }).then(() => {
+      this.database.ref(`/duplicated-subPriority/${key}`).remove()
+    })
+    // .then(() => { 
+    //   this.database.ref(`/duplicated-division/`).
+    // })
+  }
 
   getDuplicatedSub(subID) : Promise <DuplicatedSub[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref('/duplicated-subPriority/').on('value', val => {
-
         let res = val.val();
         if(res) {
-          let dSubs = Object.keys(res).map(k => res[k]);
-          let duplicatedSub = dSubs.filter(e => e.parentSub.sub_ID == subID);
+          let duplicatedSub = Object.keys(res).map(k => res[k]).filter((e: DuplicatedSub) => e.parent_SubID == subID);
            resolve(duplicatedSub)
         } else {
           resolve(res)
@@ -323,12 +335,11 @@ export class DatabaseService {
   getDuplicatedDiv(divID) : Promise <DuplicatedSub[]>{
     return new Promise((resolve, reject)=> {
       this.database.ref('/duplicated-division/').on('value', val => {
-
         let res = val.val();
         if(res) {
-          let dDivs = Object.keys(res).map(k => res[k]);
-          let duplicated_Divs = dDivs.filter(e => e.parentID == divID);
-           resolve(duplicated_Divs)
+          let duplicated_Divs = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_DivID == divID)
+          console.log('duplicated_Divs >>>', duplicated_Divs)
+          resolve(duplicated_Divs)
         } else {
           resolve(res)
         }
@@ -344,13 +355,11 @@ export class DatabaseService {
 
         let res = val.val();
         if(res) {
-        let dDivs = Object.keys(res).map(k => res[k]);
-        let duplicatedDiv = dDivs.filter(e => e.division.sub_ID == subID);
+        let duplicatedDiv = Object.keys(res).map(k => res[k]).filter((e: DuplicateDivision) => e.parent_SubID == subID);
         resolve(duplicatedDiv)
         } else {
           resolve(res)
         }
-    
       }, reject)
     })
   }
@@ -362,11 +371,10 @@ export class DatabaseService {
         let res = val.val();
         console.log('result',  res)
         if(res) {
-        let dquestions = Object.keys(res).map(k => res[k])
+        let dquestions = Object.keys(res).map(k => res[k]).filter((e: DuplicatedQuestion) => e.parentDiv_ID == divID);
        // console.log('duplicated questions', dquestions);
-        let questionList = dquestions.filter(e => e.parentDiv_ID == divID);
-         console.log('questionList', questionList);
-        resolve(questionList[0].questions)
+         console.log('questionList', dquestions);
+        resolve(dquestions)
         } else {
           resolve(res)
         }
@@ -375,22 +383,24 @@ export class DatabaseService {
   }
 
 
-  addAudit(audit: Audit, taskid) {
-    this.database.ref('/Audits/').on('value', val => {
-      
-      
+  addAudit(audit: Audit, taskid): Promise<string> {
+     return new Promise((resolve, reject)=> {
+    this.database.ref('/Audits/').once('value', val => {
       console.log('all audits', val.val());
       if(val.val()) {
         let auditTask: Audit = Object.keys(val.val()).map(k => val.val()[k]).find((e: Audit) => e.taskID == taskid);
         if(auditTask) {
-          console.log('audit already exist', auditTask.id);
+          console.log('audit already exist', auditTask);
+          resolve(auditTask.id);
         } else {
           console.log('audit before add', audit );
           this.database.ref('/Audits/').push(audit).then(res => {
             this.database.ref(`/Audits/${res.key}/`).update({
               id: res.key
             });
-            this.storage.set(`TaskAudit-${taskid}`, audit);
+            // this.storage.set(`TaskAudit-${taskid}`, audit);
+            resolve(res.key);
+
           })
         }
       } else {
@@ -398,10 +408,13 @@ export class DatabaseService {
           this.database.ref(`/Audits/${res.key}/`).update({
             id: res.key
           });
-          this.storage.set(`TaskAudit-${taskid}`, audit);
+          // this.storage.set(`TaskAudit-${taskid}`, audit);
+          resolve(res.key);
         })
       }
     })
+
+     })
 
   }
 
@@ -418,34 +431,91 @@ export class DatabaseService {
   }
 
   ///////////////// PAUSE ?????????? check if question exist before add another question;
-  addQuestionToAudit(taskID, q: AuditQuestion, questionID) {
-    this.getAuditByTaskID(taskID).then((audit: Audit) => {
-      console.log('task audit', audit)
-      this.database.ref(`/Audits/${audit.id}/Questions`).on('value', val => {
-        let arr = val.val();
-        if(arr) {
-          let question = Object.keys(arr).map(k => arr[k]).find((q: AuditQuestion) => q.question.question_ID == questionID);
-          if(question) {
-            this.database.ref(`/Audits/${audit.id}/Questions/${questionID}`).update(q);
-           } else {
-            this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
-           }
-        } else {
-          this.database.ref(`/Audits/${audit.id}/Questions`).push(q).then(res => console.log('question added to audit'))
+  addQuestionToAudit(auditID, q: AuditQuestion) {
 
+
+    return  this.database.ref(`/Audits/${auditID}/Questions`).once('value', val => {
+        let arr = val.val();
+      //  console.log('questions inside audit:', arr)
+        if(arr) {
+          console.log('audit question ducoment  exist:  ');
+          let question = Object.keys(arr).map(k => arr[k]).find((auditQ: AuditQuestion) => auditQ.question_ID == q.question_ID);
+          if(question) {
+            console.log('question exist in audit questions..', question);
+            console.log('question before update..', q);
+
+             this.database.ref(`/Audits/${auditID}/Questions/`).child(question.id).update({
+               answer: q.answer,
+               inputs: q.inputs
+             })
+           } else {
+             console.log('question not exist in audit questions..', q)
+            this.database.ref(`/Audits/${auditID}/Questions`).push(q).then(res => {
+              console.log('result after add question', res.key);
+              this.database.ref(`/Audits/${auditID}/Questions/${res.key}/`).update({
+                id: res.key
+              });
+            })
+           }
         }
-        
-         
+        else {
+          console.log('audit question ducoment Not exist:');
+            this.database.ref(`/Audits/${auditID}/Questions`).push(q).then(res => {
+              console.log('result after add question', res.key);
+              this.database.ref(`/Audits/${auditID}/Questions/${res.key}/`).update({
+                id: res.key
+              });
+            })  
+        }  
       })
-    })
    
   }
 
-  addDivisionToAudit(taskID, division) {
-    this.getAuditByTaskID(taskID).then((audit: Audit) => {
-      console.log('task audit', audit)
-      this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
-    })
+  // addDivisionToAudit(taskID, division) {
+  //   this.getAuditByTaskID(taskID).then((audit: Audit) => {
+  //     console.log('task audit', audit)
+  //     this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
+  //   })
+  // }
+
+
+  generateReport(auditID) {
+    return this.database.ref(`/Audits/${auditID}/`).update({
+        reported: true
+      });
   }
 
+  checkAuditQuestions(auditKey, questionKey) : Promise <object> {
+    console.log('audit key >>', auditKey)
+    console.log('question key >>', questionKey)
+
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+        let res = val.val();
+        if(res) {
+        console.log('audit questions result >> ', res);
+
+        let question = Object.keys(res).map(k => res[k]).find((q: AuditQuestion) => q.question_ID == questionKey);
+        console.log('question >> ', question);
+        resolve({
+          status: true,
+          question: question
+        })
+        } else {
+          resolve({
+          status: false,
+          question: ''
+        })
+        }
+      }, reject)
+    })
+    
+  }
+
+  // checkQuestionExistOnAudit(qKey): Promise <boolean> {
+  //   return new Promise((resolve, reject)=> {
+  //     this.database.ref(`/Audits/`).on('value', val => {
+  //   })
+  // }
+  // }
 }

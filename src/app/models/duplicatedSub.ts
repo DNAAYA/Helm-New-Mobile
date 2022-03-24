@@ -2,19 +2,15 @@ import { Subpriority } from "./Subpriority";
 
 export class DuplicatedSub {
     duplicated_ID: string;
-    parentSub: Subpriority;
     subTitle: string;
-    parentID: string;
+    parent_SubID: string;
    // taskID: string;
 
     constructor(duplicatedSub){
         {
             this.duplicated_ID = duplicatedSub.duplicatedID;
-            this.parentSub = duplicatedSub.parentSub;
             this.subTitle = duplicatedSub.subTitle;
-            this.parentID = duplicatedSub.parentID;
-           // this.taskID = duplicatedSub.taskID;
-            
+            this.parent_SubID = duplicatedSub.parent_SubID;            
         }
     }
 }

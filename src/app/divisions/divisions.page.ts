@@ -15,24 +15,25 @@ export class DivisionsPage implements OnInit {
   divisionList = [];
   duplicatedDivs = [];
   type;
+  auditKey: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
+    //  private localD   B: LocalStorageService
     private alertController: AlertController,
-  //  private localDB: LocalStorageService
   ) { }
 
 async  ngOnInit() {
     let subID = this.activatedRoute.snapshot.params['subID'];
-    let prID = this.activatedRoute.snapshot.params['prID'];
-     this.type = this.activatedRoute.snapshot.params['type'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+
     console.log('Sub priority ID', subID);
-    console.log(' priority ID', prID);
     console.log(' router type', this.type);
 
     if(this.type == 'main') {
       // get sub priorities 
-    await  this.dbService.getDivisionBySubID(subID).then((divs: Division[]) => {
+    await  this.dbService.getDivisionsBySubID(subID).then((divs: Division[]) => {
         this.divisionList = divs;
       }) 
       console.log('Main content Division ..', this.divisionList)
@@ -75,10 +76,10 @@ async  ngOnInit() {
 
   duplicateDivision(div: Division, title) {
     let duplicateDiv: DuplicateDivision  = {
-      division: div,
       duplicated_ID: '',
-      title: title,
-      parentID: div.divison_ID
+      title: `# ${title}`,
+      parent_DivID: div.divison_ID,
+      parent_SubID: div.sub_ID
     }
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateDivision(duplicateDiv);
@@ -88,13 +89,16 @@ async  ngOnInit() {
     console.log('getDuplicatedDiv ..', subID)
     this.dbService.getDuplicatedDivBySubID(subID).then(res => {
       this.duplicatedDivs = res;
-      console.log('duplicated Divisions', res)
+      console.log('duplicated Divisions', this.duplicatedDivs)
     })
   }
 
-  getDuplicatedDivByDivID(divID) {
-    this.dbService.getDuplicatedDiv(divID).then(res => {
+  async getDuplicatedDivByDivID(divID) {
+    await this.dbService.getDuplicatedDiv(divID).then(res => {
+      console.log('duplicated divisions <<>>>', res)
+
       this.duplicatedDivs = res;
+      console.log('duplicated divisions', this.duplicatedDivs)
     })
 
   }

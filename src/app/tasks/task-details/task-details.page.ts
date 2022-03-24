@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { AlertController, LoadingController } from '@ionic/angular';
@@ -704,18 +704,32 @@ async editTimeslot(){
       createdAt: Date.now(),
       createdBy: t.selectedUser,
       id: '',
-      subTitle: '',
-      divTitle: '',
       title: t.title,
       taskID: t.tid,
-      divs: [{}],
+      reported: false,
       questions: [],
-      subs: [{}]
       
     }
-    this.dbService.addAudit(audit, this.taskID);
+    this.dbService.addAudit(audit, this.taskID).then((auditKey: string) => {
+     console.log('audit key', auditKey);
+     this.storage.set(`helmTask-`, this.taskDetails);
+     this.storage.set(`helmAudit-`, auditKey);
+      if(auditKey) {
+        let navigationExtras: NavigationExtras = {
+          queryParams: {
+            auditKey: auditKey
+          }
+        };
+        this.router.navigate(['priorities'], navigationExtras);
+      }
+
+
+    //  this.router.navigate(['priorities',{auditKey : auditKey}])
+    //  this.router.navigateByUrl('/priorities/' + auditKey)
+
+
+    })
     // add task id to local storage
-     this.storage.set(`helmTask-`, this.taskDetails)
 
   }
 }

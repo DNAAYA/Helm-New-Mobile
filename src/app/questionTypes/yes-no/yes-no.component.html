@@ -1,22 +1,54 @@
 
 
+<div *ngIf="auditQuestion">
+<ion-radio-group [(ngModel)]="auditQuestion.answer">
+  <ion-label>{{auditQuestion.question}} </ion-label>
+  <ion-grid>
+    <ion-row class="ion-padding-top IonGroupPadding">
+      <ion-col>
+        <ion-label>Yes</ion-label>
+        <ion-radio value="Yes">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>No</ion-label>
+        <ion-radio value="No">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>N/A</ion-label>
+        <ion-radio value="N/A"></ion-radio>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-radio-group>
+</div>
+
+
+<div *ngIf="!auditQuestion">
 <ion-radio-group [(ngModel)]="question.answer">
-  <ion-label>{{question.question}}</ion-label>
-    <ion-grid>
-      <ion-row class="ion-padding-top">
-        <ion-col>
-          <ion-label>Yes</ion-label>
-          <ion-radio [value]="question.right_en">
-          </ion-radio>
-        </ion-col>
-        <ion-col>
-          <ion-label>No</ion-label>
-          <ion-radio [value]="question.wrong_en">
-          </ion-radio>
-        </ion-col>
-        <ion-col>
-          <ion-label>N/A</ion-label>
-          <ion-radio value="N/A"></ion-radio>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+  <ion-label>{{question.question}} </ion-label>
+  <ion-grid>
+    <ion-row class="ion-padding-top IonGroupPadding">
+      <ion-col>
+        <ion-label>Yes</ion-label>
+        <ion-radio value="Yes">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>No</ion-label>
+        <ion-radio value="No">
+        </ion-radio>
+      </ion-col>
+      <ion-col>
+        <ion-label>N/A</ion-label>
+        <ion-radio value="N/A"></ion-radio>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-radio-group>
+</div>
+
+<!-- <ion-text color="danger" >
+  <h4 >There is No Question in this division please change the Previous Answer</h4>
+</ion-text> -->

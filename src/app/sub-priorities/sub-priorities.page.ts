@@ -16,6 +16,7 @@ import { LocalStorageService } from '../services/local-storage.service';
 export class SubPrioritiesPage implements OnInit {
 subPrioritiesList = [];
 duplicatedSub = [];
+  auditKey: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -27,10 +28,11 @@ duplicatedSub = [];
 
   ngOnInit() {
     let prID = this.activatedRoute.snapshot.params['id'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+
     this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
-      this.storage.set('SubPriorities', subs);
       this.subPrioritiesList = subs;;
-      console.log('local sub priorities', this.subPrioritiesList)
+     // console.log('local sub priorities', this.subPrioritiesList)
     })
   }
 
@@ -41,7 +43,7 @@ duplicatedSub = [];
       console.log('duplicated sup',subs )
       this.duplicatedSub = subs;
       })
-    console.log('hello getDuplicatedSup', this.duplicatedSub);
+   // console.log('hello getDuplicatedSup', this.duplicatedSub);
   }
 
 
@@ -72,20 +74,22 @@ duplicatedSub = [];
 
     await alert.present();
     const { role } = await alert.onDidDismiss();
-    console.log('onDidDismiss resolved with role', role);
+   // console.log('onDidDismiss resolved with role', role);
   }
 
-  duplicateSupPriority(sub: Subpriority, title) {
+  duplicateSupPriority(subID, title) {
     let duplicateSub: DuplicatedSub = {
       duplicated_ID: '',
-      parentSub: sub,
-      subTitle: `${sub.sub_name}: ${title}` ,
-      parentID: sub.sub_ID
+      parent_SubID: subID.sub_ID,
+      subTitle: `# ${title}`
     }
   //  console.log('Confirm save: subtitle', object);
     this.dbService.duplicateSubPriority(duplicateSub);
   }
   
+  deleteDuplicate(id){
+    this.dbService.deleteDuplicateSubPriority(id);
+  }
   save() {
 
   }
