@@ -1,34 +1,8 @@
-<!-- <h1 class="label label-danger">auditQuestion</h1> -->
-
-<!-- <div *ngFor="let task of taskList">
-  
-
-    <ion-card-header style="color: black;">
-      {{  task.title  }}
-    </ion-card-header>
-    <ion-card-content>
-      <ion-buttons style="display: flow-root;" icon-only item-end clear [routerLink]="'/task-details/'+task.tid">
-        <ion-icon style="color: #3C3C3B; float: right;" name="chevron-forward-outline">
-        </ion-icon>
-      </ion-buttons>
-    </ion-card-content>
-  </ion-card>
-
-
-
-</div> -->
-
-
-
-
-
 <div *ngIf="auditQuestion">
-    <!-- <h1 class="label label-danger">auditQuestion</h1> -->
-
 <ion-radio-group [(ngModel)]="auditQuestion.answer">
-  <ion-label>{{auditQuestion.question}} </ion-label>
+  <ion-label style=" word-wrap: break-word;">{{auditQuestion.question}} </ion-label>
   <ion-grid>
-    <ion-row>
+    <ion-row class="ion-padding-top IonGroupPadding">
       <ion-col>
         <ion-label>Yes</ion-label>
         <ion-radio value="Yes">
@@ -50,12 +24,10 @@
 
 
 <div *ngIf="!auditQuestion">
-    <!-- <h1 class="label label-prmary">Question</h1> -->
-
 <ion-radio-group [(ngModel)]="question.answer">
-  <ion-label>{{question.question}}</ion-label>
+  <ion-label style=" word-wrap: break-word;">{{question.question}} </ion-label>
   <ion-grid>
-    <ion-row>
+    <ion-row class="ion-padding-top IonGroupPadding">
       <ion-col>
         <ion-label>Yes</ion-label>
         <ion-radio value="Yes">
@@ -78,4 +50,3 @@
 <!-- <ion-text color="danger" >
   <h4 >There is No Question in this division please change the Previous Answer</h4>
 </ion-text> -->
-

@@ -19,29 +19,24 @@
   <!-- <ion-button  expand="block" fill="clear" (click)="Save()" shape="round">
     TestSave
   </ion-button> -->
-    <ion-list>
-      <ion-item *ngFor="let q of questionList" class="ion-padding-top card-style">
+    <div>
+      <div *ngFor="let q of questionList" class="ion-padding-top card-style">
         <div>
           <app-yes-no *ngIf="q?.type == 'Yes/No'" [question]="q" [auditKey]="auditKey" ></app-yes-no>
           <app-input *ngIf="q?.type == 'Input'" [question]="q" [auditKey]="auditKey"></app-input>
           <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
-        <div slot="end" *ngIf="type == 'main'">
-          <ion-buttons *ngIf="type == 'main'" [routerLink]="['/details/' + q.question_ID + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
-            <ion-icon size="" name="chevron-forward-outline">
-            </ion-icon>
-          </ion-buttons>
-        </div>
+        
+        <ion-button slot="start" *ngIf="type == 'main'" [routerLink]="['/details/' + q.question_ID + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active" >
+          Question Details
+        </ion-button>
 
-        <div slot="end" *ngIf="type == 'duplicated'">
-          <ion-buttons [routerLink]="['/details/' + q.duplicated_ID+ '/' + type + '/' + auditKey]"
-            routerLinkActive="router-link-active" slot="end" icon-only item-end clear>
-            <ion-icon size="" name="chevron-forward-outline">
-            </ion-icon>
-          </ion-buttons>
-        </div>
-      </ion-item>
-    </ion-list>  
+        <ion-button slot="start"  *ngIf="type == 'duplicated'" [routerLink]="['/details/' + q.duplicated_ID+ '/' + type + '/' + auditKey]"
+        routerLinkActive="router-link-active" >
+          Question Details
+        </ion-button>
+      </div>
+    </div>  
 </ion-content>
 
 <ion-footer>
