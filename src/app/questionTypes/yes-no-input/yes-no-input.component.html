@@ -1,43 +1,5 @@
   
-
-    <div *ngIf="auditQuestion">
-
-      <ion-radio-group [(ngModel)]="auditQuestion.answer">
-        <ion-label>{{auditQuestion.question}} </ion-label>
-        <ion-grid>
-          <ion-row class="ion-padding-top IonGroupPadding">
-            <ion-col>
-              <ion-label>Yes</ion-label>
-              <ion-radio value="Yes">
-              </ion-radio>
-            </ion-col>
-            <ion-col>
-              <ion-label>No</ion-label>
-              <ion-radio value="No">
-              </ion-radio>
-            </ion-col>
-            <ion-col>
-              <ion-label>N/A</ion-label>
-              <ion-radio value="N/A"></ion-radio>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-radio-group>
-
-      <ion-label *ngIf="auditQuestion.answer == 'No'">{{auditQuestion.wrong_en}}</ion-label>
-          
-    <!-- #TODO: update input with right statment or wrong statmen -->
-    
-    <div *ngIf="auditQuestion.answer == 'Yes'">
-      <p> {{rightAnswer[0]}}
-        <input type="number" placeholder="number...." />
-        {{rightAnswer[1]}}
-      </p>
-    </div>
-
-    </div>
-
-    <div *ngIf="!auditQuestion">
+    <div>
 
       <ion-radio-group [(ngModel)]="question.answer">
         <ion-label>{{question.question}} </ion-label>

@@ -1,5 +1,3 @@
-import { DuplicatedQuestion } from "./duplicatedQuestion";
-import { Question } from "./question";
 
 export class AuditQuestion {
     id: string;
@@ -35,6 +33,10 @@ export class AuditQuestion {
     parentID: string;
     parentAnwer: string;
     assessmentPoints: string;
+    duplicated_ID: string;
+    parentDiv_ID: string;
+    parentSub_ID: string;
+
 
     constructor(question){
         {
@@ -65,7 +67,10 @@ export class AuditQuestion {
             this.parentID = question.parentID || '';
             this.inputs = question.inputs || '';
             this.assessmentPoints = question.assessmentPoints || '';
-            this.question = question.question || ''
+            this.question = question.question || '';
+            this.duplicated_ID = question.duplicated_ID || '';
+            this.parentDiv_ID = question.parentDiv_ID || '';
+            this.parentSub_ID = question.parentSub_ID || '';
         }
     }
 }

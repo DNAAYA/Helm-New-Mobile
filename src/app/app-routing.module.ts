@@ -35,6 +35,10 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
     path: 'questions/:type/:divId/:subId/:prId/:auditKey',
     loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule),
   },
+  // {
+  //   path: 'questions/',
+  //   loadChildren: () => import('./questions/questions.module').then( m => m.QuestionsPageModule),
+  // },
   {
     path: 'details/:qID/:type/:auditKey',
     loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)

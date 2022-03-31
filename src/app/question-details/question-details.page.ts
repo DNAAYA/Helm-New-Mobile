@@ -65,26 +65,26 @@ export class QuestionDetailsPage implements OnInit {
   ngOnInit() {
   this.plt.ready().then(() => {
     this.loadStoredImages();
-      this.getQuestion();
+      // this.getQuestion();
   //  console.log('question information', this.question)
   });
    
   }
 
   async getQuestion() {
-    await this.dbService.checkAuditQuestions(this.auditKey, this.questionID).then((res => {
-      console.log('check audit question result>> ', res);
-      if(res['status'] == true) {
-        this.question = res['question'];
-          console.log('question information', this.question)
+    // await this.dbService.checkAuditQuestions(this.auditKey, ).then((res => {
+    //   console.log('check audit question result>> ', res);
+    //   if(res['status'] == true) {
+    //     this.question = res['question'];
+    //       console.log('question information', this.question)
 
-      } else {
-        this.dbService.getQuestion(this.questionID, this.type).then((question: any ) => {
-          this.question = question;
-          console.log('question information', question)
-        })
-      }
-    }))
+    //   } else {
+    //     this.dbService.getQuestion(this.questionID, this.type).then((question: any ) => {
+    //       this.question = question;
+    //       console.log('question information', question)
+    //     })
+    //   }
+    // }))
 
     
   }
@@ -109,7 +109,7 @@ export class QuestionDetailsPage implements OnInit {
   }
 
   deleteImg(imgEntry, position) {
- this.images.splice(position, 1);
+    this.images.splice(position, 1);
  
     this.storage.get(this.STORAGE_KEY).then(images => {
       console.log('local storage....', images)
@@ -295,6 +295,67 @@ updateStoredImages(name) {
       this.ref.detectChanges(); // trigger change detection cycle
   });
 }
+// FILE STUFF
+  makeFileIntoBlob(_imagePath) {
+    // INSTALL PLUGIN - cordova plugin add cordova-plugin-file
+    return new Promise((resolve, reject) => {
+      let fileName = "";
+      this.file
+        .resolveLocalFilesystemUrl(_imagePath)
+        .then(fileEntry => {
+          let { name, nativeURL } = fileEntry;
+
+          // get the path..
+          let path = nativeURL.substring(0, nativeURL.lastIndexOf("/"));
+          console.log("path", path);
+          console.log("fileName", name);
+
+          fileName = name;
+
+          // we are provided the name, so now read the file into
+          // a buffer
+          return this.file.readAsArrayBuffer(path, name);
+        })
+        .then(buffer => {
+          // get the buffer and make a blob to be saved
+          let imgBlob = new Blob([buffer], {
+            type: "image/jpeg"
+          });
+          console.log(imgBlob.type, imgBlob.size);
+          resolve({
+            fileName,
+            imgBlob
+          });
+        })
+        .catch(e => reject(e));
+    });
+  }
+
+// uploadToFirebase(_imageBlobInfo) {
+//     console.log("uploadToFirebase");
+//     return new Promise((resolve, reject) => {
+//       let fileRef = firebase.storage()
+//                         .ref("images/" + _imageBlobInfo.fileName);
+//       let uploadTask = fileRef.put(_imageBlobInfo.imgBlob);
+//       uploadTask.on(
+//         "state_changed",
+//         (_snap: any) => {
+//           console.log(
+//             "progess " +
+//               (_snap.bytesTransferred / _snap.totalBytes) * 100
+//           );
+//         },
+//         _error => {
+//           console.log(_error);
+//           reject(_error);
+//         },
+//         () => {
+//           // completion...
+//           resolve(uploadTask.snapshot);
+//         }
+//       );
+//     });
+//   }
 
 takePicture(sourceType: PictureSourceType) {
     var options: CameraOptions = {
@@ -305,6 +366,7 @@ takePicture(sourceType: PictureSourceType) {
     };
  
     this.camera.getPicture(options).then(imagePath => {
+      
         if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { Component, OnInit, Renderer2 } from '@angular/core';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
+import { NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Audit } from '../models/audit';
 import { AuditQuestion } from '../models/auditQuestion';
@@ -13,6 +13,8 @@ import { Task } from '../models/task';
 import { DatabaseService } from '../services/database.service';
 import { LocalStorageService } from '../services/local-storage.service';
 import { ReplaceService } from '../services/replace.service';
+
+
 
 @Component({
   selector: 'app-questions',
@@ -42,27 +44,38 @@ export class QuestionsPage implements OnInit {
   prId: any;
   auditKey: any;
   test = ''
+  auditQuestions: any;
+  globalListenFunc: Function;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
     // private localDB: LocalStorageService,
     private storage: Storage,
     private replaceServ: ReplaceService,
-    private toastController: ToastController
-    
+    private toastController: ToastController,
+    private router: Router,
+    private navCtrl: NavController,
+    private renderer:Renderer2 
+
   ) { }
 
   async ngOnInit() {
-   this.divID = this.activatedRoute.snapshot.params['divId'];
-   this.subId = this.activatedRoute.snapshot.params['subId'];
 
-   // this.prId = this.activatedRoute.snapshot.params['prId'];
-   this.type = this.activatedRoute.snapshot.params['type'];
+    this.divID = this.activatedRoute.snapshot.params['divId'];
+    this.subId = this.activatedRoute.snapshot.params['subId'];
+    this.prId = this.activatedRoute.snapshot.params['prId'];
+    this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+    // this.activatedRoute.queryParams.subscribe(params => {
+    //   console.log('params >>> ', params)
+    //   this.type = params['type'];
+    //   this.subId = params['subID'];
+    //   this.divID = params['divID'];
+    //   this.prId = params["prID"];
+    //   this.auditKey = params["auditKey"];
+      
+    // });
 
-    if(this.type == 'main') {
-      this.prId = this.activatedRoute.snapshot.params['prId'];
-    }
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
     //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
@@ -71,33 +84,32 @@ export class QuestionsPage implements OnInit {
     //   })
 
     // })
+    await this.dbService.getDivisions(this.auditKey, this.type, this.subId).then(async (divs: any[]) => {
+      console.log('this.subId: ', this.subId);
+      console.log('this.type: ', this.type);
+      console.log('auditKey: ', this.auditKey);
+      console.log('div list', divs);
+      this.divList = divs;
+    }).then(() => {
 
+      // check if there is question to audit
+       this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
+          console.log('audit question  >> ', res)
+          // console.log('check audit question result>> ', res);
+          this.questionList = res['questions'];
+          console.log('audit duplicate question >> ', this.questionList);
+        
+      }));
+    })
      
-    await this.getQuestions();
+    // await this.getQuestions();
     // get divisions
-    await this.getDivision();
 
   }
 
 
-async getQuestions() {
-    if(this.type == 'main') {
-       await this.dbService.getQuestionByDivID(this.divID).then((questions: Question[]) => {
-          this.questionList = questions ;
-          console.log('main question list >>>', this.questionList);
-          //this.checkRadio(this.questionList)
-        })
-    }
-     else {
-        await this.dbService.getDuplicatedQuestionByDuplicatedDivision(this.auditKey,this.divID).then((res: DuplicatedQuestion[]) => {
-        this.questionList = res;
-        console.log('duplicated question list >>>', this.questionList)
-        //this.checkRadio(this.questionList)
-      })
-    }
-}
-
  async getDivision() {
+   
     if(this.type == 'main') 
     {
       this.dbService.getDivisionsBySubID(this.subId).then((divs: Division[]) => {
@@ -180,30 +192,33 @@ async getQuestions() {
     }
   generateReport() {
     this.Save();
-    this.dbService.generateReport('-MyELsa29JPl4wuHTycp').then(res => {
+    this.dbService.generateReport(this.auditKey).then(res => {
       
       console.log('result after generate report', res)
     })
   }
 
    Save() {
-     console.log('save ... ')
-     let auditQuestionArr = [];
-     this.questionList.map((q: Question) => {
-        let auditQ = new AuditQuestion(q);
-
+    console.log('save ... ', this.questionList)
+    this.questionList.forEach((q) => {
+    let auditQ = new AuditQuestion(q);
+     console.log('auditQ ... ', q)
         if(this.type == 'duplicated') {
-          // auditQ.division_ID = this.divID;
-          // auditQ.sub_ID = this.subId;
-          // auditQ.question_ID = q.duplicated_ID;
-          this.dbService.updateDuplicatedQuestion(this.auditKey, q);
-          
+           auditQ.division_ID = this.divID;
+           auditQ.sub_ID = this.subId;
+           auditQ.question_ID = q.duplicated_ID;
+          this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
+            this.presentToast();
+
+          })
+          console.log('audit duplicated Question >>>_>>>', auditQ);
         }
         else {
 
           auditQ.division_ID = this.divID;
           auditQ.sub_ID = this.subId;
           auditQ.question_ID = q.question_ID;
+          console.log('audit main Question >>>_>>>', auditQ);
 
           //    TODO: //remove audit id and make it dynamic from local storage
           this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
@@ -224,13 +239,105 @@ async getQuestions() {
       if (question.answer === 'No') document.getElementById('b').setAttribute('checked','true')
       if (question.answer === 'N/A') document.getElementById('c').setAttribute('checked','true')
     });
+}
 
-    // if (this.question.answer === 'Yes') document.getElementById('a').setAttribute('checked','true')
-    // if (this.question.answer === 'No') document.getElementById('b').setAttribute('checked','true')
-    // if (this.question.answer === 'N/A') document.getElementById('c').setAttribute('checked','true')
-  }
   onFocusPlace(event,q) {
     console.log(event.target.value,q.answer)
     q.answer = event.target.value
+  }
+
+
+  arrowNav(navType) {
+    console.log('sub ID', this.subId);
+     this.dbService.getDivisions(this.auditKey, this.type, this.subId).then(async (divs: any[]) => {
+        console.log('Main division list >> >> ', divs);
+          this.indexofDivision = divs.findIndex(i => i.duplicated_ID == this.divID);
+          this._thisDivision = divs[this.indexofDivision];
+          this._previousDiv = divs[this.indexofDivision - 1];
+          this._nextDiv = divs[this.indexofDivision + 1];
+        if(this.type == 'duplicated') {
+          if(navType == 'back') {
+            console.log('previous division.. ', this._thisDivision);
+            // this.router.navigate([`/questions/${this.type}/${this._previousDiv.}/-MzMSxLYUJZCyUuvWyMu/-MwWSk-IUMTss1N4jqWm/-MzMIlJSuHvEV_BYJPON`])
+            let navigationExtras: NavigationExtras = {
+                queryParams: {
+                    type:  this.type,
+                    divID: this._previousDiv.duplicated_ID,
+                    subID: this._previousDiv.parent_SubID,
+                    prID: this.prId,
+                    auditKey: this.auditKey
+                }
+            };
+            console.log('next division.. ', this._nextDiv);
+            this.navCtrl.navigateForward(`/questions/`, navigationExtras);
+          } else {
+            //...
+            let navigationExtras: NavigationExtras = {
+                queryParams: {
+                    type:  this.type,
+                    divID: this._nextDiv.duplicated_ID,
+                    subID: this._nextDiv.parent_SubID,
+                    prID: this.prId,
+                    auditKey: this.auditKey
+                }
+            };
+            console.log('next division.. ', this._nextDiv);
+            this.navCtrl.navigateForward(`/questions/`, navigationExtras);
+
+
+        }
+        } else {
+            if(navType == 'back') {
+                console.log('previous division.. ', this._thisDivision);
+                // this.router.navigate([`/questions/${this.type}/${this._previousDiv.}/-MzMSxLYUJZCyUuvWyMu/-MwWSk-IUMTss1N4jqWm/-MzMIlJSuHvEV_BYJPON`])
+                let navigationExtras: NavigationExtras = {
+                queryParams: {
+                    type:  this.type,
+                    divID: this._previousDiv.divison_ID,
+                    subID: this._previousDiv.sub_ID,
+                    prID: this.prId,
+                    auditKey: this.auditKey
+                }
+                };
+                console.log('next division.. ', this._nextDiv);
+                this.navCtrl.navigateForward(`/questions/`, navigationExtras);
+
+              } else {
+                //...
+                let navigationExtras: NavigationExtras = {
+                    queryParams: {
+                        type:  this.type,
+                        divID: this._nextDiv.divison_ID,
+                        subID: this._nextDiv.sub_ID,
+                        prID: this.prId,
+                        auditKey: this.auditKey
+                    }
+                };
+                console.log('next division.. ', this._nextDiv);
+                await this.navCtrl.navigateForward(`/questions/`, navigationExtras).then(() => {
+                  console.log('navigation test >>>')
+                })
+
+
+            }
+        }
+
+       // console.log('previous division << <<', this._previousDiv);
+       // console.log('next division >> >>', this._nextDiv);
+  
+        // if(!this._nextDiv) {
+        //   this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
+        //     this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
+        //     this._thisSub = subs[this.indexofSub];
+        //     this._previousSub = subs[this.indexofSub - 1];
+        //     this._nextSub = subs[this.indexofSub + 1];
+        //  //   console.log('previous Sub', this._previousSub);
+        //    // console.log('next Sub', this._nextSub);
+        //   })
+        // }
+  
+      })
+    // get current navigation
+
   }
 }

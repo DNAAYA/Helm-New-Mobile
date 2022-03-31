@@ -30,6 +30,9 @@
         <ion-item *ngFor="let img of images; index as pos" text-wrap>
           <ion-thumbnail slot="start">
             <ion-img [src]="img.path"></ion-img>
+            <!-- <ion-progress-bar [value]="p_bar_value" [buffer]="p_bar_buffer" *ngIf="showLoader">
+            </ion-progress-bar> -->
+
           </ion-thumbnail>
           <ion-button slot="end" color="danger" (click)="deleteImg(img, pos)">
             <ion-icon name="trash-outline"></ion-icon>

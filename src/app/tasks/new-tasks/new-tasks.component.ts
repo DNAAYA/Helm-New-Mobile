@@ -36,6 +36,7 @@ export class NewTasksComponent implements OnInit {
     } else {
       this.userID = user.uid
      await this.dbService.getNewTasks(this.userID).subscribe((tasks: Task[] )=> {
+       console.log('new tasks .. testt ', tasks)
        this.taskList = tasks
       })
     }

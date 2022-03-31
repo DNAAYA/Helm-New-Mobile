@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { ActivatedRoute, NavigationExtras } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
 import { Division } from '../models/division';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DatabaseService } from '../services/database.service';
@@ -21,6 +21,8 @@ export class DivisionsPage implements OnInit {
     private dbService: DatabaseService,
     //  private localD   B: LocalStorageService
     private alertController: AlertController,
+    private navCtrl: NavController,
+
   ) { }
 
 async  ngOnInit() {
@@ -86,9 +88,9 @@ async  ngOnInit() {
     this.dbService.duplicateDivision(this.auditKey,duplicateDiv);
   }
   
-  getDuplicatedDiv(subID) {
+  async getDuplicatedDiv(subID) {
     console.log('getDuplicatedDiv ..', subID)
-    this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
+   await this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
       this.duplicatedDivs = res;
       console.log('duplicated Divisions', this.duplicatedDivs)
     })
@@ -97,11 +99,43 @@ async  ngOnInit() {
   async getDuplicatedDivByDivID(divID) {
     await this.dbService.getDuplicatedDiv(this.auditKey,divID).then(res => {
       console.log('duplicated divisions <<>>>', res)
-
       this.duplicatedDivs = res;
       console.log('duplicated divisions', this.duplicatedDivs)
     })
 
+  }
+gotoMainQuest(div) {
+    console.log('gotoquestions div', div);
+
+  let navigationExtras: NavigationExtras = {
+        queryParams: {
+            type:  'main',
+            divID: div['divison_ID'],
+            subID: div['sub_ID'],
+            prID: div.priority_ID,
+            auditKey: this.auditKey
+        }
+    };
+    this.navCtrl.navigateForward(`/questions/`, navigationExtras);
+
+}
+  goQuestion(div) {
+    console.log('gotoquestions div', div);
+    let dnavigationExtras: NavigationExtras = {
+        queryParams: {
+            type:  'duplicated',
+            divID: div['duplicated_ID'],
+            subID: div['parent_SubID'],
+            prID: div['parent_DivID'],
+            auditKey: this.auditKey
+        }
+      }
+    this.navCtrl.navigateForward(`/questions/`, dnavigationExtras);
+
+  }
+
+  deleteDuplicatedDiv(id) {
+    this.dbService.deleteDuplicatedDivision(this.auditKey, id);
   }
 
 }

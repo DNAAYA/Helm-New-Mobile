@@ -1,55 +1,5 @@
-<!-- <h1 class="label label-danger">auditQuestion</h1> -->
 
-<!-- <div *ngFor="let task of taskList">
-  
-
-    <ion-card-header style="color: black;">
-      {{  task.title  }}
-    </ion-card-header>
-    <ion-card-content>
-      <ion-buttons style="display: flow-root;" icon-only item-end clear [routerLink]="'/task-details/'+task.tid">
-        <ion-icon style="color: #3C3C3B; float: right;" name="chevron-forward-outline">
-        </ion-icon>
-      </ion-buttons>
-    </ion-card-content>
-  </ion-card>
-
-
-
-</div> -->
-
-
-
-
-
-<div *ngIf="auditQuestion">
-    <!-- <h1 class="label label-danger">auditQuestion</h1> -->
-
-<ion-radio-group [(ngModel)]="auditQuestion.answer">
-  <ion-label>{{auditQuestion.question}} </ion-label>
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-label>Yes</ion-label>
-        <ion-radio value="Yes">
-        </ion-radio>
-      </ion-col>
-      <ion-col>
-        <ion-label>No</ion-label>
-        <ion-radio value="No">
-        </ion-radio>
-      </ion-col>
-      <ion-col>
-        <ion-label>N/A</ion-label>
-        <ion-radio value="N/A"></ion-radio>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-radio-group>
-</div>
-
-
-<div *ngIf="!auditQuestion">
+<div>
     <!-- <h1 class="label label-prmary">Question</h1> -->
 
 <ion-radio-group [(ngModel)]="question.answer">
@@ -74,8 +24,3 @@
   </ion-grid>
 </ion-radio-group>
 </div>
-
-<!-- <ion-text color="danger" >
-  <h4 >There is No Question in this division please change the Previous Answer</h4>
-</ion-text> -->
-

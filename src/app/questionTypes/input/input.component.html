@@ -1,37 +1,5 @@
-   <div *ngIf="auditQuestion">
-  <!-- Question with 2 inputs -->
-  <div *ngIf="questionWithInput.length == 3">
-    <p>
-      {{questionWithInput[0]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="number" [(ngModel)]="auditQuestion?.inputs[0].value " />
-      {{questionWithInput[1]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="number" [(ngModel)]="auditQuestion?.inputs[1].value" />
-      {{questionWithInput[2]}}
-    </p>
-  </div>
-  
-  <div *ngIf="questionWithInput.length == 2">
-    <p>
-      {{questionWithInput[0]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="number" [(ngModel)]="auditQuestion?.inputs[0].value" />
-      {{questionWithInput[1]}}
-    </p>
-  </div>
-  
-  <!-- Question with 3 inputs -->
-  <div style="display: inline-block;" *ngIf="questionWithInput.length == 4">
-    <p>
-      {{questionWithInput[0]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="number" [(ngModel)]="auditQuestion?.inputs[0].value" />
-      {{questionWithInput[1]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="number" [(ngModel)]="auditQuestion?.inputs[1].value" />
-      {{questionWithInput[2]}}
-      <input style="display: inline-block;width: 40px;margin: 4px;" type="text" [(ngModel)]="auditQuestion?.inputs[2].value" />
-    </p>
-  </div>
-   </div>
 
-      <div *ngIf="!auditQuestion">
+      <div *ngIf="question.display == true">
         <!-- Question with 2 inputs -->
         <div *ngIf="questionWithInput.length == 3">
           <p>
