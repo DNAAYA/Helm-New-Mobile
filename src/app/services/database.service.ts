@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Division } from '../models/division';
 import { Priority } from '../models/priority';
 import { Question } from '../models/question';
@@ -488,12 +488,14 @@ export class DatabaseService {
           if(question) {
             console.log('question exist in audit questions..', question);
             console.log('question before update..', q);
+            console.log('question before update.auditID.', question);
 
              this.database.ref(`/Audits/${auditID}/Questions/`).child(question.id).update({
                answer: q.answer,
                inputs: q.inputs
              })
-           } else {
+           } 
+           else {
              console.log('question not exist in audit questions..', q)
             this.database.ref(`/Audits/${auditID}/Questions`).push(q).then(res => {
               console.log('result after add question', res.key);
@@ -525,9 +527,24 @@ export class DatabaseService {
 
 
   generateReport(auditID) {
-    return this.database.ref(`/Audits/${auditID}/`).update({
-        reported: true
-      });
+   return this.database.ref(`/Audits/${auditID}/`).once('value', val => {
+      let res = val.val();
+      if(res) {
+        this.dbStore.collection('tasks').doc(res['taskID']).update({'completed': true}).then(() => {
+          this.database.ref(`/Audits/${auditID}/`).update({
+                reported: true
+            })
+        })
+        // let auditDetails = Object.keys(res).map(k => res[k])
+        console.log('audits', res);
+      }
+    })
+    // this.dbStore.collection('tasks').doc()
+    // return this.database.ref(`/Audits/${auditID}/`).update({
+    //     reported: true
+    //   }).then(() => {
+       
+    //   })
   }
 
   checkAuditQuestions(auditKey, type, divID) : Promise <object> {
@@ -536,30 +553,67 @@ export class DatabaseService {
     console.log('divID: ', divID);
 
     return new Promise((resolve, reject)=> {
-      if(type == 'duplicated') {
-        this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
-          let res = val.val();
-          if(res) {
-            let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID )
+      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+        let res = val.val();
+        console.log('checkAuditQuestions >> res: ', res);
+        if(res && type == 'duplicated') {
+          let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID )
+          if(questions) {
             resolve({
-                status: true,
-                questions: questions
+              status: true,
+              questions: questions
+            })
+          } else {
+            resolve({
+              status: false,
+              questions: ''
             })
           }
-        })
-      } 
-      else {
-        this.database.ref(`/Questions/`).on('value', val => {
-            let res = val.val();
-            console.log('checkAuditQuestions res not exist', res);
 
-            let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
+        } 
+        else if (res && type == 'main') {
+          let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.division_ID == divID )
+          // console.log('checkAuditQuestions questions: ', questions);
+          if(questions.length) {
+            console.log('checkAuditQuestions questions: ', questions);
+            resolve({
+              status: true,
+              questions: questions
+            })
+            } else {
               resolve({
-                  status: true,
-                  questions: questionList
+                status: false,
+                questions: ''
               })
-        }, reject)
-      }
+            }
+        }
+      })
+
+
+      // if(type == 'duplicated') {
+      //   this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+      //     let res = val.val();
+      //     if(res) {
+      //       let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID )
+      //       resolve({
+      //           status: true,
+      //           questions: questions
+      //       })
+      //     }
+      //   })
+      // } 
+      // else {
+      //   this.database.ref(`/Questions/`).on('value', val => {
+      //       let res = val.val();
+      //       console.log('checkAuditQuestions res not exist', res);
+
+      //       let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
+      //         resolve({
+      //             status: true,
+      //             questions: questionList
+      //         })
+      //   }, reject)
+      // }
         // this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
         //   let res = val.val();
         //   if(res) {

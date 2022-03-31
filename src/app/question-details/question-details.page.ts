@@ -126,7 +126,7 @@ export class QuestionDetailsPage implements OnInit {
   }
 
   saveNote() {
-     this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.question.question_ID).then((res) => {
+     this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
        console.log('note addded successfully', res )
      })
     

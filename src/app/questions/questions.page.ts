@@ -1,4 +1,5 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
@@ -55,8 +56,8 @@ export class QuestionsPage implements OnInit {
     private toastController: ToastController,
     private router: Router,
     private navCtrl: NavController,
-    private renderer:Renderer2 
-
+    private renderer:Renderer2 ,
+    private dbStore: AngularFirestore
   ) { }
 
   async ngOnInit() {
@@ -66,15 +67,7 @@ export class QuestionsPage implements OnInit {
     this.prId = this.activatedRoute.snapshot.params['prId'];
     this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
-    // this.activatedRoute.queryParams.subscribe(params => {
-    //   console.log('params >>> ', params)
-    //   this.type = params['type'];
-    //   this.subId = params['subID'];
-    //   this.divID = params['divID'];
-    //   this.prId = params["prID"];
-    //   this.auditKey = params["auditKey"];
-      
-    // });
+    
 
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
@@ -84,27 +77,24 @@ export class QuestionsPage implements OnInit {
     //   })
 
     // })
-    await this.dbService.getDivisions(this.auditKey, this.type, this.subId).then(async (divs: any[]) => {
-      console.log('this.subId: ', this.subId);
-      console.log('this.type: ', this.type);
-      console.log('auditKey: ', this.auditKey);
-      console.log('div list', divs);
-      this.divList = divs;
-    }).then(() => {
+    await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
+      console.log('checkAuditQuestions res: ', res);
 
-      // check if there is question to audit
-       this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
-          console.log('audit question  >> ', res)
-          // console.log('check audit question result>> ', res);
-          this.questionList = res['questions'];
-          console.log('audit duplicate question >> ', this.questionList);
-        
-      }));
-    })
-     
+      if(res['status'] == true) {
+        this.questionList = res['questions'];
+      } 
+      else {
+       await this.dbService.getQuestionByDivID(this.divID).then((res) => {
+        console.log('getQuestionByDivID res: ', res);
+
+          this.questionList = res
+        })
+      }
+    
+    
+    }));
     // await this.getQuestions();
-    // get divisions
-
+   await this.getDivision();
   }
 
 
@@ -119,17 +109,19 @@ export class QuestionsPage implements OnInit {
         this._previousDiv = divs[this.indexofDivision - 1];
         this._nextDiv = divs[this.indexofDivision + 1];
   
-       // console.log('previous division << <<', this._previousDiv);
-       // console.log('next division >> >>', this._nextDiv);
+        console.log('previous division << <<', this._previousDiv);
+        console.log('next division >> >>', this._nextDiv);
   
         if(!this._nextDiv) {
           this.dbService.getSubPriorityWithPriorityID(this.prId).then((subs: Subpriority[]) => {
+            console.log('subs: ', subs);
+            console.log('this.prId: ', this.prId);
             this.indexofSub = subs.findIndex(i => i.sub_ID == this.subId);
             this._thisSub = subs[this.indexofSub];
             this._previousSub = subs[this.indexofSub - 1];
             this._nextSub = subs[this.indexofSub + 1];
-         //   console.log('previous Sub', this._previousSub);
-           // console.log('next Sub', this._nextSub);
+            console.log('previous Sub', this._previousSub);
+             console.log('next Sub', this._nextSub);
           })
         }
   
@@ -202,8 +194,8 @@ export class QuestionsPage implements OnInit {
     console.log('save ... ', this.questionList)
     this.questionList.forEach((q) => {
     let auditQ = new AuditQuestion(q);
-     console.log('auditQ ... ', q)
         if(this.type == 'duplicated') {
+          
            auditQ.division_ID = this.divID;
            auditQ.sub_ID = this.subId;
            auditQ.question_ID = q.duplicated_ID;

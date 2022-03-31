@@ -27,7 +27,7 @@
           <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
         <div slot="end" *ngIf="type == 'main'">
-          <ion-buttons *ngIf="type == 'main'" [routerLink]="['/details/' + q.question_ID + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
+          <ion-buttons *ngIf="type == 'main'" [routerLink]="['/details/' + q.id + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
             <ion-icon size="" name="chevron-forward-outline">
             </ion-icon>
           </ion-buttons>
@@ -44,25 +44,43 @@
     </ion-list>  
 </ion-content>
 
-<!-- <ion-footer *ngIf="type == 'main'">
+ <ion-footer *ngIf="type == 'main'">
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
+    <ion-buttons slot="start" *ngIf="_previousDiv && !_previousSub">
       <ion-buttons color="secondary" 
-      [routerLink]="['/questions/' + type + '/' + _previousDiv.divison_ID + '/' + _previousDiv.sub_ID + '/' + _previousDiv.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active"
+      [routerLink]="['/questions/' + type + '/' + _previousDiv?.divison_ID + '/' + _previousDiv?.sub_ID + '/' + _previousDiv?.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active"
       >
         <ion-icon size="large" name="arrow-back-outline"></ion-icon>
       </ion-buttons>
     </ion-buttons>
 
-    <ion-buttons slot="end">
+    <ion-buttons slot="start" *ngIf="_previousSub && !_previousDiv">
       <ion-buttons color="secondary" 
-      [routerLink]="['/questions/' + type + '/' + _nextDiv.divison_ID + '/' + _nextDiv.sub_ID + '/' + _nextDiv.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active"
+      [routerLink]="['/divisions/'+ type +'/' + _previousSub.sub_ID + '/' + auditKey]" routerLinkActive="router-link-active"
+      >
+        <ion-icon size="large" name="arrow-back-outline"></ion-icon>
+      </ion-buttons>
+    </ion-buttons>
+
+
+
+    <ion-buttons slot="end" *ngIf="_nextDiv && !_nextSub ">
+      <ion-buttons color="secondary" 
+      [routerLink]="['/questions/' + type + '/' + _nextDiv?.divison_ID + '/' + _nextDiv?.sub_ID + '/' + _nextDiv?.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active"
+      >
+        <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
+      </ion-buttons>
+    </ion-buttons>
+
+    <ion-buttons slot="end" *ngIf="_nextSub && !_nextDiv ">
+      <ion-buttons color="secondary" 
+      [routerLink]="['/divisions/'+ type +'/' + _nextSub.sub_ID + '/' + auditKey]" routerLinkActive="router-link-active"
       >
         <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
       </ion-buttons>
     </ion-buttons>
   </ion-toolbar>
-</ion-footer> -->
+</ion-footer>
 
 
 <!-- <ion-footer *ngIf="type == 'duplicated'">
