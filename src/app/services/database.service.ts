@@ -557,7 +557,8 @@ export class DatabaseService {
         let res = val.val();
         console.log('checkAuditQuestions >> res: ', res);
         if(res && type == 'duplicated') {
-          let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID )
+          let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID );
+          console.log('question >>', questions)
           if(questions) {
             resolve({
               status: true,
@@ -573,7 +574,7 @@ export class DatabaseService {
         } 
         else if (res && type == 'main') {
           let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.division_ID == divID )
-          // console.log('checkAuditQuestions questions: ', questions);
+           console.log('checkAuditQuestions questions: ', questions);
           if(questions.length) {
             console.log('checkAuditQuestions questions: ', questions);
             resolve({
@@ -587,64 +588,17 @@ export class DatabaseService {
               })
             }
         }
+        else if(!res) {
+          this.getQuestionByDivID(divID).then((res: Question[]) => {
+            resolve({
+              status: true,
+              questions: res
+            })
+          })
+        }
+
+        resolve({})
       })
-
-
-      // if(type == 'duplicated') {
-      //   this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
-      //     let res = val.val();
-      //     if(res) {
-      //       let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => e.parentDiv_ID == divID )
-      //       resolve({
-      //           status: true,
-      //           questions: questions
-      //       })
-      //     }
-      //   })
-      // } 
-      // else {
-      //   this.database.ref(`/Questions/`).on('value', val => {
-      //       let res = val.val();
-      //       console.log('checkAuditQuestions res not exist', res);
-
-      //       let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
-      //         resolve({
-      //             status: true,
-      //             questions: questionList
-      //         })
-      //   }, reject)
-      // }
-        // this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
-        //   let res = val.val();
-        //   if(res) {
-        //     // console.log('checkAuditQuestions res', res);
-        //       let questions = Object.keys(res).map(k => res[k]).filter((e: AuditQuestion) => {
-        //         console.log('audit question element', e, 'div ID', divID);
-                
-        //         if(!e.parentDiv_ID) {
-        //          return e.division_ID == divID
-        //         } else {
-        //           return e.parentDiv_ID == divID
-        //         }
-        //       });
-        //      console.log('question )()() >> ', questions);
-        //       resolve({
-        //         status: true,
-        //         questions: questions
-        //       })
-        //   } else {
-        //     this.database.ref(`/Questions/`).on('value', val => {
-        //     let res = val.val();
-        //     console.log('checkAuditQuestions res not exist', res);
-
-        //     let questionList = Object.keys(res).map(k => res[k]).filter(q => q.division_ID == divID);   
-        //       resolve({
-        //           status: true,
-        //           questions: questionList
-        //       })
-        //     }, reject)
-        //   }
-        // }, reject)
       })
   }
 
