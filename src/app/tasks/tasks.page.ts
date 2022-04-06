@@ -68,6 +68,13 @@ export class TasksPage implements OnInit, OnDestroy {
       //     console.log('offline mode ***_***');
       //   })
 
+
+  }
+
+  LogOutClick() {
+    this.ngAuth.signOut().then(() => {
+      this.router.navigate(['/login']); 
+    })
   }
   ngOnDestroy(): void {
   }
