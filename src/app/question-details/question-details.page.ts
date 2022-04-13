@@ -12,7 +12,11 @@ import { FilePath } from '@ionic-native/file-path/ngx';
 import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/Camera/ngx';
  import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { finalize } from 'rxjs/operators';
+import { AuditQuestion } from '../models/auditQuestion';
 // const STORAGE_KEY = 'my_images';
+
+import { AngularFireDatabase } from '@angular/fire/compat/database';
+
 
 @Component({
   selector: 'app-question-details',
@@ -20,7 +24,8 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./question-details.page.scss'],
 })
 export class QuestionDetailsPage implements OnInit {
-  question: Question;
+  database = this.db.database.app.database('https://helm-8734b-4d96d.firebaseio.com/');  
+  question: AuditQuestion;
   questionID: string;
   saved = false;
   images = [];
@@ -28,8 +33,11 @@ export class QuestionDetailsPage implements OnInit {
   questionNote: string;
   type: any;
   auditKey: any;
+  base64Image: string;
+  downloadURL: any;
 
   constructor(
+    private db: AngularFireDatabase,
     public alertController: AlertController, 
     public actionSheetCtrl: ActionSheetController, 
     private activatedRoute: ActivatedRoute,
@@ -44,7 +52,8 @@ export class QuestionDetailsPage implements OnInit {
     private loadingController: LoadingController,
     private ref: ChangeDetectorRef, 
     private filePath: FilePath,
-    private fbStorage: AngularFireStorage) {
+    private fbStorage: AngularFireStorage
+    ) {
       this.questionID = this.activatedRoute.snapshot.params['qID'];
       this.type = this.activatedRoute.snapshot.params['type'];
       this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
@@ -67,28 +76,19 @@ export class QuestionDetailsPage implements OnInit {
   ngOnInit() {
   this.plt.ready().then(() => {
     this.loadStoredImages();
-      // this.getQuestion();
+      this.getQuestion();
   //  console.log('question information', this.question)
   });
    
   }
 
   async getQuestion() {
-    // await this.dbService.checkAuditQuestions(this.auditKey, ).then((res => {
-    //   console.log('check audit question result>> ', res);
-    //   if(res['status'] == true) {
-    //     this.question = res['question'];
-    //       console.log('question information', this.question)
-
-    //   } else {
-    //     this.dbService.getQuestion(this.questionID, this.type).then((question: any ) => {
-    //       this.question = question;
-    //       console.log('question information', question)
-    //     })
-    //   }
-    // }))
-
-    
+    // get audit question 
+    await this.dbService.getAuditQuestion(this.auditKey, this.questionID).then(((res: AuditQuestion) => {
+      console.log('audit question >>', res)
+      this.question = res;
+      this.questionNote = res['note']
+    }))
   }
   
  async QuestionDetails() {
@@ -128,29 +128,66 @@ export class QuestionDetailsPage implements OnInit {
     });
   }
 
-  saveNote() {
-     this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
+  base64ToImage(dataURI) {
+    const fileDate = dataURI.split(',');
+    // const mime = fileDate[0].match(/:(.*?);/)[1];
+    const byteString = atob(fileDate[1]);
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const int8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+      int8Array[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([arrayBuffer], { type: 'image/png' });
+    return blob;
+  }
 
-       console.log('note addded successfully', res );
-      //#TODO: save stored images to firebase 
-      this.images.forEach(element => {
-        let filePath = `testImages/${element.name}`
-        let fileRef = this.fbStorage.ref(filePath);
-        const upload = this.fbStorage.upload(filePath, element);
-        upload.snapshotChanges().pipe(
-          finalize(() => {
-            const downloadURL = fileRef.getDownloadURL();
-            downloadURL.subscribe(url => {
-                console.log('url', url)
-              });
-          })
-        ).subscribe();
+  async saveNote() {
+   let imagesArr = [];
+    //#TODO: save stored images to firebase 
+    await this.images.forEach((el,i) => {
+      var currentDate = Date.now();
+      const file: any = el.base64;
+      const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
+      const fileRef = this.fbStorage.ref(filePath);
+  
+      const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}`, file);
+      task.snapshotChanges()
+        .pipe(finalize(() => {
+          this.downloadURL = fileRef.getDownloadURL();
+          this.downloadURL.subscribe(downloadURL => {
+            if (downloadURL) {
+              imagesArr.push(downloadURL);
+              console.log('images uploaded successfully', downloadURL)
+            }
+            console.log(downloadURL);
+            if ( imagesArr.length === this.images.length) {
+              this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
+    
+                console.log('note addded successfully', res );
+            
+              })
+            }
+          });
+        })
+        )
+        .subscribe(url => {
+          if (url) {
+            
+          }
+        });
+
+   
+    })
+
+    console.log('images url >>', imagesArr)
 
 
-        
-      })
+    
+    //  this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
 
-     })
+    //    console.log('note addded successfully', res );
+
+    //  })
     
   }
   async presentActionSheet() {
@@ -260,12 +297,7 @@ export class QuestionDetailsPage implements OnInit {
   async selectImage() {
       const actionSheet = await this.actionSheetCtrl.create({
           header: "Select Image source",
-          buttons: [{
-                  text: 'Load from Library',
-                  handler: () => {
-                      this.takePicture(this.camera.PictureSourceType.PHOTOLIBRARY);
-                  }
-              },
+          buttons: [
               {
                   text: 'Use Camera',
                   handler: () => {
@@ -280,6 +312,7 @@ export class QuestionDetailsPage implements OnInit {
       });
       await actionSheet.present();
   }
+  
 createFileName() {
   var d = new Date(),
       n = d.getTime(),
@@ -287,15 +320,15 @@ createFileName() {
   return newFileName;
 }
 
-copyFileToLocalDir(namePath, currentName, newFileName) {
+copyFileToLocalDir(namePath, currentName, newFileName, base64) {
   this.file.copyFile(namePath, currentName, this.file.dataDirectory, newFileName).then(success => {
-      this.updateStoredImages(newFileName);
+      this.updateStoredImages(newFileName, base64);
   }, error => {
       this.presentToast('Error while storing file.');
   });
 }
 
-updateStoredImages(name) {
+updateStoredImages(name, base64) {
   this.storage.get(this.STORAGE_KEY).then(images => {
       let arr = JSON.parse(images);
       if (!arr) {
@@ -311,7 +344,8 @@ updateStoredImages(name) {
       let newEntry = {
           name: name,
           path: resPath,
-          filePath: filePath
+          filePath: filePath,
+          base64: base64
       };
 
       this.images = [newEntry, ...this.images];
@@ -387,17 +421,20 @@ takePicture(sourceType: PictureSourceType) {
     };
  
     this.camera.getPicture(options).then(imagePath => {
+      
         if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
+          let base64Image = 'data:image/JPEG;base64,' + imagePath
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {
                     let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
                     let currentName = imagePath.substring(imagePath.lastIndexOf('/') + 1, imagePath.lastIndexOf('?'));
-                    this.copyFileToLocalDir(correctPath, currentName, this.createFileName());
+                    this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), base64Image);
                 });
         } else {
+          let base64Image = 'data:image/JPEG;base64,' + imagePath
             var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
             var correctPath = imagePath.substr(0, imagePath.lastIndexOf('/') + 1);
-            this.copyFileToLocalDir(correctPath, currentName, this.createFileName());
+            this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), base64Image);
         }
     });
  

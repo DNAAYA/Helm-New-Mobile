@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { QuestionDetailsPageRoutingModule } from './question-details-routing.module';
 
 import { QuestionDetailsPage } from './question-details.page';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+//import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 
 @NgModule({
@@ -16,7 +16,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
     FormsModule,
     IonicModule,
     QuestionDetailsPageRoutingModule,
-    AngularFirestore
+    //AngularFirestore
   ],
   declarations: [QuestionDetailsPage]
 })

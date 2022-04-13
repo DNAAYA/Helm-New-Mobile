@@ -55,6 +55,15 @@
       </ion-buttons>
     </ion-buttons>
 
+
+    <ion-buttons slot="end">
+      <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
+      <ion-button style="color: black;font-weight: bold;font-size: inherit;" size="large"  fill="solid" [routerLink]="['/questions/']" routerLinkActive="router-link-active">
+        Priorities Page
+      </ion-button>
+    </ion-buttons>
+
+
     <ion-buttons slot="start" *ngIf="_previousSub && !_previousDiv">
       <ion-buttons color="secondary" 
       [routerLink]="['/divisions/'+ type +'/' + _previousSub.sub_ID + '/' + auditKey]" routerLinkActive="router-link-active"
@@ -82,7 +91,16 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
-
+<ion-footer *ngIf="type == 'duplicated'">
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
+      <ion-button style="color: black;font-weight: bold;font-size: inherit;" size="large"  fill="solid" [routerLink]="['/questions/']" routerLinkActive="router-link-active">
+        Priorities Page
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
 
 <!-- <ion-footer *ngIf="type == 'duplicated'">
   <ion-toolbar color="primary">

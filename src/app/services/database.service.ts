@@ -261,9 +261,10 @@ export class DatabaseService {
     })
   }
 
-  updateNoteQuestion(auditKey, qKey, note) {
+  updateNoteQuestion(auditKey, qKey, note, images: any[]) {
     return this.database.ref(`/Audits/${auditKey}/Questions/${qKey}/`).update({
-      note: note
+      note: note,
+      images: images
     })
   }
 
@@ -467,6 +468,18 @@ export class DatabaseService {
     })
   }
 
+
+  getAuditQuestion(auditKey, qID) : Promise <AuditQuestion> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+        let res = val.val();
+        if(res) {
+        resolve(res[qID])
+        }
+      }, reject)
+    })
+  }
+
   updateDuplicatedQuestion(auditKey, q) {
     return this.database.ref(`/Audits/${auditKey}/Questions/`).child(q.duplicated_ID).update({
       answer: q.answer,
@@ -553,7 +566,7 @@ export class DatabaseService {
     console.log('divID: ', divID);
 
     return new Promise((resolve, reject)=> {
-      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', async val => {
         let res = val.val();
         console.log('checkAuditQuestions >> res: ', res);
         if(res && type == 'duplicated') {
@@ -586,6 +599,14 @@ export class DatabaseService {
                 questions: ''
               })
             }
+        } 
+        else {
+          await this.getQuestionByDivision(divID).then(res => {
+            resolve({
+              status: true,
+              questions: res
+            })
+          })
         }
       })
 
