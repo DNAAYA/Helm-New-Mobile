@@ -10,7 +10,8 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { Storage } from '@ionic/storage';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/Camera/ngx';
-
+ import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { finalize } from 'rxjs/operators';
 // const STORAGE_KEY = 'my_images';
 
 @Component({
@@ -42,7 +43,8 @@ export class QuestionDetailsPage implements OnInit {
     private plt: Platform, 
     private loadingController: LoadingController,
     private ref: ChangeDetectorRef, 
-    private filePath: FilePath) {
+    private filePath: FilePath,
+    private fbStorage: AngularFireStorage) {
       this.questionID = this.activatedRoute.snapshot.params['qID'];
       this.type = this.activatedRoute.snapshot.params['type'];
       this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
@@ -131,7 +133,22 @@ export class QuestionDetailsPage implements OnInit {
 
        console.log('note addded successfully', res );
       //#TODO: save stored images to firebase 
+      this.images.forEach(element => {
+        let filePath = `testImages/${element.name}`
+        let fileRef = this.fbStorage.ref(filePath);
+        const upload = this.fbStorage.upload(filePath, element);
+        upload.snapshotChanges().pipe(
+          finalize(() => {
+            const downloadURL = fileRef.getDownloadURL();
+            downloadURL.subscribe(url => {
+                console.log('url', url)
+              });
+          })
+        ).subscribe();
 
+
+        
+      })
 
      })
     
@@ -218,7 +235,9 @@ export class QuestionDetailsPage implements OnInit {
           this.images.push({ name: img, path: resPath, filePath: filePath });
         }
       }
-    });
+    })
+    console.log('this images', this.images)
+    return this.images;
   }
  
   pathForImage(img) {
