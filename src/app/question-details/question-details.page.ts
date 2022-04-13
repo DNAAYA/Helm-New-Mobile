@@ -107,7 +107,8 @@ export class QuestionDetailsPage implements OnInit {
     await alert.present();
     console.log('request details', )
   }
-
+  
+//#TODO: remove image from firebase too 
   deleteImg(imgEntry, position) {
     this.images.splice(position, 1);
  
@@ -127,7 +128,11 @@ export class QuestionDetailsPage implements OnInit {
 
   saveNote() {
      this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
-       console.log('note addded successfully', res )
+
+       console.log('note addded successfully', res );
+      //#TODO: save stored images to firebase 
+
+
      })
     
   }
@@ -284,7 +289,6 @@ updateStoredImages(name) {
 
       let filePath = this.file.dataDirectory + name;
       let resPath = this.pathForImage(filePath);
-
       let newEntry = {
           name: name,
           path: resPath,
