@@ -42,7 +42,11 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
   {
     path: 'details/:qID/:type/:auditKey',
     loadChildren: () => import('./question-details/question-details.module').then(m => m.QuestionDetailsPageModule)
+  },  {
+    path: 'q-details',
+    loadChildren: () => import('./q-details/q-details.module').then( m => m.QDetailsPageModule)
   },
+
 ];
  
 @NgModule({

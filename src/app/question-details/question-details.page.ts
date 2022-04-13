@@ -308,12 +308,10 @@ updateStoredImages(name) {
         .resolveLocalFilesystemUrl(_imagePath)
         .then(fileEntry => {
           let { name, nativeURL } = fileEntry;
-
           // get the path..
           let path = nativeURL.substring(0, nativeURL.lastIndexOf("/"));
           console.log("path", path);
           console.log("fileName", name);
-
           fileName = name;
 
           // we are provided the name, so now read the file into
@@ -370,7 +368,6 @@ takePicture(sourceType: PictureSourceType) {
     };
  
     this.camera.getPicture(options).then(imagePath => {
-      
         if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {

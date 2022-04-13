@@ -68,7 +68,7 @@ export class QuestionsPage implements OnInit {
     this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
     
-    console.log('checkAuditQuestions : ngOnInit ', '>>>>');
+
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
     //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
@@ -77,16 +77,14 @@ export class QuestionsPage implements OnInit {
     //   })
 
     // })
-    await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then(( res => {
-      console.log('checkAuditQuestions res (()()()()()): ');
+    await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
+      console.log('checkAuditQuestions res: ', res);
 
       if(res['status'] == true) {
-        console.log('checkAuditQuestions status true: ', res);
         this.questionList = res['questions'];
       } 
       else {
-        console.log('checkAuditQuestions status false: ', res);
-        this.dbService.getQuestionByDivID(this.divID).then((res) => {
+       await this.dbService.getQuestionByDivID(this.divID).then((res) => {
         console.log('getQuestionByDivID res: ', res);
 
           this.questionList = res
