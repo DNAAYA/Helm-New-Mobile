@@ -1,9 +1,67 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>qDetails</ion-title>
+  <ion-toolbar color="primary" >
+
+    <ion-buttons slot="start" style="margin-inline-start: 1px;">
+      <ion-back-button defaultHref="" style="--padding-start: 0px; display: contents; color: white;" icon-only icon="chevron-back-circle-outline"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-card class="card-style" style="z-index: 999;">
+    <ion-card-content>
+      <img class="pop-up-icon" src="assets/img/pop-up-icon.png" (click)="showAlert()">      
+      <h2> {{division['question']}} </h2>
+      </ion-card-content>
+    </ion-card>
 
+    
+    <!-- Photos Card -->
+    <ion-card class="card-style">
+      <ion-card-content>
+  
+        <h2 style="border-bottom: solid 3px #0056A4; width: fit-content"> Photo: </h2>
+        <br/> 
+        <img [ngClass]="{'image-style': capturedSnapURL != ''}" [src]="capturedSnapURL" />
+  <ion-button  color="primary" expand="full" (click)="takeSnap()">
+    TAKE IMAGE <ion-icon slot="icon-only" style="padding-right: 6px;" name="camera"></ion-icon>
+  </ion-button>
+
+        </ion-card-content>
+      </ion-card>
+
+    <!-- Notes Card -->
+    <ion-card class="card-style">
+
+      <ion-card-content >    
+        <h2 style="border-bottom: solid 3px #0056A4; width: fit-content">  Note: </h2>
+        
+        <br/>
+        <ion-input class="note" type="text" placeholder="Add text here" [(ngModel)]="note"></ion-input>
+      </ion-card-content>
+    </ion-card>
+    <ion-button color="primary" expand="full" (click)="addComment('comment')"> Save </ion-button>
 </ion-content>
+
+
+
+  <!-- Footer -->
+  <ion-footer class="border" style="display: inline-flex; text-align: center;"> 
+    <ion-tab-button [routerLink]="['/ada-priorities']" style="display:inline-flex;">
+      <img src="assets/img/priorities-icon.png"/>
+      <!--<ion-icon class="tab-icon" name="grid-outline"></ion-icon>-->
+      <!--<ion-label> 4 Priorities </ion-label>-->
+    </ion-tab-button>
+
+    <ion-tab-button disabled tab="" color="warning" (click)="showConfirm()" style="display:inline-flex;">
+      <img src="assets/img/generate-report-icon.png"/>
+      <!--<ion-icon class="tab-icon" name="document-text-outline"></ion-icon>-->
+      <!--<ion-label> Generate Report </ion-label>-->
+    </ion-tab-button>
+
+    <ion-tab-button disabled [routerLink]="['/sub-priority-divisions']" style="display:inline-flex;">
+      <img src="assets/img/next-division-icon.png"/>
+      <!--<ion-icon class="tab-icon" name="arrow-redo-outline"></ion-icon>-->          
+      <!--<ion-label> Next Division </ion-label>-->
+    </ion-tab-button>       
+</ion-footer>

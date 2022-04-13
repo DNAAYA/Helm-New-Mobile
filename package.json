@@ -47,7 +47,7 @@
     "cordova-plugin-filepath": "^1.6.0",
     "cordova-plugin-network-information": "^3.0.0",
     "cordova-sqlite-storage": "^6.0.0",
-    "firebase": "^9.6.6",
+    "firebase": "^7.24.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
     "zone.js": "~0.11.4"
