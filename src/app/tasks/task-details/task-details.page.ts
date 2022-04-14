@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Network } from '@ionic-native/network/ngx';
@@ -16,10 +17,11 @@ import { Todo, TodoService } from 'src/app/services/todo.service';
   styleUrls: ['./task-details.page.scss'],
 })
 export class TaskDetailsPage implements OnInit {
+  taskForm: FormGroup;
   taskID;
   taskDetails;
 
-  
+
   todos: Todo = { 
     venueName: "",
     category: "",
@@ -48,6 +50,7 @@ export class TaskDetailsPage implements OnInit {
   timeSlot: any;
   nowDate = new Date();
 
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -59,17 +62,39 @@ export class TaskDetailsPage implements OnInit {
     private todoService: TodoService,
     private loadingController: LoadingController,
     private alertController: AlertController,
-  ) { }
+    public formBuilder: FormBuilder
+  ) {
+
+    console.log('helooooooo >>>')
+   }
 
  async ngOnInit() {
+  console.log('helooooooo >>>')
+  this.taskForm = this.formBuilder.group({
+    venueName: [''],
+    category: [''],
+    address: [''],
+    contactName: [''],
+    contactNumber: [''],
+    surfaceArea: [''],
+    numberOfFloors: [''],
+    numberOfBathrooms: [''],
+    infrastructureType: [''],
+    auditDate:[''],
+    timeSlot: ['']
+  });
+
+
       this.taskID = this.activatedRoute.snapshot.params['id']
       await this.getTaskDetails();       
   }
 
   getTaskDetails(){
      this.dbService.getTaskDetails(this.taskID).then((res: Task) => {
+       this.taskForm.patchValue(res);
+
       this.taskDetails = res
-      console.log('task details', this.taskDetails);
+      console.log('task details form', this.taskForm);
     })
   }
 
@@ -112,6 +137,7 @@ export class TaskDetailsPage implements OnInit {
 
   updateTaskDetails(type) {
     if(type == 'venueName' ) {
+      console.log('update venu name', )
       this.dbService.updateTaskDetails(this.taskID, {venueName: this.venueName}).then(async () => {
        await this.getTaskDetails()
       })

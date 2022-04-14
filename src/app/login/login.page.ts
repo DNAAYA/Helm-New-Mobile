@@ -41,6 +41,7 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
+    console.log('login page test ????')
     // the validations form
     this.signIn_form = this.formBuilder.group({
       email: new FormControl('', Validators.compose([

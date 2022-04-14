@@ -31,6 +31,7 @@ export class TasksPage implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    console.log('helooooo task page >>>')
     this.ngAuth.onAuthStateChanged(user => {
             console.log('user', user)
             if (user === null) {
