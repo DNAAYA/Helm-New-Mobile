@@ -17,30 +17,13 @@
 </ion-header>
 
 <ion-content>
-  <!-- <ion-button  expand="block" fill="clear" (click)="Save()" shape="round">
-    TestSave
-  </ion-button> -->
     <ion-list>
       <ion-item *ngFor="let q of questionList">
         <div>
-          <app-yes-no *ngIf="q?.type == 'Yes/No'" [question]="q" [auditKey]="auditKey" ></app-yes-no>
-          <app-input *ngIf="q?.type == 'Input'" [question]="q" [auditKey]="auditKey"></app-input>
+          <app-yes-no *ngIf="q?.type == 'Yes/No' " [question]="q" [auditKey]="auditKey" ></app-yes-no>
+          <app-input *ngIf="q?.type == 'Input' " [question]="q" [auditKey]="auditKey"></app-input>
           <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
-        <!-- <div slot="end" *ngIf="type == 'main'">
-          <ion-buttons *ngIf="type == 'main'" [routerLink]="['/details/' + q.id + '/' + type + '/' + auditKey]" routerLinkActive="router-link-active"  slot="end" icon-only item-end clear>
-            <ion-icon size="" name="chevron-forward-outline">
-            </ion-icon>
-          </ion-buttons>
-        </div> -->
-
-        <!-- <div slot="end" *ngIf="type == 'duplicated'">
-          <ion-buttons [routerLink]="['/details/' + q.duplicated_ID+ '/' + type + '/' + auditKey]"
-            routerLinkActive="router-link-active" slot="end" icon-only item-end clear>
-            <ion-icon size="" name="chevron-forward-outline">
-            </ion-icon>
-          </ion-buttons>
-        </div> -->
       </ion-item>
     </ion-list>  
 </ion-content>
@@ -58,7 +41,7 @@
 
     <ion-buttons style="padding-right: 47px;" slot="end">
       <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
-      <ion-button shape="round" style="color: black;font-weight: bold;font-size: inherit;" size="large"  fill="solid" [routerLink]="['/questions/']" routerLinkActive="router-link-active">
+      <ion-button shape="round" style="color: black;font-weight: bold;font-size: inherit;" size="large"  fill="solid" [routerLink]="['/priorities/']" routerLinkActive="router-link-active">
         Priorities Page
       </ion-button>
     </ion-buttons>
@@ -95,31 +78,9 @@
   <ion-toolbar>
     <ion-buttons slot="end">
       <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
-      <ion-button style="color: black" size="large"  fill="solid" [routerLink]="['/questions/']" routerLinkActive="router-link-active">
+      <ion-button style="color: black" size="large"  fill="solid" [routerLink]="['/priorities/']" routerLinkActive="router-link-active">
         Priorities Page
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
-
-<!-- <ion-footer *ngIf="type == 'duplicated'">
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-buttons color="secondary" 
-      [routerLink]="['/questions/' + type + '/' + _previousDiv.duplicated_ID + '/' + _previousDiv.parent_SubID + '/' + prId + '/' + auditKey]" 
-      routerLinkActive="router-link-active"
-      >
-        <ion-icon size="large" name="arrow-back-outline"></ion-icon>
-      </ion-buttons>
-    </ion-buttons>
-
-    <ion-buttons slot="end">
-      <ion-buttons color="secondary" 
-      [routerLink]="['/questions/' + type + '/' + _nextDiv.duplicated_ID + '/' + _nextDiv.parent_SubID + '/' + prId + '/' + auditKey]" 
-      routerLinkActive="router-link-active"
-      >
-        <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
-      </ion-buttons>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-footer> -->

@@ -16,6 +16,7 @@ export class YesNoComponent implements OnInit {
   ) { }
 
  async ngOnInit() {
+   console.log('question >>>>?>>> ', this.question)
   }
 
 

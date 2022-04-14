@@ -88,7 +88,9 @@ export class QuestionDetailsPage implements OnInit {
     await this.dbService.getAuditQuestion(this.auditKey, this.questionID).then(((res: AuditQuestion) => {
       console.log('audit question >>', res)
       this.question = res;
-      this.questionNote = res['note']
+      if(res['note']) {
+        this.questionNote = res['note']
+      }
     }))
   }
   

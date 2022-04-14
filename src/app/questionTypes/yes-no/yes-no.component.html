@@ -1,5 +1,5 @@
 
-<div class="ion-padding-top card-style" style="padding: 5%;">
+<div *ngIf="question?.display == true || question?.display == 'true' " class="ion-padding-top card-style" style="padding: 5%;">
     <!-- <h1 class="label label-prmary">Question</h1> -->
 
 <ion-radio-group [(ngModel)]="question.answer">
@@ -25,11 +25,19 @@
 </ion-radio-group>
 
 <div slot="start">
-  <ion-buttons slot="end">
-    <ion-button style="color: white;font-size: medium;" size="large"  fill="solid">
+  <ion-buttons slot="end" >
+    <ion-button *ngIf="question.duplicated_ID" [routerLink]="['/details/' + question.duplicated_ID+ '/' + 'duplicated' + '/' + auditKey]"
+    routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
+      Question details 
+    </ion-button>
+    <ion-button *ngIf="!question.duplicated_ID" [routerLink]="['/details/' + question.id + '/' + 'main' + '/' + auditKey]" routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
       Question details 
     </ion-button>
   </ion-buttons>
 </div>
-
 </div>
+
+
+<!-- <span style="color: coral;" *ngIf="question?.display == false || question?.display == 'false'" color="secondary" class="ion-text-wrap">
+  Based On The Previous Answer There Is No Question Here
+</span> -->

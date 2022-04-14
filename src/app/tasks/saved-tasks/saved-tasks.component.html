@@ -1,4 +1,19 @@
 <ion-content>
+  <ion-row>
+    <ion-col size="3">
+      <!-- Default -->
+      <!-- Use a  trigger -->
+      <ion-button  size="small" (click)="presentActionSheet()">
+        <ion-icon slot="icon-only"  name="options-outline"></ion-icon>
+      </ion-button>
+    </ion-col>
+    <ion-col size="9">
+      <div class="form-group has-feedback has-search">
+        <!-- <span class="form-control-feedback"><ion-icon name="search-outline"></ion-icon> </span> -->
+        <ion-searchbar [formControl]="searchControl"></ion-searchbar>
+      </div>    
+    </ion-col>
+  </ion-row>
 
   <div *ngFor="let task of savedtaskList" >
   

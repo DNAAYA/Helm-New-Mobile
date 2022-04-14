@@ -48,6 +48,7 @@
     "cordova-plugin-network-information": "^3.0.0",
     "cordova-sqlite-storage": "^6.0.0",
     "firebase": "^7.24.0",
+    "ng2-search-filter": "^0.5.1",
     "rxjs": "~6.6.0",
     "sweetalert2": "^11.4.8",
     "tslib": "^2.2.0",

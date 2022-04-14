@@ -17,40 +17,40 @@
       <ion-card-content style="color: #3C3C3B;"  >
         <form [formGroup]="taskForm" >
         <!-- INPUT STYLE -->
-        <h3> Venue Name: {{taskDetails?.venueName}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails('venueName')">
+        <h3> Venue Name: 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>    
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Venue Name here" formControlName="venueName"  >          
         </ion-input>    
 
-        <h3> Category: {{taskDetails?.category}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails('category')">
+        <h3> Category: 
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>  
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Category here" formControlName="category" >    
         </ion-input>
 
-        <h3> Address: {{taskDetails?.address}}  
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editAddress()">
+        <h3> Address:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3> 
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Address here" formControlName="address" >      
         </ion-input>
 
-        <h3> Contact Name: {{taskDetails?.contactName}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editContactName()">
+        <h3> Contact Name: 
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Contact Name here" formControlName="contactName">       
         </ion-input> 
        
-        <h3> Contact Number: {{taskDetails?.contactNumber}} 
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editContactNumber()">
+        <h3> Contact Number:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons> <ion-buttons style="display: inline;" (click)="callNow(taskDetails?.contactNumber)" slot="">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="call" ></ion-icon>
@@ -62,48 +62,48 @@
         </ion-input> 
 
         
-        <h3> Surface Area: {{taskDetails?.surfaceArea}} 
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editSurfaceArea()">
+        <h3> Surface Area:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Surface Area here" formControlName="surfaceArea" >          
         </ion-input> 
 
-        <h3> Number Of Floors: {{taskDetails?.numberOfFloors}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editNumberOfFloors()">
+        <h3> Number Of Floors:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3> 
         <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Number Of Floors here" formControlName="numberOfFloors" >     
         </ion-input>
                   
-        <h3> Number Of Bathrooms: {{taskDetails?.numberOfBathrooms}} 
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editNumberOfBathrooms()">
+        <h3> Number Of Bathrooms:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Number Of Bathrooms here" formControlName="numberOfBathrooms">        
         </ion-input>
 
-        <h3> Infrastructure Type: {{taskDetails?.infrastructureType}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editInfra()">
+        <h3> Infrastructure Type:
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>
         <ion-input class="border" style="font-weight: lighter;" required type="text" placeholder="Edit Infrastructure Type here" formControlName="infrastructureType" >         
         </ion-input>
         
-        <h3> Audit Date: {{taskDetails?.auditDate}} 
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editAuditDate()">
+        <h3> Audit Date: 
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>
         <ion-input class="border" style="font-weight: lighter;" required type="" placeholder="Edit Audit Date here" formControlName="auditDate" >       
         </ion-input>
         
-        <h3> Assessment visit's duration: {{taskDetails?.timeSlot}} 
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTimeslot()">
+        <h3> Assessment visit's duration: 
+          <ion-buttons style="display: inline;" icon-only item-end clear  (click)="editTaskDetails()">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>

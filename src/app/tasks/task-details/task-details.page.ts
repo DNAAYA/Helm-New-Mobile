@@ -92,7 +92,6 @@ export class TaskDetailsPage implements OnInit {
   getTaskDetails(){
      this.dbService.getTaskDetails(this.taskID).then((res: Task) => {
        this.taskForm.patchValue(res);
-
       this.taskDetails = res
       console.log('task details form', this.taskForm);
     })
@@ -135,35 +134,38 @@ export class TaskDetailsPage implements OnInit {
     }, 1500);
   }
 
-  updateTaskDetails(type) {
-    if(type == 'venueName' ) {
-      console.log('update venu name', )
-      this.dbService.updateTaskDetails(this.taskID, {venueName: this.venueName}).then(async () => {
-       await this.getTaskDetails()
-      })
-    } else if( type == 'category') {
+  updateTaskDetails() {
 
-    } else if (type == 'address') {
+    this.dbService.updateTaskDetails(this.taskID, this.taskForm.value).then(async () => {
+      await this.getTaskDetails()
+     })
 
-    } else if(type == 'contactName') {
+    // if(type == 'venueName' ) {
+    //   console.log('update venu name', )
+     
+    // } else if( type == 'category') {
 
-    } else if (type == 'contactNumber') {
+    // } else if (type == 'address') {
 
-    } else if(type == 'surfaceArea') {
+    // } else if(type == 'contactName') {
 
-    } else if(type == 'numberOfFloors') {
+    // } else if (type == 'contactNumber') {
 
-    } else if(type == 'numberOfBathrooms') {
+    // } else if(type == 'surfaceArea') {
+
+    // } else if(type == 'numberOfFloors') {
+
+    // } else if(type == 'numberOfBathrooms') {
       
-    } else if(type == 'infrastructureType') {
+    // } else if(type == 'infrastructureType') {
       
-    } else if(type == 'auditDate') {
+    // } else if(type == 'auditDate') {
       
-    } else if(type == 'duration') {
+    // } else if(type == 'duration') {
       
-    } 
+    // } 
   }
-async editTaskDetails(type){
+async editTaskDetails(){
 
   const alert = await this.alertController.create({
 
@@ -180,7 +182,7 @@ async editTaskDetails(type){
       {
         text: 'Confirm',
         handler: async () => {
-          this.updateTaskDetails(type);
+          this.updateTaskDetails();
         }
       }
     ]

@@ -78,7 +78,7 @@ export class QuestionsPage implements OnInit {
 
     // })
     await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
-      console.log('checkAuditQuestions res: ', res);
+      // console.log('checkAuditQuestions res: ', res);
 
       if(res['status'] == true) {
         this.questionList = res['questions'];
@@ -90,11 +90,11 @@ export class QuestionsPage implements OnInit {
           this.questionList = res
         })
       }
-    
+      console.log('checkAuditQuestions res: ', this.questionList);
     
     }));
     // await this.getQuestions();
-   await this.getDivision();
+  //  await this.getDivision();
   }
 
 

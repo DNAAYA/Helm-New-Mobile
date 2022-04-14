@@ -28,6 +28,7 @@ import { CallNumber } from '@ionic-native/call-number/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Ng2SearchPipeModule } from 'ng2-search-filter';
 
 @NgModule({
   declarations: [AppComponent],
@@ -45,6 +46,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
     AngularFireDatabaseModule,
     ReactiveFormsModule,
      AngularFirestoreModule,
+     Ng2SearchPipeModule,
+
      TasksPageModule
   ],
   providers: [ 
