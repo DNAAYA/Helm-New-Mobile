@@ -1,5 +1,5 @@
 
-      <div>
+      <div class="ion-padding-top card-style" style="padding: 5%;">
         <!-- Question with 2 inputs -->
         <div *ngIf="questionWithInput.length == 3">
           <p>
@@ -30,4 +30,15 @@
             <input style="display: inline-block;width: 40px;margin: 4px;" type="text" [(ngModel)]="question?.inputs[2].value" />
           </p>
         </div>
+        
+        <div slot="start">
+          <ion-buttons slot="end">
+            <ion-button style="color: white;font-size: medium;" size="large"  fill="solid">
+              Question details 
+            </ion-button>
+          </ion-buttons>
+        </div>
+
+
+        
       </div>
