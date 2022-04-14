@@ -1,5 +1,5 @@
 
-<div>
+<div class="ion-padding-top card-style" style="padding: 5%;">
     <!-- <h1 class="label label-prmary">Question</h1> -->
 
 <ion-radio-group [(ngModel)]="question.answer">
@@ -23,4 +23,13 @@
     </ion-row>
   </ion-grid>
 </ion-radio-group>
+
+<div slot="start">
+  <ion-buttons slot="end">
+    <ion-button style="color: white;font-size: medium;" size="large"  fill="solid">
+      Question details 
+    </ion-button>
+  </ion-buttons>
+</div>
+
 </div>
