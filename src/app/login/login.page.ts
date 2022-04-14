@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { LoadingController, NavController } from '@ionic/angular';
+import { AlertController, LoadingController, NavController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 
 @Component({
   selector: 'app-login',
@@ -31,11 +33,14 @@ export class LoginPage implements OnInit {
     private navCtrl: NavController,
     private authServ: AuthService,
     private db: AngularFirestore,
-    private loadingController: LoadingController
-  ) { }
+    private loadingController: LoadingController,
+    private alertCTRL: AlertController,
+
+  ) { 
+
+  }
 
   ngOnInit() {
-
     // the validations form
     this.signIn_form = this.formBuilder.group({
       email: new FormControl('', Validators.compose([
@@ -48,6 +53,15 @@ export class LoginPage implements OnInit {
       ])),
     });
 
+  }
+
+  async errorAlert() {
+    let alert = await this.alertCTRL.create({
+      message: 'user name or password is wrong',
+      header: 'Alert',
+      buttons: ['OK']
+    })
+    await alert.present();
   }
 
   async loginUser() {
@@ -65,6 +79,7 @@ export class LoginPage implements OnInit {
         }
       });
     }, err => {
+      this.errorAlert();
       this.errorMessage = err.message;
     })
 

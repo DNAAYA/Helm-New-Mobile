@@ -54,12 +54,16 @@ export class QuestionDetailsPage implements OnInit {
     private filePath: FilePath,
     private fbStorage: AngularFireStorage
     ) {
-      this.questionID = this.activatedRoute.snapshot.params['qID'];
-      this.type = this.activatedRoute.snapshot.params['type'];
-      this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
 
-      
-      this.STORAGE_KEY = `Image${this.questionID}`; 
+     }
+
+  ngOnInit() {
+    this.questionID = this.activatedRoute.snapshot.params['qID'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+    this.plt.ready().then(() => {
+
+      this.STORAGE_KEY = `Images_${this.questionID}`; 
       window[`myBack`]=()=>{
         console.log('check saved baaaack', this.saved)
         if(!this.saved) {
@@ -71,14 +75,11 @@ export class QuestionDetailsPage implements OnInit {
         }
     };
       this.storage.create();
-     }
 
-  ngOnInit() {
-  this.plt.ready().then(() => {
-    this.loadStoredImages();
-      this.getQuestion();
-  //  console.log('question information', this.question)
-  });
+      this.loadStoredImages();
+        this.getQuestion();
+    //  console.log('question information', this.question)
+    });
    
   }
 
@@ -262,6 +263,7 @@ export class QuestionDetailsPage implements OnInit {
 
 
   loadStoredImages() {
+    console.log('this.STORAGE_KEY #2', this.STORAGE_KEY)
     this.storage.get(this.STORAGE_KEY).then(images => {
       if (images) {
         let arr = JSON.parse(images);
@@ -329,6 +331,7 @@ copyFileToLocalDir(namePath, currentName, newFileName, base64) {
 }
 
 updateStoredImages(name, base64) {
+  console.log('this.STORAGE_KEY', this.STORAGE_KEY)
   this.storage.get(this.STORAGE_KEY).then(images => {
       let arr = JSON.parse(images);
       if (!arr) {
@@ -338,7 +341,6 @@ updateStoredImages(name, base64) {
           arr.push(name);
           this.storage.set(this.STORAGE_KEY, JSON.stringify(arr));
       }
-
       let filePath = this.file.dataDirectory + name;
       let resPath = this.pathForImage(filePath);
       let newEntry = {
@@ -347,7 +349,6 @@ updateStoredImages(name, base64) {
           filePath: filePath,
           base64: base64
       };
-
       this.images = [newEntry, ...this.images];
       this.ref.detectChanges(); // trigger change detection cycle
   });

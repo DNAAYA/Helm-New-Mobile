@@ -63,11 +63,14 @@ export class TaskDetailsPage implements OnInit {
 
  async ngOnInit() {
       this.taskID = this.activatedRoute.snapshot.params['id']
-      console.log('task id', this.taskID);
-       await this.dbService.getTaskDetails(this.taskID).then((res: Task) => {
-        this.taskDetails = res
-      })
+      await this.getTaskDetails();       
+  }
+
+  getTaskDetails(){
+     this.dbService.getTaskDetails(this.taskID).then((res: Task) => {
+      this.taskDetails = res
       console.log('task details', this.taskDetails);
+    })
   }
 
   async loadTodo(){
@@ -107,7 +110,34 @@ export class TaskDetailsPage implements OnInit {
     }, 1500);
   }
 
-async editVenueName(){
+  updateTaskDetails(type) {
+    if(type == 'venueName' ) {
+      this.dbService.updateTaskDetails(this.taskID, {venueName: this.venueName}).then(async () => {
+       await this.getTaskDetails()
+      })
+    } else if( type == 'category') {
+
+    } else if (type == 'address') {
+
+    } else if(type == 'contactName') {
+
+    } else if (type == 'contactNumber') {
+
+    } else if(type == 'surfaceArea') {
+
+    } else if(type == 'numberOfFloors') {
+
+    } else if(type == 'numberOfBathrooms') {
+      
+    } else if(type == 'infrastructureType') {
+      
+    } else if(type == 'auditDate') {
+      
+    } else if(type == 'duration') {
+      
+    } 
+  }
+async editTaskDetails(type){
 
   const alert = await this.alertController.create({
 
@@ -118,43 +148,21 @@ async editVenueName(){
         role: 'cancel',
         cssClass: 'secondary',
         handler: () => {
-          
           console.log('Confirm Cancel');
         }
-      }, {
+      }, 
+      {
         text: 'Confirm',
         handler: async () => {
-
-          if(this.venueName){
-
-            this.db.collection('tasks').doc(this.taskID).update({
-        
-              
-              venueName: this.venueName
-             }).then(() => { this.venueName = '';})
-             
-          
-            
-          }
-          
-        
-          let loading = await this.loadingController.create({
-            message: 'Please wait...'
-          });
-        
-          loading.present();
-        
-          setTimeout(() => {
-            loading.dismiss();
-          }, 1500)
-
-         // console.log('Confirm Okay');
+          this.updateTaskDetails(type);
         }
       }
     ]
   });
 
-  await alert.present();
+  await alert.present().then(()=> {
+   // this.ngOnInit();
+  })
 }
 
 

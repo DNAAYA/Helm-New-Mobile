@@ -65,6 +65,10 @@ export class DatabaseService {
     
   }
 
+  updateTaskDetails(tid, obj) {
+    return this.dbStore.collection('tasks').doc(tid).update(obj)
+  }
+
 
   getPriorities(): Promise <Priority[]> {
     return new Promise((resolve, reject)=> {

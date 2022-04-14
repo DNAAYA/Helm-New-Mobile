@@ -24,7 +24,7 @@
         <!-- INPUT STYLE -->
        
         <h3> Venue Name: {{taskDetails?.venueName}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editVenueName()">
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails('venueName')">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>    
@@ -32,7 +32,7 @@
         </ion-input>    
 
         <h3> Category: {{taskDetails?.category}}
-          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editCategory()">
+          <ion-buttons style="display: inline;" icon-only item-end clear (click)="editTaskDetails('category')">
             <ion-icon slot="end" style="color: #3C3C3B; float: right;" name="create-outline"></ion-icon>
           </ion-buttons>
         </h3>  
