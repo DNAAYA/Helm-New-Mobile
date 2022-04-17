@@ -151,11 +151,11 @@ export class QuestionDetailsPage implements OnInit {
     //#TODO: save stored images to firebase 
     await this.images.forEach((el,i) => {
       var currentDate = Date.now();
-      const file: any = el.base64;
-      const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
-      const fileRef = this.fbStorage.ref(filePath);
+      var file: any = el.base64;
+      var filePath = `capturedImages/${this.auditKey}/${currentDate}.jpg`;
+      var fileRef = this.fbStorage.ref(filePath);
   
-      const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}.jpg`, file);
+      var task = this.fbStorage.upload(filePath, file);
       task.snapshotChanges()
         .pipe(finalize(() => {
           this.downloadURL = fileRef.getDownloadURL();
@@ -177,16 +177,12 @@ export class QuestionDetailsPage implements OnInit {
         )
         .subscribe(url => {
           if (url) {
-            
+            console.log('images url >>', imagesArr)
           }
         });
 
    
     })
-
-    console.log('images url >>', imagesArr)
-
-
     
     //  this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
 
@@ -425,14 +421,23 @@ takePicture(sourceType: PictureSourceType) {
     var options: CameraOptions = {
         quality: 100,
         sourceType: sourceType,
+        destinationType: this.camera.DestinationType.DATA_URL,
+        encodingType: this.camera.EncodingType.JPEG,
+        mediaType: this.camera.MediaType.PICTURE,
         saveToPhotoAlbum: false,
         correctOrientation: true
     };
+
+    /* this.camera.getPicture(options).then(imageData => {
+      var base64Image = 'data:image/jpeg;base64,' + imageData;
+      this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), base64Image);
+    }) */
  
     this.camera.getPicture(options).then(imagePath => {
       
         if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
           let base64Image = 'data:image/JPEG;base64,' + imagePath
+          this.base64Image = 'data:image/JPEG;base64,' + imagePath
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {
                     let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
