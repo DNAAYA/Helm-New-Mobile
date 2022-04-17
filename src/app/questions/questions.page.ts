@@ -68,7 +68,7 @@ export class QuestionsPage implements OnInit {
     this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
     
-
+    console.log( this.auditKey, this.type, this.divID);
     // this.storage.get('helmTask-').then((res: Task) => {
     //   this.taskID = res.tid;
     //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
@@ -79,7 +79,7 @@ export class QuestionsPage implements OnInit {
     // })
     await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
       // console.log('checkAuditQuestions res: ', res);
-
+      
       if(res['status'] == true) {
         this.questionList = res['questions'];
       } 
@@ -90,11 +90,24 @@ export class QuestionsPage implements OnInit {
           this.questionList = res
         })
       }
+      for ( let q of this.questionList ) {
+        this.dbService.getQuestions(this.auditKey)
+        .then( (questions: Question[]) => {
+          console.log(questions)
+          var question = questions.find( ques => ques.question_ID === q.parentID)
+          console.log(question)
+          if (question) {
+            if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
+              q.display = true
+            }
+          }
+        })
+      }
       console.log('checkAuditQuestions res: ', this.questionList);
     
     }));
     // await this.getQuestions();
-  //  await this.getDivision();
+    await this.getDivision();
   }
 
 

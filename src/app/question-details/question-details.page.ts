@@ -35,6 +35,7 @@ export class QuestionDetailsPage implements OnInit {
   auditKey: any;
   base64Image: string;
   downloadURL: any;
+  savedImages: any[];
 
   constructor(
     private db: AngularFireDatabase,
@@ -68,7 +69,7 @@ export class QuestionDetailsPage implements OnInit {
         console.log('check saved baaaack', this.saved)
         if(!this.saved) {
             console.log('not saved', this.saved)
-        this.saveAlert();
+            this.saveAlert();
         } else {
             console.log('saved ---- #222', this.saved)
             this.navCtrl.back();
@@ -146,6 +147,7 @@ export class QuestionDetailsPage implements OnInit {
 
   async saveNote() {
    let imagesArr = [];
+   this.saved = true
     //#TODO: save stored images to firebase 
     await this.images.forEach((el,i) => {
       var currentDate = Date.now();
@@ -153,7 +155,7 @@ export class QuestionDetailsPage implements OnInit {
       const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
       const fileRef = this.fbStorage.ref(filePath);
   
-      const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}`, file);
+      const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}.jpg`, file);
       task.snapshotChanges()
         .pipe(finalize(() => {
           this.downloadURL = fileRef.getDownloadURL();
@@ -276,8 +278,12 @@ export class QuestionDetailsPage implements OnInit {
           this.images.push({ name: img, path: resPath, filePath: filePath });
         }
       }
+      if (!this.images.length) {
+        this.savedImages = this.question.images
+      }
+      console.log('this images', this.images,this.savedImages)
     })
-    console.log('this images', this.images)
+    
     return this.images;
   }
  

@@ -26,10 +26,27 @@
     <ion-card-content>
       <h3 *ngIf="images.length == 0" text-center>Please Select Image!</h3>
 
-      <ion-list>
+      <ion-list *ngIf="images?.length">
         <ion-item *ngFor="let img of images; index as pos" text-wrap>
           <ion-thumbnail slot="start">
             <ion-img [src]="img.path"></ion-img>
+            <!-- <ion-progress-bar [value]="p_bar_value" [buffer]="p_bar_buffer" *ngIf="showLoader">
+            </ion-progress-bar> -->
+
+          </ion-thumbnail>
+          <ion-button slot="end" color="danger" (click)="deleteImg(img, pos)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+          <ion-button (click)="selectImage()" expand="block" class="ion-padding">
+            <ion-icon slot="start" name="camera-outline"></ion-icon>
+            Capture Image
+          </ion-button>
+      </ion-list>
+      <ion-list *ngIf="!images?.length">
+        <ion-item *ngFor="let img of savedImages; index as pos" text-wrap>
+          <ion-thumbnail slot="start">
+            <ion-img [src]="img"></ion-img>
             <!-- <ion-progress-bar [value]="p_bar_value" [buffer]="p_bar_buffer" *ngIf="showLoader">
             </ion-progress-bar> -->
 

@@ -20,15 +20,15 @@
     <ion-list>
       <ion-item *ngFor="let q of questionList">
         <div>
-          <app-yes-no *ngIf="q?.type == 'Yes/No' " [question]="q" [auditKey]="auditKey" ></app-yes-no>
-          <app-input *ngIf="q?.type == 'Input' " [question]="q" [auditKey]="auditKey"></app-input>
-          <app-yes-no-input *ngIf="q?.type == 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
+          <app-yes-no *ngIf="q?.type === 'Yes/No' " [question]="q" [auditKey]="auditKey" ></app-yes-no>
+          <app-input *ngIf="q?.type === 'Input' " [question]="q" [auditKey]="auditKey"></app-input>
+          <app-yes-no-input *ngIf="q?.type === 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
       </ion-item>
     </ion-list>  
 </ion-content>
 
- <ion-footer *ngIf="type == 'main'">
+ <ion-footer *ngIf="type === 'main'">
   <ion-toolbar color="primary">
     <ion-buttons slot="start" *ngIf="_previousDiv && !_previousSub">
       <ion-buttons color="secondary" 
@@ -74,11 +74,11 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-footer>
-<ion-footer *ngIf="type == 'duplicated'">
+<ion-footer *ngIf="type === 'duplicated'">
   <ion-toolbar>
     <ion-buttons slot="end">
       <!-- <ion-menu-button autoHide="false"></ion-menu-button> -->
-      <ion-button style="color: black" size="large"  fill="solid" [routerLink]="['/priorities/']" routerLinkActive="router-link-active">
+      <ion-button style="color: black" size="large"  fill="solid" [routerLink]="['/priorities']" routerLinkActive="router-link-active">
         Priorities Page
       </ion-button>
     </ion-buttons>

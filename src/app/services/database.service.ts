@@ -203,6 +203,17 @@ export class DatabaseService {
     })
   }
 
+  getQuestions(auditKey): Promise <Question[]> {
+    return new Promise((resolve, reject)=> {
+      this.database.ref(`/Audits/${auditKey}/Questions/`).on('value', val => {
+        let res = val.val();
+        if(res) {
+          res = Object.keys(res).map(k => res[k])
+          resolve(res)
+        }
+      }, reject)
+    })
+  }
 
   getQuestionByPr_Sub_Division(priorityID, subID, divisionID): Promise <Question[]>{
     let filteredQuestion = [];
@@ -556,12 +567,6 @@ export class DatabaseService {
         console.log('audits', res);
       }
     })
-    // this.dbStore.collection('tasks').doc()
-    // return this.database.ref(`/Audits/${auditID}/`).update({
-    //     reported: true
-    //   }).then(() => {
-       
-    //   })
   }
 
   checkAuditQuestions(auditKey, type, divID) : Promise <object> {
