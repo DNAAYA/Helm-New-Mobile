@@ -23,36 +23,33 @@
         </ion-grid>
       </ion-radio-group>
 
-      <ion-label *ngIf="question.answer == 'No'">{{question.wrong_en}}</ion-label>
-      
+      <!-- <ion-label *ngIf="question.answer == 'No'">{{this.wrongAnswer}}</ion-label> -->
+      <div *ngIf="question.answer == 'No'">
+        <p *ngIf="wrongAnswer?.length"> {{wrongAnswer[0].replace('/result0/','')}}
+          <input style="display: inline-block;width: 40px;margin: 4px;" type="number" placeholder="number...." />
+          {{wrongAnswer[1]}}
+        </p>
+      </div>
       <!-- #TODO: update input with right statment or wrong statmen -->
       
       <div *ngIf="question.answer == 'Yes'">
-        <p> {{rightAnswer[0]}}
+        <p *ngIf="rightAnswer?.length"> {{rightAnswer[0]}}
           <input style="display: inline-block;width: 40px;margin: 4px;" type="number" placeholder="number...." />
           {{rightAnswer[1]}}
         </p>
       </div>
       
       <div slot="start">
-        <ion-buttons slot="end">
-          <ion-button style="color: white;font-size: medium;" size="large"  fill="solid">
+        <ion-buttons slot="end" >
+          <ion-button *ngIf="question.duplicated_ID" [routerLink]="['/details/' + question.duplicated_ID+ '/' + 'duplicated' + '/' + auditKey]"
+          routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
+            Question details 
+          </ion-button>
+          <ion-button *ngIf="!question.duplicated_ID" [routerLink]="['/details/' + question.id + '/' + 'main' + '/' + auditKey]" routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
             Question details 
           </ion-button>
         </ion-buttons>
       </div>
-    </div>
-    
-    <div slot="start">
-      <ion-buttons slot="end" >
-        <ion-button *ngIf="question.duplicated_ID" [routerLink]="['/details/' + question.duplicated_ID+ '/' + 'duplicated' + '/' + auditKey]"
-        routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
-          Question details 
-        </ion-button>
-        <ion-button *ngIf="!question.duplicated_ID" [routerLink]="['/details/' + question.id + '/' + 'main' + '/' + auditKey]" routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
-          Question details 
-        </ion-button>
-      </ion-buttons>
     </div>
 
     <!-- <span style="color: coral;" *ngIf="question?.display == false || question?.display == 'false'" color="secondary" class="ion-text-wrap">

@@ -20,7 +20,7 @@
     <ion-list>
       <ion-item *ngFor="let q of questionList">
         <div>
-          <app-yes-no *ngIf="q?.type === 'Yes/No' " [question]="q" [auditKey]="auditKey" ></app-yes-no>
+          <app-yes-no *ngIf="q?.type === 'Yes/No' " [question]="q" [auditKey]="auditKey" [questionList]="questionList"></app-yes-no>
           <app-input *ngIf="q?.type === 'Input' " [question]="q" [auditKey]="auditKey"></app-input>
           <app-yes-no-input *ngIf="q?.type === 'Yes/No With Input'" [question]="q" [auditKey]="auditKey"></app-yes-no-input>
         </div>
@@ -58,15 +58,15 @@
 
 
     <ion-buttons slot="end" *ngIf="_nextDiv && !_nextSub ">
-      <ion-buttons color="secondary" 
-      [routerLink]="['/questions/' + type + '/' + _nextDiv?.divison_ID + '/' + _nextDiv?.sub_ID + '/' + _nextDiv?.priority_ID + '/' + auditKey]" routerLinkActive="router-link-active"
+      <ion-buttons color="secondary"  (click)="Save('next')"
+       routerLinkActive="router-link-active"
       >
         <ion-icon size="large" name="arrow-forward-outline"></ion-icon>
       </ion-buttons>
     </ion-buttons>
 
     <ion-buttons slot="end" *ngIf="_nextSub && !_nextDiv ">
-      <ion-buttons color="secondary" 
+      <ion-buttons color="secondary"
       [routerLink]="['/divisions/'+ type +'/' + _nextSub.sub_ID + '/' + auditKey]" routerLinkActive="router-link-active"
       >
         <ion-icon size="large" name="arrow-forward-outline"></ion-icon>

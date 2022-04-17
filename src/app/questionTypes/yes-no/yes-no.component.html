@@ -2,7 +2,7 @@
 <div *ngIf="question?.display == true || question?.display == 'true' " class="ion-padding-top card-style" style="padding: 5%;">
     <!-- <h1 class="label label-prmary">Question</h1> -->
 
-<ion-radio-group [(ngModel)]="question.answer">
+<ion-radio-group [(ngModel)]="question.answer"  (ionChange)="renderQuestions()">
   <ion-label style="white-space: normal;">{{question.question}}</ion-label>
   <ion-grid>
     <ion-row>

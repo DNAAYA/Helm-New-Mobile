@@ -77,6 +77,12 @@ export class QuestionsPage implements OnInit {
     //   })
 
     // })
+    this.getAuditQuestions();
+    // await this.getQuestions();
+    await this.getDivision();
+  }
+
+  async getAuditQuestions() {
     await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
       // console.log('checkAuditQuestions res: ', res);
       
@@ -106,8 +112,6 @@ export class QuestionsPage implements OnInit {
       console.log('checkAuditQuestions res: ', this.questionList);
     
     }));
-    // await this.getQuestions();
-    await this.getDivision();
   }
 
 
@@ -185,6 +189,7 @@ export class QuestionsPage implements OnInit {
 
   ionViewWillLeave() {
    this.Save();
+   
   }
   async presentToast() {
       const toast = await this.toastController.create({
@@ -203,7 +208,7 @@ export class QuestionsPage implements OnInit {
     })
   }
 
-   Save() {
+   Save(next?) {
     console.log('save ... ', this.questionList)
     this.questionList.forEach((q) => {
     let auditQ = new AuditQuestion(q);
@@ -214,7 +219,8 @@ export class QuestionsPage implements OnInit {
            auditQ.question_ID = q.duplicated_ID;
           this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
             this.presentToast();
-
+            console.log(this._nextSub)
+            this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
           })
           console.log('audit duplicated Question >>>_>>>', auditQ);
         }
@@ -228,6 +234,8 @@ export class QuestionsPage implements OnInit {
           //    TODO: //remove audit id and make it dynamic from local storage
           this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
             this.presentToast();
+            console.log(this._nextSub)
+            if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
           })
         }
     
