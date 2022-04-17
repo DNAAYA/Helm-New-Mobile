@@ -150,12 +150,15 @@ export class QuestionDetailsPage implements OnInit {
    this.saved = true
     //#TODO: save stored images to firebase 
     await this.images.forEach((el,i) => {
+      console.log(el)
       var currentDate = Date.now();
-      var file: any = el.base64;
-      var filePath = `capturedImages/${this.auditKey}/${currentDate}.jpg`;
-      var fileRef = this.fbStorage.ref(filePath);
+      const file: any = this.base64ToImage(el.base64);
+      console.log(file)
+      this.base64Image = file
+      const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
+      const fileRef = this.fbStorage.ref(filePath);
   
-      var task = this.fbStorage.upload(filePath, file);
+      const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}`, file);
       task.snapshotChanges()
         .pipe(finalize(() => {
           this.downloadURL = fileRef.getDownloadURL();
@@ -183,6 +186,7 @@ export class QuestionDetailsPage implements OnInit {
 
    
     })
+
     
     //  this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
 
@@ -274,9 +278,9 @@ export class QuestionDetailsPage implements OnInit {
           this.images.push({ name: img, path: resPath, filePath: filePath });
         }
       }
-      if (!this.images.length) {
+      /* if (!this.images.length) {
         this.savedImages = this.question.images
-      }
+      } */
       console.log('this images', this.images,this.savedImages)
     })
     
@@ -434,10 +438,10 @@ takePicture(sourceType: PictureSourceType) {
     }) */
  
     this.camera.getPicture(options).then(imagePath => {
-      
+        console.log(imagePath)
         if (this.plt.is('android') && sourceType === this.camera.PictureSourceType.PHOTOLIBRARY) {
           let base64Image = 'data:image/JPEG;base64,' + imagePath
-          this.base64Image = 'data:image/JPEG;base64,' + imagePath
+          base64Image
             this.filePath.resolveNativePath(imagePath)
                 .then(filePath => {
                     let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
@@ -446,6 +450,7 @@ takePicture(sourceType: PictureSourceType) {
                 });
         } else {
           let base64Image = 'data:image/JPEG;base64,' + imagePath
+          base64Image
             var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
             var correctPath = imagePath.substr(0, imagePath.lastIndexOf('/') + 1);
             this.copyFileToLocalDir(correctPath, currentName, this.createFileName(), base64Image);
