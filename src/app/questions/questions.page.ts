@@ -220,7 +220,7 @@ export class QuestionsPage implements OnInit {
           this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
             this.presentToast();
             console.log(this._nextSub)
-            this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+            // if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
           })
           console.log('audit duplicated Question >>>_>>>', auditQ);
         }

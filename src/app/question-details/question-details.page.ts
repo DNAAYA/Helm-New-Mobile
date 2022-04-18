@@ -146,61 +146,64 @@ export class QuestionDetailsPage implements OnInit {
   }
 
   async saveNote() {
-   let imagesArr = [];
-   this.saved = true
-    //#TODO: save stored images to firebase 
-    await this.images.forEach(async (el,i) => {
-      console.log(el)
-      var currentDate = Date.now();
-      const file: any = await fetch(el.url)
-      .then(r => r.blob())
-      .catch( err => {
-        console.log(err)
-        //imagesArr.push(el.url);
-      });
-      console.log(file)
-      if (file.type === 'text/html') {
-        imagesArr.push(el.url);
-      }
-      else {
-        const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
-        const fileRef = this.fbStorage.ref(filePath);
-    
-        const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}`, file);
-        task.snapshotChanges()
-          .pipe(finalize(() => {
-            this.downloadURL = fileRef.getDownloadURL();
-            this.downloadURL.subscribe(downloadURL => {
-              if (downloadURL) {
-                imagesArr.push(downloadURL);
-                console.log('images uploaded successfully', downloadURL)
-              }
-              console.log(downloadURL);
-              if ( imagesArr.length === this.images.length) {
-                this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
+    let imagesArr = [];
+    this.saved = true
+    let loading = await this.loadingController.create({
+      message: 'Please wait...'
+    });
+    loading.present();  
+    //#TODO: save stored images to firebase
+    if (this.images.length) {
+      await this.images.forEach(async (el,i) => {
+        console.log(el)
+        var currentDate = Date.now();
+        const file: any = await fetch(el.url)
+        .then(r => r.blob())
+        .catch( err => {
+          console.log(err)
+          //imagesArr.push(el.url);
+        });
+        console.log(file)
+        if (file.type === 'text/html') {
+          imagesArr.push(el.url);
+        }
+        else {
+          const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
+          const fileRef = this.fbStorage.ref(filePath);
       
-                  console.log('note addded successfully', res );
-              
-                })
+          const task = this.fbStorage.upload(`capturedImages/${this.auditKey}/${currentDate}`, file);
+          task.snapshotChanges()
+            .pipe(finalize(() => {
+              this.downloadURL = fileRef.getDownloadURL();
+              this.downloadURL.subscribe(downloadURL => {
+                if (downloadURL) {
+                  imagesArr.push(downloadURL);
+                  console.log('images uploaded successfully', downloadURL)
+                }
+                console.log(downloadURL);
+                if ( imagesArr.length === this.images.length) {
+                  this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
+                    loading.dismiss();
+                    console.log('note addded successfully', res );
+                  })
+                }
+              });
+            })
+            )
+            .subscribe(url => {
+              if (url) {
+                console.log('images url >>', imagesArr)
               }
             });
-          })
-          )
-          .subscribe(url => {
-            if (url) {
-              console.log('images url >>', imagesArr)
-            }
-          });
-      }
-    })
-
-    
-    //  this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote).then((res) => {
-
-    //    console.log('note addded successfully', res );
-
-    //  })
-    
+        }
+      })
+    }
+    else {
+      this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
+        console.log('note addded successfully', res );    
+        loading.dismiss();
+      })
+    }
   }
   async presentActionSheet() {
     const actionSheet = await this.actionSheetCtrl.create({

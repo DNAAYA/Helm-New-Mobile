@@ -66,6 +66,11 @@ export class LoginPage implements OnInit {
   }
 
   async loginUser() {
+    let loading = await this.loadingController.create({
+      message: 'Please wait...'
+    });
+    loading.present();
+
     this.authServ.loginUser(this.signIn_form.getRawValue())
     .then(res => {
       const id = res.user.uid 
@@ -78,21 +83,13 @@ export class LoginPage implements OnInit {
           this.errorMessage = "";
           this.navCtrl.navigateForward('/tasks');
         }
+        loading.dismiss();
       });
     }, err => {
+      loading.dismiss();
       this.errorAlert();
       this.errorMessage = err.message;
     })
-
-    let loading = await this.loadingController.create({
-      message: 'Please wait...'
-    });
-  
-    loading.present();
-  
-    setTimeout(() => {
-      loading.dismiss();
-    }, 1500); 
   }
 
   // Start New Show Password Button
