@@ -5,6 +5,7 @@ import { Division } from '../models/division';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DatabaseService } from '../services/database.service';
 import { LocalStorageService } from '../services/local-storage.service';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-divisions',
@@ -19,6 +20,7 @@ export class DivisionsPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
+    private storage: Storage,
     //  private localD   B: LocalStorageService
     private alertController: AlertController,
     private navCtrl: NavController,
@@ -35,8 +37,8 @@ async  ngOnInit() {
 
     if(this.type == 'main') {
       // get sub priorities 
-    await  this.dbService.getDivisionsBySubID(subID).then((divs: Division[]) => {
-        this.divisionList = divs;
+      await  this.storage.get(`divisions-${this.auditKey}`).then((divs: Division[]) => {
+        this.divisionList = divs.filter(d => d.sub_ID == subID);;
       }) 
       console.log('Main content Division ..', this.divisionList)
     } else if(this.type == 'duplicated'){
@@ -90,9 +92,9 @@ async  ngOnInit() {
   
   async getDuplicatedDiv(subID) {
     console.log('getDuplicatedDiv ..', subID)
-   await this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
-      this.duplicatedDivs = res;
-      console.log('duplicated Divisions', this.duplicatedDivs)
+    await this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
+        this.duplicatedDivs = res;
+        console.log('duplicated Divisions', this.duplicatedDivs)
     })
   }
 
@@ -104,22 +106,23 @@ async  ngOnInit() {
     })
 
   }
-gotoMainQuest(div) {
-    console.log('gotoquestions div', div);
+/*   gotoMainQuest(div) {
+      console.log('gotoquestions div', div);
 
-  let navigationExtras: NavigationExtras = {
-        queryParams: {
-            type:  'main',
-            divID: div['divison_ID'],
-            subID: div['sub_ID'],
-            prID: div.priority_ID,
-            auditKey: this.auditKey
-        }
-    };
-    this.navCtrl.navigateForward(`/questions/`, navigationExtras);
+    let navigationExtras: NavigationExtras = {
+          queryParams: {
+              type:  'main',
+              divID: div['divison_ID'],
+              subID: div['sub_ID'],
+              prID: div.priority_ID,
+              auditKey: this.auditKey
+          }
+      };
+      this.navCtrl.navigateForward(`/questions/`, navigationExtras);
 
-}
-  goQuestion(div) {
+  } */
+
+  /* goQuestion(div) {
     console.log('gotoquestions div', div);
     let dnavigationExtras: NavigationExtras = {
         queryParams: {
@@ -132,7 +135,7 @@ gotoMainQuest(div) {
       }
     this.navCtrl.navigateForward(`/questions/`, dnavigationExtras);
 
-  }
+  } */
 
   deleteDuplicatedDiv(id) {
     this.dbService.deleteDuplicatedDivision(this.auditKey, id);

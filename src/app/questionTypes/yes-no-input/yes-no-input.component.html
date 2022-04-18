@@ -41,11 +41,11 @@
       
       <div slot="start">
         <ion-buttons slot="end" >
-          <ion-button *ngIf="question.duplicated_ID" [routerLink]="['/details/' + question.duplicated_ID+ '/' + 'duplicated' + '/' + auditKey]"
+          <ion-button *ngIf="question.duplicated_ID" [routerLink]="['/details/' + question.duplicated_ID + '/' + question.parentDiv_ID + '/' + auditKey]"
           routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
             Question details 
           </ion-button>
-          <ion-button *ngIf="!question.duplicated_ID" [routerLink]="['/details/' + question.id + '/' + 'main' + '/' + auditKey]" routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
+          <ion-button *ngIf="!question.duplicated_ID" [routerLink]="['/details/' + question.id + '/' + question.division_ID + '/' + auditKey]" routerLinkActive="router-link-active" slot="end" style="color: white;font-size: medium;" size="large"  fill="solid">
             Question details 
           </ion-button>
         </ion-buttons>

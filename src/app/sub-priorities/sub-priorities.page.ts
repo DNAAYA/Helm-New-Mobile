@@ -30,20 +30,19 @@ duplicatedSub = [];
     let prID = this.activatedRoute.snapshot.params['id'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
 
-    this.dbService.getSubPriorityWithPriorityID(prID).then((subs: Subpriority[]) => {
-      this.subPrioritiesList = subs;;
-     // console.log('local sub priorities', this.subPrioritiesList)
+    this.storage.get(`subPriorities-${this.auditKey}`).then((subs: Subpriority[]) => {
+      this.subPrioritiesList = subs.filter((e: Subpriority) => e.priority_ID == prID)
+      console.log('local sub priorities', this.subPrioritiesList)
     })
   }
 
 
   async getDuplicatedSup(subid) {
-    // console.log('sub id')
-    this.dbService.getDuplicatedSub(this.auditKey,subid).then((subs: DuplicatedSub[]) => {
+    console.log('sub id')
+    this.storage.get(`subPrioritiesDuplicates-${this.auditKey}`).then((subs: DuplicatedSub[]) => {
+      if (subs) this.duplicatedSub = subs.filter((e: DuplicatedSub) => e.parent_SubID == subid);
       console.log('duplicated sup',subs )
-      this.duplicatedSub = subs;
-      })
-   // console.log('hello getDuplicatedSup', this.duplicatedSub);
+    })
   }
 
 

@@ -23,7 +23,7 @@ import { ReplaceService } from '../services/replace.service';
   styleUrls: ['./questions.page.scss'],
 })
 export class QuestionsPage implements OnInit {
-  questionList = [];
+  questionList: AuditQuestion[] = [];
   duplicatedquestions= [];
   indexofDivision;
   _previousDiv;
@@ -47,6 +47,7 @@ export class QuestionsPage implements OnInit {
   test = ''
   auditQuestions: any;
   globalListenFunc: Function;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -79,11 +80,45 @@ export class QuestionsPage implements OnInit {
     // })
     this.getAuditQuestions();
     // await this.getQuestions();
-    await this.getDivision();
+    
   }
 
   async getAuditQuestions() {
-    await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (auditQuestions: AuditQuestion[]) => {
+      if (this.type === 'main') {
+        this.questionList = auditQuestions.filter( q => !q.duplicated_ID || q.duplicated_ID === '')
+        this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
+      }
+      else if (this.type === 'duplicated') {
+        this.questionList = auditQuestions.filter( q => q.duplicated_ID)
+        this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
+      }
+      
+      if (this.questionList.length) {
+        console.log('checkAuditQuestions res: ', this.questionList);
+        this.getDivision();
+      }
+      else {  
+        this.storage.get(`questions-${this.auditKey}`).then((questions) => {
+          console.log(questions)
+          this.questionList = questions.filter((e) => e.division_ID == this.divID )
+          console.log('checkAuditQuestions res: ', this.questionList);
+          this.questionList.forEach( q => q.id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""))
+          this.storage.get(`auditQuestions-${this.auditKey}`).then( res => {
+            if (res) {
+              res.push(...this.questionList)
+            }
+            this.storage.set(`auditQuestions-${this.auditKey}`, res)
+            this.getDivision();
+          })
+        })
+      }
+      
+    })
+
+    
+    
+    /* await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
       // console.log('checkAuditQuestions res: ', res);
       
       if(res['status'] == true) {
@@ -111,11 +146,28 @@ export class QuestionsPage implements OnInit {
       }
       console.log('checkAuditQuestions res: ', this.questionList);
     
-    }));
+    })); */
   }
 
-
- async getDivision() {
+  checkQuestions(questionList) {
+      this.storage.get(`auditQuestions-${this.auditKey}`).then((questions) => {
+        console.log(questions,questionList) 
+        for ( let q of questionList ) {
+          var question = questions.find( ques => ques.question_ID === q.parentID)
+          console.log(q,question)
+          if (question) {
+            if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
+              q.display = true
+            }
+            else {
+              q.display = false
+              if (question.question_ID === q.parentID) q.display = true
+            }
+          }
+        }
+      })
+  }
+  async getDivision() {
    
     if(this.type == 'main') 
     {
@@ -141,7 +193,7 @@ export class QuestionsPage implements OnInit {
              console.log('next Sub', this._nextSub);
           })
         }
-  
+        this.checkQuestions(this.questionList)
       })
     }
      else {
@@ -181,7 +233,7 @@ export class QuestionsPage implements OnInit {
           })
          
         }
-  
+        this.checkQuestions(this.questionList)
       })
     }
 
@@ -208,42 +260,40 @@ export class QuestionsPage implements OnInit {
     })
   }
 
-   Save(next?) {
+  Save(next?) {
     console.log('save ... ', this.questionList)
     this.questionList.forEach((q) => {
-    let auditQ = new AuditQuestion(q);
-        if(this.type == 'duplicated') {
-          
-           auditQ.division_ID = this.divID;
-           auditQ.sub_ID = this.subId;
-           auditQ.question_ID = q.duplicated_ID;
-          this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
-            this.presentToast();
-            console.log(this._nextSub)
-            // if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
-          })
-          console.log('audit duplicated Question >>>_>>>', auditQ);
-        }
-        else {
-
-          auditQ.division_ID = this.divID;
-          auditQ.sub_ID = this.subId;
-          auditQ.question_ID = q.question_ID;
-          console.log('audit main Question >>>_>>>', auditQ);
-
-          //    TODO: //remove audit id and make it dynamic from local storage
-          this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
-            this.presentToast();
-            console.log(this._nextSub)
-            if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
-          })
-        }
-    
-
-     })
-
-    // console.log('test auditQ before add', auditQuestionArr)
-
+      q.division_ID = this.divID;
+      q.sub_ID = this.subId;
+      if(this.type == 'duplicated') {
+        q.question_ID = q.duplicated_ID;
+        this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
+          this.presentToast();
+          console.log(this._nextSub)
+        })
+        console.log('audit duplicated Question >>>_>>>', q);
+      }
+      else {
+        q.question_ID = q.question_ID;
+        console.log('audit main Question >>>_>>>', q);
+        /* this.dbService.addQuestionToAudit(this.auditKey, q).then(() => {
+          this.presentToast();
+          console.log(this._nextSub)
+          if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+        }) */
+      }
+    })
+    this.storage.get(`auditQuestions-${this.auditKey}`).then((questions)=> {
+      console.log(questions)
+      for (let ques of this.questionList) {
+        var i = questions.indexOf(questions.find( q => q.id === ques.id))
+        console.log(i,questions[i],ques)
+        questions[i] = ques
+      }
+      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
+        if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+      })      
+    })
   }
   checkRadio(questions: any[]) {
     questions.forEach((question,i) => {
@@ -260,7 +310,7 @@ export class QuestionsPage implements OnInit {
   }
 
 
-  arrowNav(navType) {
+  /* arrowNav(navType) {
     console.log('sub ID', this.subId);
      this.dbService.getDivisions(this.auditKey, this.type, this.subId).then(async (divs: any[]) => {
         console.log('Main division list >> >> ', divs);
@@ -352,5 +402,5 @@ export class QuestionsPage implements OnInit {
       })
     // get current navigation
 
-  }
+  } */
 }
