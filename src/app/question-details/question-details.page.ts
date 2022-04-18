@@ -68,11 +68,9 @@ export class QuestionDetailsPage implements OnInit {
 
   async getQuestion() {
     // get audit question
-    this.storage.get(`auditQuestions-${this.auditKey}-${this.divID}`).then( (questions: AuditQuestion[]) => {
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
       this.question = new AuditQuestion(questions.find( q => q.id === this.questionID))
-      if(this.question['note']) {
-        this.questionNote = this.question['note']
-      }
+      this.questionNote = this.question.note
       console.log('audit question >>', this.question)
       this.STORAGE_KEY = `images-${this.questionID}`
       this.loadStoredImages();
@@ -142,13 +140,13 @@ export class QuestionDetailsPage implements OnInit {
       message: 'Please wait...'
     });
     loading.present();
-    this.storage.get(`auditQuestions-${this.auditKey}-${this.divID}`).then( (questions: AuditQuestion[]) => {
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
       var i = questions.indexOf(questions.find( q => q.id === this.questionID))
-      console.log(i,questions[i],this.question)
       this.question.note = this.questionNote
       this.question.images = this.images
       questions[i] = this.question
-      this.storage.set(`auditQuestions-${this.auditKey}-${this.divID}`, questions).then(()=> loading.dismiss())
+      console.log(i,questions[i],this.question)
+      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> loading.dismiss())
     })
     //#TODO: save stored images to firebase
     /* if (this.images.length) {

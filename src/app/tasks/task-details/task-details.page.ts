@@ -776,11 +776,11 @@ async editTimeslot(){
           }) 
           this.dbService.getAllQuestion().then( questions => {
             this.storage.set(`questions-${audit.id}`, questions);
+            loading.dismiss();
           })
           this.storage.set(`duplicatedQuestions-${audit.id}`, [])
           this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
           this.storage.set(`duplicatedDivisions-${audit.id}`, []);
-          loading.dismiss();
           this.router.navigate(['priorities'], navigationExtras);
         })
       }

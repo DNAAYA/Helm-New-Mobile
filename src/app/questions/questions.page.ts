@@ -1,7 +1,7 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Audit } from '../models/audit';
 import { AuditQuestion } from '../models/auditQuestion';
@@ -22,7 +22,7 @@ import { ReplaceService } from '../services/replace.service';
   templateUrl: './questions.page.html',
   styleUrls: ['./questions.page.scss'],
 })
-export class QuestionsPage implements OnInit {
+export class QuestionsPage {
   questionList: AuditQuestion[] = [];
   duplicatedquestions= [];
   indexofDivision;
@@ -56,12 +56,13 @@ export class QuestionsPage implements OnInit {
     private replaceServ: ReplaceService,
     private toastController: ToastController,
     private router: Router,
+    private alertCTRL: AlertController,
     private navCtrl: NavController,
     private renderer:Renderer2 ,
     private dbStore: AngularFirestore
   ) { }
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
 
     this.divID = this.activatedRoute.snapshot.params['divId'];
     this.subId = this.activatedRoute.snapshot.params['subId'];
@@ -83,8 +84,33 @@ export class QuestionsPage implements OnInit {
     
   }
 
+  /* async ngOnInit() {
+
+    this.divID = this.activatedRoute.snapshot.params['divId'];
+    this.subId = this.activatedRoute.snapshot.params['subId'];
+    this.prId = this.activatedRoute.snapshot.params['prId'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+    
+    console.log( this.auditKey, this.type, this.divID);
+    // this.storage.get('helmTask-').then((res: Task) => {
+    //   this.taskID = res.tid;
+    //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
+    //     console.log('audit from storage', audit)
+    //     this.auditDetails = audit;
+    //   })
+
+    // })
+    this.getAuditQuestions();
+    // await this.getQuestions();
+    
+  } */
+
   async getAuditQuestions() {
     this.storage.get(`auditQuestions-${this.auditKey}`).then( (auditQuestions: AuditQuestion[]) => {
+      if (!auditQuestions) {
+        auditQuestions = []
+      }
       if (this.type === 'main') {
         this.questionList = auditQuestions.filter( q => !q.duplicated_ID || q.duplicated_ID === '')
         this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
@@ -108,8 +134,10 @@ export class QuestionsPage implements OnInit {
             if (res) {
               res.push(...this.questionList)
             }
-            this.storage.set(`auditQuestions-${this.auditKey}`, res)
-            this.getDivision();
+            else {
+              res = this.questionList
+            }
+            this.storage.set(`auditQuestions-${this.auditKey}`, res).then(()=> this.getDivision())
           })
         })
       }
@@ -161,7 +189,7 @@ export class QuestionsPage implements OnInit {
             }
             else {
               q.display = false
-              if (question.question_ID === q.parentID) q.display = true
+              if (q.question_ID === q.parentID) q.display = true
             }
           }
         }
@@ -241,7 +269,18 @@ export class QuestionsPage implements OnInit {
 
   ionViewWillLeave() {
    this.Save();
-   
+  }
+  async ionViewCanLeave(): Promise<boolean> {
+    var cantLeave = false
+    if (!cantLeave) {
+        let alert = await this.alertCTRL.create({
+          message: 'please open network to load data for the first time',
+          header: 'Alert',
+          buttons: ['OK']
+        });
+        alert.present();
+    }
+    return cantLeave;
   }
   async presentToast() {
       const toast = await this.toastController.create({
@@ -251,7 +290,7 @@ export class QuestionsPage implements OnInit {
         color: 'success'
       });
       toast.present();
-    }
+  }
   generateReport() {
     this.Save();
     this.dbService.generateReport(this.auditKey).then(res => {
@@ -260,7 +299,7 @@ export class QuestionsPage implements OnInit {
     })
   }
 
-  Save(next?) {
+  async Save(next?) {
     console.log('save ... ', this.questionList)
     this.questionList.forEach((q) => {
       q.division_ID = this.divID;
@@ -283,15 +322,16 @@ export class QuestionsPage implements OnInit {
         }) */
       }
     })
-    this.storage.get(`auditQuestions-${this.auditKey}`).then((questions)=> {
+    await this.storage.get(`auditQuestions-${this.auditKey}`).then(async (questions)=> {
       console.log(questions)
       for (let ques of this.questionList) {
         var i = questions.indexOf(questions.find( q => q.id === ques.id))
         console.log(i,questions[i],ques)
         questions[i] = ques
       }
-      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
+      await this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
         if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+        return questions
       })      
     })
   }
