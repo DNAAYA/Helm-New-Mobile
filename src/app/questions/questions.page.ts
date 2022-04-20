@@ -116,8 +116,10 @@ export class QuestionsPage {
         this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
       }
       else if (this.type === 'duplicated') {
+        console.log(this.type,auditQuestions)
         this.questionList = auditQuestions.filter( q => q.duplicated_ID)
         this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
+        console.log(this.type,this.questionList)
       }
       
       if (this.questionList.length) {
@@ -125,9 +127,13 @@ export class QuestionsPage {
         this.getDivision();
       }
       else {  
-        this.storage.get(`questions-${this.auditKey}`).then((questions) => {
+        console.log('else')
+        var questionType = 'questions'
+        if (this.type === 'duplicated') questionType = 'duplicatedQuestions'
+        this.storage.get(`${questionType}-${this.auditKey}`).then((questions) => {
           console.log(questions)
-          this.questionList = questions.filter((e) => e.division_ID == this.divID )
+          if (this.type === 'duplicated') this.questionList = questions.filter((e) => e.parentDiv_ID == this.divID )
+          if (this.type === 'main') this.questionList = questions.filter((e) => e.division_ID == this.divID )
           console.log('checkAuditQuestions res: ', this.questionList);
           this.questionList.forEach( q => q.id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""))
           this.storage.get(`auditQuestions-${this.auditKey}`).then( res => {
@@ -143,55 +149,28 @@ export class QuestionsPage {
       }
       
     })
-
-    
-    
-    /* await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
-      // console.log('checkAuditQuestions res: ', res);
-      
-      if(res['status'] == true) {
-        this.questionList = res['questions'];
-      } 
-      else {
-       await this.dbService.getQuestionByDivID(this.divID).then((res) => {
-        console.log('getQuestionByDivID res: ', res);
-
-          this.questionList = res
-        })
-      }
-      for ( let q of this.questionList ) {
-        this.dbService.getQuestions(this.auditKey)
-        .then( (questions: Question[]) => {
-          console.log(questions)
-          var question = questions.find( ques => ques.question_ID === q.parentID)
-          console.log(question)
-          if (question) {
-            if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
-              q.display = true
-            }
-          }
-        })
-      }
-      console.log('checkAuditQuestions res: ', this.questionList);
-    
-    })); */
   }
 
   checkQuestions(questionList) {
       this.storage.get(`auditQuestions-${this.auditKey}`).then((questions) => {
         console.log(questions,questionList) 
         for ( let q of questionList ) {
-          var question = questions.find( ques => ques.question_ID === q.parentID)
-          console.log(q,question)
-          if (question) {
-            if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
-              q.display = true
-            }
-            else {
-              q.display = false
-              if (q.question_ID === q.parentID) q.display = true
-            }
+          if (this.type === 'duplicated') {
+            q.display = true
           }
+          else {
+            var question = questions.find( ques => ques.question_ID === q.parentID)
+            console.log(q,question)
+            if (question) {
+              if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
+                q.display = true
+              }
+              else {
+                q.display = false
+                if (q.question_ID === q.parentID) q.display = true
+              }
+            }
+          }          
         }
       })
   }
@@ -225,7 +204,8 @@ export class QuestionsPage {
       })
     }
      else {
-      await this.dbService.getDuplicatedDivBySubID(this.auditKey, this.subId).then(async (divs: DuplicateDivision[]) => {
+      this.checkQuestions(this.questionList)
+      /* await this.dbService.getDuplicatedDivBySubID(this.auditKey, this.subId).then(async (divs: DuplicateDivision[]) => {
         this.indexofDivision = divs.findIndex(i => i.duplicated_ID == this.divID);
      //  console.log('# 1) indexofDivision>  ', this.indexofDivision)
 
@@ -262,7 +242,7 @@ export class QuestionsPage {
          
         }
         this.checkQuestions(this.questionList)
-      })
+      }) */
     }
 
   }

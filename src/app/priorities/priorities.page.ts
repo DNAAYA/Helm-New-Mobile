@@ -28,16 +28,18 @@ export class PrioritiesPage implements OnInit {
   async ngOnInit() {
     // this.router
     //this.auditKey = this.router.snapshot.paramMap.get("auditKey")
-    await this.activatedRoute.queryParams.subscribe(params => {
+    /* await this.activatedRoute.queryParams.subscribe(params => {
       if (params && params.auditKey) {
         this.auditKey = params.auditKey;
       }
-    });
-
-    console.log('audit key', this.auditKey);
-    this.storage.get(`priorities-${this.auditKey}`).then((pr: Priority[]) => {
-      console.log('prioritiesd list', pr);
-      this.prioritiesList = pr
+    }); */
+    this.storage.get(`auditKey`).then( key => {
+      this.auditKey = key;
+      console.log('audit key', this.auditKey);
+      this.storage.get(`priorities-${this.auditKey}`).then((pr: Priority[]) => {
+        console.log('prioritiesd list', pr);
+        this.prioritiesList = pr
+      })
     })
   }
 

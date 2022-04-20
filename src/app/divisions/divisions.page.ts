@@ -6,6 +6,8 @@ import { DuplicateDivision } from '../models/duplicate-division';
 import { DatabaseService } from '../services/database.service';
 import { LocalStorageService } from '../services/local-storage.service';
 import { Storage } from '@ionic/storage';
+import { Question } from '../models/question';
+import { DuplicatedQuestion } from '../models/duplicatedQuestion';
 
 @Component({
   selector: 'app-divisions',
@@ -17,6 +19,7 @@ export class DivisionsPage implements OnInit {
   duplicatedDivs = [];
   type;
   auditKey: any;
+  subID: any;
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -28,22 +31,26 @@ export class DivisionsPage implements OnInit {
   ) { }
 
 async  ngOnInit() {
-    let subID = this.activatedRoute.snapshot.params['subID'];
+    this.subID = this.activatedRoute.snapshot.params['subID'];
     this.type = this.activatedRoute.snapshot.params['type'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
 
-    console.log('Sub priority ID', subID);
+    console.log('Sub priority ID', this.subID);
     console.log(' router type', this.type);
 
-    if(this.type == 'main') {
+    if(this.type === 'main') {
       // get sub priorities 
       await  this.storage.get(`divisions-${this.auditKey}`).then((divs: Division[]) => {
-        this.divisionList = divs.filter(d => d.sub_ID == subID);;
+        this.divisionList = divs.filter(d => d.sub_ID == this.subID);
+        console.log('Main content Division ..', this.divisionList)
       }) 
-      console.log('Main content Division ..', this.divisionList)
-    } else if(this.type == 'duplicated'){
-       await this.getDuplicatedDiv(subID);
-      //console.log('duplicated content ..', this.duplicateDivision)
+    } else if(this.type === 'duplicated'){
+      await  this.storage.get(`duplicatedDivisions-${this.auditKey}`).then((divs: DuplicateDivision[]) => {
+        console.log('duplicated content ..', divs)
+        this.duplicatedDivs = divs.filter(d => d.parent_SubID == this.subID);
+        console.log('duplicated content ..', this.duplicatedDivs)
+      }) 
+      
     }
   }
 
@@ -81,64 +88,95 @@ async  ngOnInit() {
   duplicateDivision(div: Division, title) {
     //console.log('')
     let duplicateDiv: DuplicateDivision  = {
-      duplicated_ID: '',
+      duplicated_ID: (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""),
       title: `# ${title}`,
       parent_DivID: div.divison_ID,
       parent_SubID: div.sub_ID
     }
-  //  console.log('Confirm save: subtitle', object);
-    this.dbService.duplicateDivision(this.auditKey,duplicateDiv);
+    this.storage.get(`duplicatedDivisions-${this.auditKey}`).then((divs: DuplicateDivision[]) => {
+      divs.push(duplicateDiv)
+      console.log('duplicated divs ..', divs)
+      this.storage.set(`duplicatedDivisions-${this.auditKey}`, divs).then(()=> {
+        this.getDuplicatedDivByDivID(div.divison_ID)
+      })
+      this.getDivQuestions(duplicateDiv)
+    }) 
+    //console.log('Confirm save: subtitle', object);
+    //this.dbService.duplicateDivision(this.auditKey,duplicateDiv);
+  }
+
+  getDivQuestions(dDiv) {
+    this.storage.get(`questions-${this.auditKey}`).then( questions => {
+      console.log(dDiv)
+      var dQuestions = []
+      var divQuestions = questions.filter((e: Question) => e.division_ID == dDiv.parent_DivID)
+      for (let q of divQuestions) {
+        let duplicatedQuestion = new DuplicatedQuestion(q);
+        duplicatedQuestion.parentDiv_ID = dDiv.duplicated_ID;
+        duplicatedQuestion.parentSub_ID = dDiv.parent_SubID;
+        duplicatedQuestion.duplicated_ID = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
+        dQuestions.push(duplicatedQuestion)
+      }
+      console.log(dQuestions)
+      this.duplicateQuestions(dQuestions)
+    })
   }
   
-  async getDuplicatedDiv(subID) {
-    console.log('getDuplicatedDiv ..', subID)
+  duplicateQuestions(dQuestions){
+    this.storage.get(`duplicatedQuestions-${this.auditKey}`).then( dQs => {
+      dQs.push(...dQuestions)
+      console.log(dQs)
+      this.storage.set(`duplicatedQuestions-${this.auditKey}`, dQs)
+    })
+  }
+  /* async getDuplicatedDiv(subID) {
+    console.log( subID)
     await this.dbService.getDuplicatedDivBySubID(this.auditKey, subID).then(res => {
         this.duplicatedDivs = res;
         console.log('duplicated Divisions', this.duplicatedDivs)
     })
-  }
+  } */
 
   async getDuplicatedDivByDivID(divID) {
-    await this.dbService.getDuplicatedDiv(this.auditKey,divID).then(res => {
-      console.log('duplicated divisions <<>>>', res)
-      this.duplicatedDivs = res;
-      console.log('duplicated divisions', this.duplicatedDivs)
-    })
-
+    await this.storage.get(`duplicatedDivisions-${this.auditKey}`).then((divs: DuplicateDivision[]) => {
+      console.log('duplicated content ..', divs)
+      this.duplicatedDivs = divs.filter(d => d.parent_DivID == divID && d.parent_SubID === this.subID);
+      console.log('duplicated divs ..', this.duplicatedDivs)
+    }) 
   }
-/*   gotoMainQuest(div) {
-      console.log('gotoquestions div', div);
 
-    let navigationExtras: NavigationExtras = {
-          queryParams: {
-              type:  'main',
-              divID: div['divison_ID'],
-              subID: div['sub_ID'],
-              prID: div.priority_ID,
-              auditKey: this.auditKey
-          }
-      };
-      this.navCtrl.navigateForward(`/questions/`, navigationExtras);
-
-  } */
-
-  /* goQuestion(div) {
-    console.log('gotoquestions div', div);
-    let dnavigationExtras: NavigationExtras = {
-        queryParams: {
-            type:  'duplicated',
-            divID: div['duplicated_ID'],
-            subID: div['parent_SubID'],
-            prID: div['parent_DivID'],
-            auditKey: this.auditKey
-        }
+  deleteDuplicatedDiv(dDiv) {
+    console.log(dDiv)
+    this.storage.get(`duplicatedDivisions-${this.auditKey}`).then( dDivs => {
+      console.log(dDivs)
+      var deletedDiv = dDivs.find( e => {
+        console.log(e.parent_DivID,dDiv.parent_DivID)
+        return e.parent_DivID === dDiv.parent_DivID && e.parent_SubID === this.subID
+      })
+      var i = dDivs.indexOf(deletedDiv)
+      var x = this.duplicatedDivs.indexOf(dDiv)
+      console.log(i,deletedDiv)
+      if (i > -1) dDivs.splice(i,1)
+      if (i > -1) this.duplicatedDivs.splice(x,1)
+      console.log(dDivs)
+      this.storage.set(`duplicatedDivisions-${this.auditKey}`, dDivs)
+    })
+    this.storage.get(`duplicatedQuestions-${this.auditKey}`).then( dQs => {
+      console.log(dQs)
+      var x = dQs.length
+      for (var j = 0; j<x ; j++) {
+        var deletedQuestion = dQs.find( e => {
+          console.log(e.parentDiv_ID,dDiv.duplicated_ID)
+          return e.parentDiv_ID === dDiv.duplicated_ID}
+        )
+        var i = dQs.indexOf(deletedQuestion)
+        console.log(i,deletedQuestion)
+        if (i > -1) dQs.splice(i,1)
       }
-    this.navCtrl.navigateForward(`/questions/`, dnavigationExtras);
-
-  } */
-
-  deleteDuplicatedDiv(id) {
-    this.dbService.deleteDuplicatedDivision(this.auditKey, id);
+      console.log(dQs)
+      this.storage.set(`duplicatedQuestions-${this.auditKey}`, dQs)
+    })
+    //this.dbService.deleteDuplicatedDivision(this.auditKey, id);
   }
 
 }

@@ -23,7 +23,7 @@ import { AngularFireDatabase } from '@angular/fire/compat/database';
   templateUrl: './question-details.page.html',
   styleUrls: ['./question-details.page.scss'],
 })
-export class QuestionDetailsPage implements OnInit {
+export class QuestionDetailsPage  {
   database = this.db.database.app.database('https://helm-8734b-4d96d.firebaseio.com/');  
   question: AuditQuestion;
   questionID: string;
@@ -56,10 +56,21 @@ export class QuestionDetailsPage implements OnInit {
     private filePath: FilePath,
     private fbStorage: AngularFireStorage
     ) {
-
+      window['myBack'] = ()=> {
+        console.log('check saved baaaack', this.saved)
+        if(!this.saved) {
+            console.log('not saved', this.saved)
+            this.saveNote().then(()=> {
+              this.navCtrl.back();
+            })
+        } else {
+            console.log('saved ---- #222', this.saved)
+            this.navCtrl.back();
+        }
+      };
      }
 
-  ngOnInit() {
+    ionViewWillEnter() {
     this.questionID = this.activatedRoute.snapshot.params['qID'];
     this.divID = this.activatedRoute.snapshot.params['divID'];
     this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
@@ -69,7 +80,20 @@ export class QuestionDetailsPage implements OnInit {
   async getQuestion() {
     // get audit question
     this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
-      this.question = new AuditQuestion(questions.find( q => q.id === this.questionID))
+      console.log('audit question >>', questions)
+      var question = questions.find( q => {
+        if (q.duplicated_ID) {
+          console.log(q.duplicated_ID,this.questionID)
+          return q.duplicated_ID === this.questionID
+        }
+        else {
+          console.log(q.id,this.questionID)
+          return q.id === this.questionID
+        }
+        
+      })
+      console.log(question)
+      this.question = new AuditQuestion(question)
       this.questionNote = this.question.note
       console.log('audit question >>', this.question)
       this.STORAGE_KEY = `images-${this.questionID}`
@@ -135,18 +159,30 @@ export class QuestionDetailsPage implements OnInit {
   } */
 
   async saveNote() {
-    this.saved = true
     let loading = await this.loadingController.create({
       message: 'Please wait...'
     });
     loading.present();
     this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
-      var i = questions.indexOf(questions.find( q => q.id === this.questionID))
+      console.log(questions)
+      var i = questions.indexOf(questions.find( q => {
+        if (q.duplicated_ID) {
+          return q.duplicated_ID === this.questionID
+        }
+        else {
+          return q.id === this.questionID
+        }
+        
+      }))
+
       this.question.note = this.questionNote
       this.question.images = this.images
       questions[i] = this.question
       console.log(i,questions[i],this.question)
-      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> loading.dismiss())
+      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
+        this.saved = true
+        loading.dismiss()
+      })
     })
     //#TODO: save stored images to firebase
     /* if (this.images.length) {
@@ -242,10 +278,11 @@ export class QuestionDetailsPage implements OnInit {
     console.log('onDidDismiss resolved with role and data', role, data);
   } */
   
-
   async saveAlert() {
     console.log('alert popup start')
-    let alert = await this.alertController.create({
+    if (this.saved) this.navCtrl.back()
+    else {
+      let alert = await this.alertController.create({
 
         header: 'Save before exiting!',
         buttons: [
@@ -260,18 +297,12 @@ export class QuestionDetailsPage implements OnInit {
         ]
     })
     await alert.present();
+    }
  }
 
-//  back() {
-//     console.log('check saved baaaack', this.saved)
-//     if(!this.saved) {
-//         console.log('not saved', this.saved)
-//        this.saveAlert();
-//     } else {
-//         console.log('saved ---- #222', this.saved)
-//         //this.navCtrl.back();
-//     }
-//  }
+ back() {
+    
+ }
 
 
 

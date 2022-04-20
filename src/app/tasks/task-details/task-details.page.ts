@@ -763,6 +763,7 @@ async editTimeslot(){
           }
         }
         this.storage.set(`helmTask-${t.tid}`, t);
+        this.storage.set(`auditKey`, audit.id);
         this.storage.set(`helmAudit-${audit.id}`, audit);        
         this.dbService.getPriorities().then((pr: Priority[]) => {
           console.log('prioritiesd list', pr);
@@ -778,9 +779,10 @@ async editTimeslot(){
             this.storage.set(`questions-${audit.id}`, questions);
             loading.dismiss();
           })
-          this.storage.set(`duplicatedQuestions-${audit.id}`, [])
           this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
           this.storage.set(`duplicatedDivisions-${audit.id}`, []);
+
+          this.storage.set(`duplicatedQuestions-${audit.id}`, [])
           this.router.navigate(['priorities'], navigationExtras);
         })
       }
