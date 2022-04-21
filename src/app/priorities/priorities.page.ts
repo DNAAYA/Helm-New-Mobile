@@ -43,5 +43,10 @@ export class PrioritiesPage implements OnInit {
     })
   }
 
+  generateReport() {
+    this.dbService.createAudit(this.auditKey).then(res => {
+      console.log('result after generate report', res)
+    })
+  }
 
 }
