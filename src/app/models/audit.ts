@@ -1,5 +1,11 @@
 import { Data } from "@angular/router";
+import { Division } from "./division";
+import { DuplicateDivision } from "./duplicate-division";
+import { DuplicatedQuestion } from "./duplicatedQuestion";
+import { DuplicatedSub } from "./duplicatedSub";
+import { Priority } from "./priority";
 import { Question } from "./Question";
+import { Subpriority } from "./Subpriority";
 
 export class Audit {
     
@@ -10,7 +16,12 @@ export class Audit {
     createdBy: string;
     reported: boolean;
     questions?: Question[];
-
+    priorities?: Priority[]
+    subPriorities?: Subpriority[]
+    divisions?: Division[]
+    subPrioritiesDuplicates?: DuplicatedSub[]
+    duplicatedDivisions?: DuplicateDivision[]
+    duplicatedQuestions?: DuplicatedQuestion[]
 
     constructor(audit){
         {

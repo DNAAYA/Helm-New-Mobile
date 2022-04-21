@@ -7,6 +7,9 @@ import { Network } from '@ionic-native/network/ngx';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Audit } from 'src/app/models/audit';
+import { Division } from 'src/app/models/division';
+import { DuplicatedSub } from 'src/app/models/duplicatedSub';
+import { Priority } from 'src/app/models/priority';
 import { Task } from 'src/app/models/task';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Todo, TodoService } from 'src/app/services/todo.service';
@@ -49,6 +52,7 @@ export class TaskDetailsPage implements OnInit {
   auditDate: any;
   timeSlot: any;
   nowDate = new Date();
+  prioritiesList: Priority[];
 
 
   constructor(
@@ -733,10 +737,14 @@ async editTimeslot(){
   
   }
 
-   addToLocalStorage(t) {
-    
+   async addToLocalStorage(t) {
+    let loading = await this.loadingController.create({
+      message: 'Please wait...'
+    });
+    loading.present();
+    this.storage.create();
     // let id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
-    let audit: Audit = {
+    let newAudit: Audit = {
       createdAt: Date.now(),
       createdBy: t.selectedUser,
       id: '',
@@ -744,26 +752,54 @@ async editTimeslot(){
       taskID: t.tid,
       reported: false,
       questions: [],
-      
     }
-    this.dbService.addAudit(audit, this.taskID).then((auditKey: string) => {
-     console.log('audit key', auditKey);
-     this.storage.set(`helmTask-`, this.taskDetails);
-     this.storage.set(`helmAudit-`, auditKey);
-      if(auditKey) {
+
+    this.dbService.addAudit(newAudit, this.taskID).then((res: any) => {
+      console.log('audit key', res);
+      var audit = res.audit
+      if(audit.id) {
         let navigationExtras: NavigationExtras = {
           queryParams: {
-            auditKey: auditKey
+            auditKey: audit.id
           }
-        };
-        this.router.navigate(['priorities'], navigationExtras);
+        }
+        this.storage.set(`helmTask-${t.tid}`, t);
+        this.storage.set(`auditKey`, audit.id);
+        this.storage.set(`helmAudit-${audit.id}`, audit);        
+        this.dbService.getPriorities().then((pr: Priority[]) => {
+          console.log('prioritiesd list', pr);
+          this.prioritiesList = pr
+          this.storage.set(`priorities-${audit.id}`, this.prioritiesList)
+          this.dbService.getSubPriorities().then(subs => {
+            this.storage.set(`subPriorities-${audit.id}`, subs);
+          })
+          this.dbService.getAllDivisions().then((divs: Division[]) => {
+            this.storage.set(`divisions-${audit.id}`, divs);
+          }) 
+          this.dbService.getAllQuestion().then( questions => {
+            this.storage.set(`questions-${audit.id}`, questions);
+            loading.dismiss()
+            this.router.navigate(['priorities'], navigationExtras);
+          })
+
+          if (res.exists) {
+            if (audit.subPrioritiesDuplicates) this.storage.set(`subPrioritiesDuplicates-${audit.id}`, audit.subPrioritiesDuplicates);
+            else this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
+            if (audit.duplicatedDivisions) this.storage.set(`duplicatedDivisions-${audit.id}`, audit.duplicatedDivisions);
+            else this.storage.set(`duplicatedDivisions-${audit.id}`, []);
+            if (audit.questions) this.storage.set(`auditQuestions-${audit.id}`, audit.questions)
+            else this.storage.set(`auditQuestions-${audit.id}`, [])
+            if (audit.duplicatedQuestions) this.storage.set(`duplicatedQuestions-${audit.id}`, audit.duplicatedQuestions)
+            else this.storage.set(`duplicatedQuestions-${audit.id}`, [])
+          } 
+          else {
+            this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
+            this.storage.set(`duplicatedDivisions-${audit.id}`, []);
+            this.storage.set(`auditQuestions-${audit.id}`, [])
+            this.storage.set(`duplicatedQuestions-${audit.id}`, [])
+          }
+        })
       }
-
-
-    //  this.router.navigate(['priorities',{auditKey : auditKey}])
-    //  this.router.navigateByUrl('/priorities/' + auditKey)
-
-
     })
     // add task id to local storage
 

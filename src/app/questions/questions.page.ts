@@ -1,7 +1,7 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Audit } from '../models/audit';
 import { AuditQuestion } from '../models/auditQuestion';
@@ -22,8 +22,8 @@ import { ReplaceService } from '../services/replace.service';
   templateUrl: './questions.page.html',
   styleUrls: ['./questions.page.scss'],
 })
-export class QuestionsPage implements OnInit {
-  questionList = [];
+export class QuestionsPage {
+  questionList: AuditQuestion[] = [];
   duplicatedquestions= [];
   indexofDivision;
   _previousDiv;
@@ -47,6 +47,7 @@ export class QuestionsPage implements OnInit {
   test = ''
   auditQuestions: any;
   globalListenFunc: Function;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private dbService: DatabaseService,
@@ -55,12 +56,13 @@ export class QuestionsPage implements OnInit {
     private replaceServ: ReplaceService,
     private toastController: ToastController,
     private router: Router,
+    private alertCTRL: AlertController,
     private navCtrl: NavController,
     private renderer:Renderer2 ,
     private dbStore: AngularFirestore
   ) { }
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
 
     this.divID = this.activatedRoute.snapshot.params['divId'];
     this.subId = this.activatedRoute.snapshot.params['subId'];
@@ -79,43 +81,100 @@ export class QuestionsPage implements OnInit {
     // })
     this.getAuditQuestions();
     // await this.getQuestions();
-    await this.getDivision();
+    
   }
+
+  /* async ngOnInit() {
+
+    this.divID = this.activatedRoute.snapshot.params['divId'];
+    this.subId = this.activatedRoute.snapshot.params['subId'];
+    this.prId = this.activatedRoute.snapshot.params['prId'];
+    this.type = this.activatedRoute.snapshot.params['type'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+    
+    console.log( this.auditKey, this.type, this.divID);
+    // this.storage.get('helmTask-').then((res: Task) => {
+    //   this.taskID = res.tid;
+    //   this.storage.get(`TaskAudit-${this.taskID}`).then(audit => {
+    //     console.log('audit from storage', audit)
+    //     this.auditDetails = audit;
+    //   })
+
+    // })
+    this.getAuditQuestions();
+    // await this.getQuestions();
+    
+  } */
 
   async getAuditQuestions() {
-    await this.dbService.checkAuditQuestions(this.auditKey, this.type, this.divID).then((async res => {
-      // console.log('checkAuditQuestions res: ', res);
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (auditQuestions: AuditQuestion[]) => {
+      if (!auditQuestions) {
+        auditQuestions = []
+      }
+      if (this.type === 'main') {
+        this.questionList = auditQuestions.filter( q => !q.duplicated_ID || q.duplicated_ID === '')
+        this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
+      }
+      else if (this.type === 'duplicated') {
+        console.log(this.type,auditQuestions)
+        this.questionList = auditQuestions.filter( q => q.duplicated_ID)
+        this.questionList = this.questionList.filter((e) => e.division_ID == this.divID )
+        console.log(this.type,this.questionList)
+      }
       
-      if(res['status'] == true) {
-        this.questionList = res['questions'];
-      } 
-      else {
-       await this.dbService.getQuestionByDivID(this.divID).then((res) => {
-        console.log('getQuestionByDivID res: ', res);
-
-          this.questionList = res
-        })
+      if (this.questionList.length) {
+        console.log('checkAuditQuestions res: ', this.questionList);
+        this.getDivision();
       }
-      for ( let q of this.questionList ) {
-        this.dbService.getQuestions(this.auditKey)
-        .then( (questions: Question[]) => {
+      else {  
+        console.log('else')
+        var questionType = 'questions'
+        if (this.type === 'duplicated') questionType = 'duplicatedQuestions'
+        this.storage.get(`${questionType}-${this.auditKey}`).then((questions) => {
           console.log(questions)
-          var question = questions.find( ques => ques.question_ID === q.parentID)
-          console.log(question)
-          if (question) {
-            if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
-              q.display = true
+          if (this.type === 'duplicated') this.questionList = questions.filter((e) => e.parentDiv_ID == this.divID )
+          if (this.type === 'main') this.questionList = questions.filter((e) => e.division_ID == this.divID )
+          console.log('checkAuditQuestions res: ', this.questionList);
+          this.questionList.forEach( q => q.id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,""))
+          this.storage.get(`auditQuestions-${this.auditKey}`).then( res => {
+            if (res) {
+              res.push(...this.questionList)
             }
-          }
+            else {
+              res = this.questionList
+            }
+            this.storage.set(`auditQuestions-${this.auditKey}`, res).then(()=> this.getDivision())
+          })
         })
       }
-      console.log('checkAuditQuestions res: ', this.questionList);
-    
-    }));
+      
+    })
   }
 
-
- async getDivision() {
+  checkQuestions(questionList) {
+      this.storage.get(`auditQuestions-${this.auditKey}`).then((questions) => {
+        console.log(questions,questionList) 
+        for ( let q of questionList ) {
+          if (this.type === 'duplicated') {
+            q.display = true
+          }
+          else {
+            var question = questions.find( ques => ques.question_ID === q.parentID)
+            console.log(q,question)
+            if (question) {
+              if (question.answer.toLocaleLowerCase() === q.parentAnwer.toLocaleLowerCase()) {
+                q.display = true
+              }
+              else {
+                q.display = false
+                if (q.question_ID === q.parentID) q.display = true
+              }
+            }
+          }          
+        }
+      })
+  }
+  async getDivision() {
    
     if(this.type == 'main') 
     {
@@ -141,11 +200,12 @@ export class QuestionsPage implements OnInit {
              console.log('next Sub', this._nextSub);
           })
         }
-  
+        this.checkQuestions(this.questionList)
       })
     }
      else {
-      await this.dbService.getDuplicatedDivBySubID(this.auditKey, this.subId).then(async (divs: DuplicateDivision[]) => {
+      this.checkQuestions(this.questionList)
+      /* await this.dbService.getDuplicatedDivBySubID(this.auditKey, this.subId).then(async (divs: DuplicateDivision[]) => {
         this.indexofDivision = divs.findIndex(i => i.duplicated_ID == this.divID);
      //  console.log('# 1) indexofDivision>  ', this.indexofDivision)
 
@@ -181,15 +241,26 @@ export class QuestionsPage implements OnInit {
           })
          
         }
-  
-      })
+        this.checkQuestions(this.questionList)
+      }) */
     }
 
   }
 
   ionViewWillLeave() {
    this.Save();
-   
+  }
+  async ionViewCanLeave(): Promise<boolean> {
+    var cantLeave = false
+    if (!cantLeave) {
+        let alert = await this.alertCTRL.create({
+          message: 'please open network to load data for the first time',
+          header: 'Alert',
+          buttons: ['OK']
+        });
+        alert.present();
+    }
+    return cantLeave;
   }
   async presentToast() {
       const toast = await this.toastController.create({
@@ -199,51 +270,50 @@ export class QuestionsPage implements OnInit {
         color: 'success'
       });
       toast.present();
-    }
+  }
   generateReport() {
     this.Save();
-    this.dbService.generateReport(this.auditKey).then(res => {
-      
+    this.dbService.createAudit(this.auditKey).then(res => {
       console.log('result after generate report', res)
     })
   }
 
-   Save(next?) {
+  async Save(next?) {
     console.log('save ... ', this.questionList)
     this.questionList.forEach((q) => {
-    let auditQ = new AuditQuestion(q);
-        if(this.type == 'duplicated') {
-          
-           auditQ.division_ID = this.divID;
-           auditQ.sub_ID = this.subId;
-           auditQ.question_ID = q.duplicated_ID;
-          this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
-            this.presentToast();
-            console.log(this._nextSub)
-            // if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
-          })
-          console.log('audit duplicated Question >>>_>>>', auditQ);
-        }
-        else {
-
-          auditQ.division_ID = this.divID;
-          auditQ.sub_ID = this.subId;
-          auditQ.question_ID = q.question_ID;
-          console.log('audit main Question >>>_>>>', auditQ);
-
-          //    TODO: //remove audit id and make it dynamic from local storage
-          this.dbService.addQuestionToAudit(this.auditKey, auditQ).then(() => {
-            this.presentToast();
-            console.log(this._nextSub)
-            if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
-          })
-        }
-    
-
-     })
-
-    // console.log('test auditQ before add', auditQuestionArr)
-
+      q.division_ID = this.divID;
+      q.sub_ID = this.subId;
+      if(this.type == 'duplicated') {
+        q.question_ID = q.duplicated_ID;
+        /* this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
+          this.presentToast();
+          console.log(this._nextSub)
+        })
+        console.log('audit duplicated Question >>>_>>>', q); */
+      }
+      else {
+        q.question_ID = q.question_ID;
+        console.log('audit main Question >>>_>>>', q);
+        /* this.dbService.addQuestionToAudit(this.auditKey, q).then(() => {
+          this.presentToast();
+          console.log(this._nextSub)
+          if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+        }) */
+      }
+    })
+    await this.storage.get(`auditQuestions-${this.auditKey}`).then(async (questions)=> {
+      console.log(questions)
+      for (let ques of this.questionList) {
+        var i = questions.indexOf(questions.find( q => q.id === ques.id))
+        console.log(i,questions[i],ques)
+        questions[i] = ques
+      }
+      console.log(questions)
+      await this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
+        if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+        return questions
+      })      
+    })
   }
   checkRadio(questions: any[]) {
     questions.forEach((question,i) => {
@@ -260,7 +330,7 @@ export class QuestionsPage implements OnInit {
   }
 
 
-  arrowNav(navType) {
+  /* arrowNav(navType) {
     console.log('sub ID', this.subId);
      this.dbService.getDivisions(this.auditKey, this.type, this.subId).then(async (divs: any[]) => {
         console.log('Main division list >> >> ', divs);
@@ -352,5 +422,5 @@ export class QuestionsPage implements OnInit {
       })
     // get current navigation
 
-  }
+  } */
 }

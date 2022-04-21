@@ -27,7 +27,7 @@ export class AuditQuestion {
             }
         ];
     answer: string;
-    images: [];
+    images: any[];
     note: string;
     display: string;
     parentID: string;

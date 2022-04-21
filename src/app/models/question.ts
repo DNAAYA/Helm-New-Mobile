@@ -25,7 +25,7 @@ export class Question {
             }
         ];
     answer: string;
-    images: [];
+    images: any[];
     note: string;
     display: string;
     parentID: string;

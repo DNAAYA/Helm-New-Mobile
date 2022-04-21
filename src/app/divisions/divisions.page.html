@@ -12,8 +12,8 @@
 
 <ion-content>
     <ion-accordion-group *ngIf="type == 'main' ">
-      <ion-accordion [value]="div.divison_ID" (click)="getDuplicatedDivByDivID(div.divison_ID)" *ngFor="let div of divisionList">
-        <ion-item slot="header" >
+      <ion-accordion [value]="div.divison_ID"  *ngFor="let div of divisionList">
+        <ion-item slot="header" (click)="getDuplicatedDivByDivID(div.divison_ID)">
           <ion-label>{{div.division_name}}</ion-label>
           <ion-button (click)="presentAlert(div)">
             <ion-icon slot="icon-only" name="add-outline"></ion-icon>
@@ -27,11 +27,10 @@
           </ion-item>
     
           <ion-item
-             [routerLink]="['/questions/' + type + '/' + i.duplicated_ID + '/' + i.parent_SubID + '/' + 'no Priority ID' + '/' + auditKey]" routerLinkActive="router-link-active"
             *ngFor="let i of duplicatedDivs">
-            <ion-label >{{i.title}}
+            <ion-label [routerLink]="['/questions/duplicated/' + i.duplicated_ID + '/' + i.parent_SubID + '/' + 'no Priority ID' + '/' + auditKey]" routerLinkActive="router-link-active">{{i.title}}
             </ion-label>
-            <ion-button color="danger" (click)="deleteDuplicatedDiv(i.duplicated_ID)">
+            <ion-button color="danger" (click)="deleteDuplicatedDiv(i)">
               <ion-icon slot="icon-only" name="remove-circle-outline"></ion-icon>
             </ion-button>
           </ion-item>

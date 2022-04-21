@@ -11,8 +11,8 @@
 
 <ion-content>
   <ion-accordion-group>
-    <ion-accordion [value]="sub.sub_ID" (click)="getDuplicatedSup(sub.sub_ID)" *ngFor="let sub of subPrioritiesList">
-      <ion-item slot="header">
+    <ion-accordion [value]="sub.sub_ID"  *ngFor="let sub of subPrioritiesList">
+      <ion-item slot="header" (click)="getDuplicatedSup(sub.sub_ID)">
         <ion-label>{{sub.sub_name}}</ion-label>
         <ion-button (click)="presentAlert(sub)">
           <ion-icon slot="icon-only" name="add-outline"></ion-icon>
@@ -27,7 +27,7 @@
         <ion-item *ngFor="let i of duplicatedSub"
           >
           <ion-label [routerLink]="['/divisions/'+'duplicated/'+ i?.duplicated_ID + '/' + auditKey]" >{{i.subTitle}}</ion-label>
-          <ion-button color="danger" (click)="deleteDuplicate(i.duplicated_ID)">
+          <ion-button color="danger" (click)="deleteDuplicate(i)">
             <ion-icon slot="icon-only" name="remove-circle-outline"></ion-icon>
           </ion-button>
         </ion-item>

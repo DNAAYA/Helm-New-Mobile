@@ -23,7 +23,7 @@ import { AngularFireDatabase } from '@angular/fire/compat/database';
   templateUrl: './question-details.page.html',
   styleUrls: ['./question-details.page.scss'],
 })
-export class QuestionDetailsPage implements OnInit {
+export class QuestionDetailsPage  {
   database = this.db.database.app.database('https://helm-8734b-4d96d.firebaseio.com/');  
   question: AuditQuestion;
   questionID: string;
@@ -36,6 +36,7 @@ export class QuestionDetailsPage implements OnInit {
   base64Image: string;
   downloadURL: any;
   savedImages: any[];
+  divID: any;
 
   constructor(
     private db: AngularFireDatabase,
@@ -55,44 +56,57 @@ export class QuestionDetailsPage implements OnInit {
     private filePath: FilePath,
     private fbStorage: AngularFireStorage
     ) {
-
-     }
-
-  ngOnInit() {
-    this.questionID = this.activatedRoute.snapshot.params['qID'];
-    this.type = this.activatedRoute.snapshot.params['type'];
-    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
-    this.plt.ready().then(() => {
-
-      this.STORAGE_KEY = `Images_${this.questionID}`; 
-      window[`myBack`]=()=>{
+      window['myBack'] = ()=> {
         console.log('check saved baaaack', this.saved)
         if(!this.saved) {
             console.log('not saved', this.saved)
-            this.saveAlert();
+            this.saveNote().then(()=> {
+              this.navCtrl.back();
+            })
         } else {
             console.log('saved ---- #222', this.saved)
             this.navCtrl.back();
         }
-    };
-      this.storage.create();
+      };
+     }
 
-      this.loadStoredImages();
-        this.getQuestion();
-    //  console.log('question information', this.question)
-    });
-   
+    ionViewWillEnter() {
+    this.questionID = this.activatedRoute.snapshot.params['qID'];
+    this.divID = this.activatedRoute.snapshot.params['divID'];
+    this.auditKey = this.activatedRoute.snapshot.params['auditKey'];
+    this.getQuestion();
   }
 
   async getQuestion() {
-    // get audit question 
-    await this.dbService.getAuditQuestion(this.auditKey, this.questionID).then(((res: AuditQuestion) => {
+    // get audit question
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
+      console.log('audit question >>', questions)
+      var question = questions.find( q => {
+        if (q.duplicated_ID) {
+          console.log(q.duplicated_ID,this.questionID)
+          return q.duplicated_ID === this.questionID
+        }
+        else {
+          console.log(q.id,this.questionID)
+          return q.id === this.questionID
+        }
+        
+      })
+      console.log(question)
+      this.question = new AuditQuestion(question)
+      this.questionNote = this.question.note
+      console.log('audit question >>', this.question)
+      this.STORAGE_KEY = `images-${this.questionID}`
+      this.loadStoredImages();
+    })
+    /* await this.dbService.getAuditQuestion(this.auditKey, this.questionID).then(((res: AuditQuestion) => {
       console.log('audit question >>', res)
       this.question = res;
       if(res['note']) {
         this.questionNote = res['note']
       }
-    }))
+    })) */
+    
   }
   
  async QuestionDetails() {
@@ -119,20 +133,19 @@ export class QuestionDetailsPage implements OnInit {
     this.images.splice(position, 1);
  
     this.storage.get(this.STORAGE_KEY).then(images => {
-      console.log('local storage....', images)
-        let arr = JSON.parse(images);
+        console.log('local storage....', images)
+        let arr = images;
         let filtered = arr.filter(name => name != imgEntry.name);
-        this.storage.set(this.STORAGE_KEY, JSON.stringify(filtered));
- 
+        this.storage.set(this.STORAGE_KEY, filtered);
+
         var correctPath = imgEntry.filePath.substr(0, imgEntry.filePath.lastIndexOf('/') + 1);
- 
         this.file.removeFile(correctPath, imgEntry.name).then(res => {
             this.presentToast('File removed.');
         });
     });
   }
 
-  base64ToImage(dataURI) {
+ /*  base64ToImage(dataURI) {
     const fileDate = dataURI.split(',');
     // const mime = fileDate[0].match(/:(.*?);/)[1];
     const byteString = atob(fileDate[1]);
@@ -143,20 +156,39 @@ export class QuestionDetailsPage implements OnInit {
     }
     const blob = new Blob([arrayBuffer], { type: 'image/png' });
     return blob;
-  }
+  } */
 
   async saveNote() {
-    let imagesArr = [];
-    this.saved = true
     let loading = await this.loadingController.create({
       message: 'Please wait...'
     });
-    loading.present();  
+    loading.present();
+    this.storage.get(`auditQuestions-${this.auditKey}`).then( (questions: AuditQuestion[]) => {
+      console.log(questions)
+      var i = questions.indexOf(questions.find( q => {
+        if (q.duplicated_ID) {
+          return q.duplicated_ID === this.questionID
+        }
+        else {
+          return q.id === this.questionID
+        }
+        
+      }))
+
+      this.question.note = this.questionNote
+      this.question.images = this.images
+      questions[i] = this.question
+      console.log(i,questions[i],this.question)
+      this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
+        this.saved = true
+        loading.dismiss()
+      })
+    })
     //#TODO: save stored images to firebase
-    if (this.images.length) {
+    /* if (this.images.length) {
       await this.images.forEach(async (el,i) => {
+        imagesArr.push(el);
         console.log(el)
-        var currentDate = Date.now();
         const file: any = await fetch(el.url)
         .then(r => r.blob())
         .catch( err => {
@@ -168,6 +200,10 @@ export class QuestionDetailsPage implements OnInit {
           imagesArr.push(el.url);
         }
         else {
+          this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
+            console.log('note addded successfully', res );    
+            loading.dismiss();
+          })
           const filePath = `capturedImages/${this.auditKey}/${currentDate}`;
           const fileRef = this.fbStorage.ref(filePath);
       
@@ -195,17 +231,17 @@ export class QuestionDetailsPage implements OnInit {
                 console.log('images url >>', imagesArr)
               }
             });
-        }
       })
+      
     }
     else {
       this.dbService.updateNoteQuestion(this.auditKey, this.questionID, this.questionNote, imagesArr).then((res) => {
         console.log('note addded successfully', res );    
         loading.dismiss();
       })
-    }
+    } */
   }
-  async presentActionSheet() {
+  /* async presentActionSheet() {
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'Albums',
       cssClass: 'my-custom-class',
@@ -240,12 +276,13 @@ export class QuestionDetailsPage implements OnInit {
 
     const { role, data } = await actionSheet.onDidDismiss();
     console.log('onDidDismiss resolved with role and data', role, data);
-  }
+  } */
   
-
   async saveAlert() {
     console.log('alert popup start')
-    let alert = await this.alertController.create({
+    if (this.saved) this.navCtrl.back()
+    else {
+      let alert = await this.alertController.create({
 
         header: 'Save before exiting!',
         buttons: [
@@ -260,18 +297,12 @@ export class QuestionDetailsPage implements OnInit {
         ]
     })
     await alert.present();
+    }
  }
 
-//  back() {
-//     console.log('check saved baaaack', this.saved)
-//     if(!this.saved) {
-//         console.log('not saved', this.saved)
-//        this.saveAlert();
-//     } else {
-//         console.log('saved ---- #222', this.saved)
-//         //this.navCtrl.back();
-//     }
-//  }
+ back() {
+    
+ }
 
 
 
@@ -280,12 +311,12 @@ export class QuestionDetailsPage implements OnInit {
     console.log('this.STORAGE_KEY #2', this.STORAGE_KEY)
     this.storage.get(this.STORAGE_KEY).then(images => {
       if (images) {
-        let arr = JSON.parse(images);
+        let arr = images;
         this.images = [];
         for (let img of arr) {
           let filePath = this.file.dataDirectory + img;
           let resPath = this.pathForImage(filePath);
-          this.images.push({ name: img, path: resPath, filePath: filePath });
+          this.images.push({ name: img, path: resPath, url: resPath });
         }
       }
       if (!this.images.length) {
@@ -296,7 +327,7 @@ export class QuestionDetailsPage implements OnInit {
           })
         }
       }
-      console.log('this images', this.images,this.savedImages)
+      console.log('this images', this.images)
     })
     
     return this.images;
@@ -337,45 +368,30 @@ export class QuestionDetailsPage implements OnInit {
       });
       await actionSheet.present();
   }
-  
-createFileName() {
-  var d = new Date(),
-      n = d.getTime(),
-      newFileName = n + ".jpg";
-  return newFileName;
-}
 
-copyFileToLocalDir(namePath, currentName, newFileName, base64) {
-  this.file.copyFile(namePath, currentName, this.file.dataDirectory, newFileName).then(success => {
-      this.updateStoredImages(newFileName, base64);
-  }, error => {
-      this.presentToast('Error while storing file.');
-  });
-}
-
-updateStoredImages(name, url) {
-  console.log('this.STORAGE_KEY', this.STORAGE_KEY)
-  this.storage.get(this.STORAGE_KEY).then(images => {
-      let arr = JSON.parse(images);
-      if (!arr) {
-          let newImages = [name];
-          this.storage.set(this.STORAGE_KEY, JSON.stringify(newImages));
-      } else {
-          arr.push(name);
-          this.storage.set(this.STORAGE_KEY, JSON.stringify(arr));
-      }
-      let filePath = this.file.dataDirectory + name;
-      // let resPath = this.pathForImage(filePath);
-      let newEntry = {
-          name: name,
-          path: url,
-          filePath: filePath,
-          url: url
-      };
-      this.images = [newEntry, ...this.images];
-      this.ref.detectChanges(); // trigger change detection cycle
-  });
-}
+  updateStoredImages(name, url) {
+    console.log('this.STORAGE_KEY', this.STORAGE_KEY)
+    this.storage.get(this.STORAGE_KEY).then(images => {
+        let arr = images;
+        if (!arr) {
+            let newImages = [name];
+            this.storage.set(this.STORAGE_KEY, newImages);
+        } else {
+            arr.push(name);
+            this.storage.set(this.STORAGE_KEY, arr);
+        }
+        let filePath = this.file.dataDirectory + name;
+        // let resPath = this.pathForImage(filePath);
+        let newEntry = {
+            name: name,
+            path: url,
+            filePath: filePath,
+            url: url
+        };
+        this.images = [newEntry, ...this.images];
+        this.ref.detectChanges(); // trigger change detection cycle
+    });
+  }
 // FILE STUFF
   makeFileIntoBlob(_imagePath) {
     // INSTALL PLUGIN - cordova plugin add cordova-plugin-file
@@ -471,25 +487,25 @@ updateStoredImages(name, url) {
       quality: 25,
       destinationType: this.camera.DestinationType.FILE_URI,
       encodingType: this.camera.EncodingType.JPEG
-      }
+    }
         
-      const tempImage = await this.camera.getPicture(options);
-      const tempFilename = tempImage.substr(tempImage.lastIndexOf('/') + 1);
-      const tempBaseFilesystemPath = tempImage.substr(0, tempImage.lastIndexOf('/') + 1);
-      
-      const newBaseFilesystemPath = this.file.dataDirectory;
-      
-      await this.file.copyFile(tempBaseFilesystemPath, tempFilename, 
-                              newBaseFilesystemPath, tempFilename);
-      
-      const storedPhoto = newBaseFilesystemPath + tempFilename;
-      
-      //save image name
-      var imgName = tempFilename
-      var url = this.webview.convertFileSrc(storedPhoto);
-      console.log(tempBaseFilesystemPath, tempFilename, newBaseFilesystemPath, url)
-      this.updateStoredImages(imgName,url)
-      //this.copyFileToLocalDir(newBaseFilesystemPath, imgName, this.createFileName(), url);
+    const tempImage = await this.camera.getPicture(options);
+    const tempFilename = tempImage.substr(tempImage.lastIndexOf('/') + 1);
+    const tempBaseFilesystemPath = tempImage.substr(0, tempImage.lastIndexOf('/') + 1);
+    
+    const newBaseFilesystemPath = this.file.dataDirectory;
+    
+    await this.file.copyFile(tempBaseFilesystemPath, tempFilename, 
+                            newBaseFilesystemPath, tempFilename);
+    
+    const storedPhoto = newBaseFilesystemPath + tempFilename;
+    
+    //save image name
+    var imgName = tempFilename
+    var url = this.webview.convertFileSrc(storedPhoto);
+    console.log(tempBaseFilesystemPath, tempFilename, newBaseFilesystemPath, url)
+    this.updateStoredImages(imgName,url)
+    //this.copyFileToLocalDir(newBaseFilesystemPath, imgName, this.createFileName(), url);
  
 }
 }
