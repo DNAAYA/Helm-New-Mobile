@@ -638,10 +638,10 @@ export class DatabaseService {
     audit.questions
     .forEach( async (question,i) => {
       console.log(question)
+      // init images array
+      var imagesArr = []
       if (question.images && question.images.length) {
         for (let image of question.images) {
-          // init images array
-          var imagesArr = []
           console.log(image)
           const file: any = await fetch(image[`url`])
           .then(r => r.blob())
@@ -653,9 +653,10 @@ export class DatabaseService {
             imagesArr.push(image[`url`]);
           }
           else {
-            const filePath = `capturedImages/${audit.id}/${Date.now()}`;
+            var filePath = `capturedImages/${audit.id}/${Date.now()}`;
             var fileRef = this.fbStorage.ref(filePath);
             var task = this.fbStorage.upload(filePath, file);
+
             task.snapshotChanges().pipe(finalize(() => {
               var downloadURL = fileRef.getDownloadURL();
               downloadURL.subscribe(downloadURL => {
