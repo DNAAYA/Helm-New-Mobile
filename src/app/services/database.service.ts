@@ -663,20 +663,22 @@ export class DatabaseService {
                 if (downloadURL) {
                   imagesArr.push(downloadURL);
                   console.log('images uploaded successfully', downloadURL)
-                }
-                if ( imagesArr.length === question.images.length) {
-                  question.images = imagesArr
-                }
-                if ( i === audit.questions.length - 1) {
-                  console.log(audit)
-                  this.generateReport(audit).then(()=> loading.dismiss())
+                  console.log(imagesArr.length , question.images.length)
+                  if ( imagesArr.length === question.images.length) {
+                    question.images = imagesArr
+                  }
                 }
               });
             })
             )
             .subscribe(url => {
               if (url) {
-                console.log('images url >>', imagesArr)
+                console.log('images url >>', url)
+                console.log(i ,audit.questions.length - 1)
+                if ( i === audit.questions.length - 1) {
+                  console.log('audit',audit)
+                  this.generateReport(audit).then(()=> loading.dismiss())
+                }
               }
             });
           }
@@ -684,10 +686,13 @@ export class DatabaseService {
       }
       else {
         console.log('no images')
-        if ( i === audit.questions.length - 1) {
-          console.log(audit)
-          this.generateReport(audit).then(()=> loading.dismiss())
-        }
+        console.log(i ,audit.questions.length - 1)
+        setTimeout(() => {
+          if ( i === audit.questions.length - 1) {
+            console.log('audit',audit)
+            this.generateReport(audit).then(()=> loading.dismiss())
+          }
+        }, 10000);
       }
     })
   }

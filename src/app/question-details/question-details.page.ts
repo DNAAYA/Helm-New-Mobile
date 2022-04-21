@@ -318,16 +318,24 @@ export class QuestionDetailsPage  {
           let resPath = this.pathForImage(filePath);
           this.images.push({ name: img, path: resPath, url: resPath });
         }
+        console.log('this images', this.images)
       }
       if (!this.images.length) {
-        for (let img of this.question.images) {
-          this.images.push({
-            path: img,
-            url: img
-          })
-        }
+        if (this.question.images[0]) {
+          if (typeof this.question.images[0] === 'string') {
+            for (let img of this.question.images) {
+              this.images.push({
+                path: img,
+                url: img
+              })
+            }
+          }
+          else {
+            this.images.push(...this.question.images)
+          }
+        }        
+        console.log('this images urls', this.images)
       }
-      console.log('this images', this.images)
     })
     
     return this.images;

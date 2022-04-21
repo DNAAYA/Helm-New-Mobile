@@ -248,19 +248,8 @@ export class QuestionsPage {
   }
 
   ionViewWillLeave() {
+    console.log('leave')
    this.Save();
-  }
-  async ionViewCanLeave(): Promise<boolean> {
-    var cantLeave = false
-    if (!cantLeave) {
-        let alert = await this.alertCTRL.create({
-          message: 'please open network to load data for the first time',
-          header: 'Alert',
-          buttons: ['OK']
-        });
-        alert.present();
-    }
-    return cantLeave;
   }
   async presentToast() {
       const toast = await this.toastController.create({
@@ -311,6 +300,7 @@ export class QuestionsPage {
       console.log(questions)
       await this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
         if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
+        if (next !== 'still') this.presentToast();
         return questions
       })      
     })
