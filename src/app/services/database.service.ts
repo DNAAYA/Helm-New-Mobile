@@ -7,7 +7,7 @@ import { Priority } from '../models/priority';
 import { Question } from '../models/question';
 import { Subpriority } from '../models/Subpriority';
 import { Task } from '../models/task';
-import { filter, map } from 'rxjs/operators';
+import { filter, finalize, map } from 'rxjs/operators';
 import { Network } from '@ionic-native/network/ngx';
 import { Storage } from '@ionic/storage';
 import { NetworkService } from './network.service';
@@ -17,6 +17,8 @@ import { resolve } from 'dns';
 import { DuplicatedQuestion } from '../models/duplicatedQuestion';
 import { DuplicateDivision } from '../models/duplicate-division';
 import { DuplicatedSub } from '../models/duplicatedSub';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { LoadingController } from '@ionic/angular';
 
 
 
@@ -32,6 +34,8 @@ export class DatabaseService {
   constructor(
     private db: AngularFireDatabase,
     private dbStore: AngularFirestore,
+    private fbStorage: AngularFireStorage,
+    private loadingController: LoadingController,
     private network: Network,
     private storage: Storage,
     private networkService: NetworkService
@@ -492,17 +496,15 @@ export class DatabaseService {
         let auditTask: Audit = Object.keys(val.val()).map(k => val.val()[k]).find((e: Audit) => e.taskID == taskid);
         if(auditTask) {
           console.log('audit already exist', auditTask);
-          resolve(auditTask);
+          resolve({audit: auditTask, exists: true});
         } else {
           console.log('audit before add', audit );
           this.database.ref('/Audits/').push(audit).then(res => {
             this.database.ref(`/Audits/${res.key}/`).update({
               id: res.key
             });
-            // this.storage.set(`TaskAudit-${taskid}`, audit);
             audit.id = res.key
-            resolve(audit);
-
+            resolve({audit: audit, exists: false});
           })
         }
       } else {
@@ -601,13 +603,20 @@ export class DatabaseService {
   //     this.database.ref(`/Audits/${audit.id}/Divisions`).push(division).then(res => console.log('question added to audit'))
   //   })
   // }
-
-
-  generateReport(auditID) {
-   return this.database.ref(`/Audits/${auditID}/`).once('value', val => {
+  async generateReport(audit) {
+    await this.dbStore.collection('tasks').doc(audit.taskID).update({'completed': true}).then(async () => {
+      await this.database.ref(`/Audits/${audit.id}/`).update({
+        ...audit,
+        reported: true
+      })
+      .then( res => {
+        console.log(res)
+      })
+    })
+    /* this.database.ref(`/Audits/${audit.id}/`).once('value', val => {
       let res = val.val();
       if(res) {
-        this.dbStore.collection('tasks').doc(res['taskID']).update({'completed': true}).then(() => {
+        this.dbStore.collection('tasks').doc(audit.taskID).update({'completed': true}).then(() => {
           this.database.ref(`/Audits/${auditID}/`).update({
                 reported: true
             })
@@ -615,6 +624,121 @@ export class DatabaseService {
         // let auditDetails = Object.keys(res).map(k => res[k])
         console.log('audits', res);
       }
+    }) */
+  }
+
+  async uploadQuestionsImages(audit: Audit) {
+    // present loader
+    let loading = await this.loadingController.create({
+      message: 'Please wait...'
+    });
+    loading.present();
+    // upload questions' images
+    console.log(audit)
+    audit.questions
+    .forEach( async (question,i) => {
+      console.log(question)
+      if (question.images && question.images.length) {
+        for (let image of question.images) {
+          // init images array
+          var imagesArr = []
+          console.log(image)
+          const file: any = await fetch(image[`url`])
+          .then(r => r.blob())
+          .catch( err => {
+            console.log(err)
+          });
+          console.log(file)
+          if (file.type === 'text/html') {
+            imagesArr.push(image[`url`]);
+          }
+          else {
+            const filePath = `capturedImages/${audit.id}/${Date.now()}`;
+            var fileRef = this.fbStorage.ref(filePath);
+            var task = this.fbStorage.upload(filePath, file);
+            task.snapshotChanges().pipe(finalize(() => {
+              var downloadURL = fileRef.getDownloadURL();
+              downloadURL.subscribe(downloadURL => {
+                if (downloadURL) {
+                  imagesArr.push(downloadURL);
+                  console.log('images uploaded successfully', downloadURL)
+                }
+                if ( imagesArr.length === question.images.length) {
+                  question.images = imagesArr
+                }
+                if ( i === audit.questions.length - 1) {
+                  console.log(audit)
+                  this.generateReport(audit).then(()=> loading.dismiss())
+                }
+              });
+            })
+            )
+            .subscribe(url => {
+              if (url) {
+                console.log('images url >>', imagesArr)
+              }
+            });
+          }
+        }
+      }
+      else {
+        console.log('no images')
+        if ( i === audit.questions.length - 1) {
+          console.log(audit)
+          this.generateReport(audit).then(()=> loading.dismiss())
+        }
+      }
+    })
+  }
+
+  createAudit(auditID) {
+    return new Promise((resolve,reject) => {
+      this.storage.get(`helmAudit-${auditID}`)
+      .then( (audit: Audit) => {
+        audit.questions = []
+        console.log(audit)
+        if (audit) {
+          this.storage.get(`priorities-${auditID}`).then( priorities => {
+            audit.priorities = priorities;
+          })
+          this.storage.get(`subPriorities-${auditID}`).then( subPriorities => {
+            audit.subPriorities = subPriorities;
+          })
+          this.storage.get(`divisions-${auditID}`).then( divisions => {
+            audit.divisions = divisions;
+          })
+          this.storage.get(`subPrioritiesDuplicates-${auditID}`).then( subPrioritiesDuplicates => {
+            audit.subPrioritiesDuplicates = subPrioritiesDuplicates;
+          })
+          this.storage.get(`duplicatedDivisions-${auditID}`).then( duplicatedDivisions => {
+            audit.duplicatedDivisions = duplicatedDivisions;
+          })
+          this.storage.get(`auditQuestions-${auditID}`).then( auditQuestions => {
+            audit.questions.push(...auditQuestions);
+          })
+          this.storage.get(`duplicatedQuestions-${auditID}`).then( duplicatedQuestions => {
+            audit.duplicatedQuestions = duplicatedQuestions;
+            console.log(audit)
+            resolve(audit)
+            this.uploadQuestionsImages(audit)
+          })
+        }
+      })
+      .catch( err => {
+        reject(err)
+      })
+      /* this.database.ref(`/Audits/${auditID}/`).once('value', val => {
+        let res = val.val();
+        if(res) {
+          this.dbStore.collection('tasks').doc(res['taskID']).update({'completed': true}).then(() => {
+            this.database.ref(`/Audits/${auditID}/`).update({
+                  reported: true
+              })
+          })
+          // let auditDetails = Object.keys(res).map(k => res[k])
+          console.log('audits', res);
+        }
+      }) */
     })
   }
 

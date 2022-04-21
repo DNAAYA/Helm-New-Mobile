@@ -273,8 +273,7 @@ export class QuestionsPage {
   }
   generateReport() {
     this.Save();
-    this.dbService.generateReport(this.auditKey).then(res => {
-      
+    this.dbService.createAudit(this.auditKey).then(res => {
       console.log('result after generate report', res)
     })
   }
@@ -286,11 +285,11 @@ export class QuestionsPage {
       q.sub_ID = this.subId;
       if(this.type == 'duplicated') {
         q.question_ID = q.duplicated_ID;
-        this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
+        /* this.dbService.updateDuplicatedQuestion(this.auditKey, q).then(() => {
           this.presentToast();
           console.log(this._nextSub)
         })
-        console.log('audit duplicated Question >>>_>>>', q);
+        console.log('audit duplicated Question >>>_>>>', q); */
       }
       else {
         q.question_ID = q.question_ID;
@@ -309,6 +308,7 @@ export class QuestionsPage {
         console.log(i,questions[i],ques)
         questions[i] = ques
       }
+      console.log(questions)
       await this.storage.set(`auditQuestions-${this.auditKey}`, questions).then(()=> {
         if (next === 'next') this.router.navigate([`/questions/${this.type}/${this._nextDiv.divison_ID}/${this._nextDiv.sub_ID}/${this._nextDiv.priority_ID}/${this.auditKey}`])
         return questions

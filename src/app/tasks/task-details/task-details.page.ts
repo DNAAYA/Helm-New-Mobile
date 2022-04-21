@@ -744,7 +744,7 @@ async editTimeslot(){
     loading.present();
     this.storage.create();
     // let id = (performance.now().toString(36)+Math.random().toString(36)).replace(/\./g,"");
-    let audit: Audit = {
+    let newAudit: Audit = {
       createdAt: Date.now(),
       createdBy: t.selectedUser,
       id: '',
@@ -754,8 +754,9 @@ async editTimeslot(){
       questions: [],
     }
 
-    this.dbService.addAudit(audit, this.taskID).then((audit: any) => {
-      console.log('audit key', audit);
+    this.dbService.addAudit(newAudit, this.taskID).then((res: any) => {
+      console.log('audit key', res);
+      var audit = res.audit
       if(audit.id) {
         let navigationExtras: NavigationExtras = {
           queryParams: {
@@ -768,7 +769,7 @@ async editTimeslot(){
         this.dbService.getPriorities().then((pr: Priority[]) => {
           console.log('prioritiesd list', pr);
           this.prioritiesList = pr
-          this.storage.set(`priorities-${audit.id}`, this.prioritiesList);
+          this.storage.set(`priorities-${audit.id}`, this.prioritiesList)
           this.dbService.getSubPriorities().then(subs => {
             this.storage.set(`subPriorities-${audit.id}`, subs);
           })
@@ -777,13 +778,26 @@ async editTimeslot(){
           }) 
           this.dbService.getAllQuestion().then( questions => {
             this.storage.set(`questions-${audit.id}`, questions);
-            loading.dismiss();
+            loading.dismiss()
+            this.router.navigate(['priorities'], navigationExtras);
           })
-          this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
-          this.storage.set(`duplicatedDivisions-${audit.id}`, []);
 
-          this.storage.set(`duplicatedQuestions-${audit.id}`, [])
-          this.router.navigate(['priorities'], navigationExtras);
+          if (res.exists) {
+            if (audit.subPrioritiesDuplicates) this.storage.set(`subPrioritiesDuplicates-${audit.id}`, audit.subPrioritiesDuplicates);
+            else this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
+            if (audit.duplicatedDivisions) this.storage.set(`duplicatedDivisions-${audit.id}`, audit.duplicatedDivisions);
+            else this.storage.set(`duplicatedDivisions-${audit.id}`, []);
+            if (audit.questions) this.storage.set(`auditQuestions-${audit.id}`, audit.questions)
+            else this.storage.set(`auditQuestions-${audit.id}`, [])
+            if (audit.duplicatedQuestions) this.storage.set(`duplicatedQuestions-${audit.id}`, audit.duplicatedQuestions)
+            else this.storage.set(`duplicatedQuestions-${audit.id}`, [])
+          } 
+          else {
+            this.storage.set(`subPrioritiesDuplicates-${audit.id}`, []);
+            this.storage.set(`duplicatedDivisions-${audit.id}`, []);
+            this.storage.set(`auditQuestions-${audit.id}`, [])
+            this.storage.set(`duplicatedQuestions-${audit.id}`, [])
+          }
         })
       }
     })
