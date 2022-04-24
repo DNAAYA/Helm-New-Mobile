@@ -757,6 +757,7 @@ async editTimeslot(){
     this.storage.get('auditKey').then( key => {
       if (key) {
         console.log('exists locally')
+loading.dismiss()
       }
       else {
         this.dbService.addAudit(newAudit, this.taskID).then((res: any) => {
